@@ -1,0 +1,103 @@
+
+div.queryarea {
+    background-color: darkcyan;
+    padding: 8px;
+    //float: left;
+}
+
+img.logo {
+    padding-right: 4px;
+    vertical-align: top;
+}
+
+.queryarea select {
+    margin-top: 15px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+input[type="text"] {
+    font-size: 20px;
+    height: 26px;
+    width: 60%;
+}
+
+button, select {
+    font-size: 18px;
+    height: 32px;
+}
+
+.queryarea input {
+    margin-top: 14px;
+}
+
+.queryarea button {
+    margin-top: 12px;
+}
+
+.queryarea input,button {
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.mat-button-toggle-group {
+    height: 30px;
+    align-items: center;
+}
+
+.queryresult {
+    margin-bottom: 2px;
+    margin-right: 2px;
+    position: relative;
+    float: left;
+}
+
+.videolabel {
+    position: absolute;
+    background-color: rgba(255,255,255,0.8);
+    right: 0;
+    bottom: 0;
+    padding: 2px;
+}
+
+.resultnum {
+    position: absolute;
+    background-color: rgba(255,255,255,0.4);
+    left: 0;
+    top: 0;
+    padding: 2px;
+}
+
+.submitbutton {
+    background-color: rgba(0,139,139,0.8);
+    //background-color: rgba(0,110,0,0.8);
+    font-size: 16px;
+    color: white;
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 2px;
+}
+
+.statusbar {
+    position: absolute;
+    background-color: lightgray;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+button[class='closed'] {
+    background-color: red;
+    color: white;
+}
+
+button[class='open'] {
+    background-color: green;
+    color: white;
+}
+
+span.help {
+    float: right;
+    padding: 6px;
+}
