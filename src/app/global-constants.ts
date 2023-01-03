@@ -7,13 +7,16 @@ export enum WebSocketEvent {
   }
 
 export class GlobalConstants {
-    public static clipServerURL: string = 'ws://extreme00.itec.aau.at:8001';
-    public static keyframeBaseURLMarine_Summaries: string = 'http://extreme00.itec.aau.at/diveXplore/marinesummaries/';
-    public static keyframeBaseURLMarine_SummariesXL: string = 'http://extreme00.itec.aau.at/diveXplore/marinesummariesXL/';
-    public static keyframeBaseURLV3C_Summaries: string = 'http://extreme00.itec.aau.at/diveXplore/summaries/';
-    public static keyframeBaseURLV3C_SummariesXL: string = 'http://extreme00.itec.aau.at/diveXplore/summariesXL/';
-    public static keyframeBaseURLMarine_Shots: string = 'http://extreme00.itec.aau.at/diveXplore/thumbsm/';
-    public static keyframeBaseURLV3C_Shots: string = 'http://extreme00.itec.aau.at/diveXplore/thumbs/';
+    public static clipServerURL: string = 'ws://localhost:8001';
+    //public static clipServerURL: string = 'ws://extreme00.itec.aau.at:8001';
+    public static dataHost = 'http://localhost/divexplore/';
+    //public static dataHost = 'http://extreme00.itec.aau.at/diveXplore/';
+    public static keyframeBaseURLMarine_Summaries: string = this.dataHost + 'marinesummaries/';
+    public static keyframeBaseURLMarine_SummariesXL: string = this.dataHost + 'marinesummariesXL/';
+    public static keyframeBaseURLV3C_Summaries: string = this.dataHost + 'summaries/';
+    public static keyframeBaseURLV3C_SummariesXL: string = this.dataHost + 'summariesXL/';
+    public static keyframeBaseURLMarine_Shots: string = this.dataHost + 'thumbsm/';
+    public static keyframeBaseURLV3C_Shots: string = this.dataHost + 'thumbs/';
 
     public static maxResultsToReturn = 1200;
     public static resultsPerPage = 30;

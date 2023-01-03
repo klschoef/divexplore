@@ -166,10 +166,10 @@ export class AppComponent implements AfterViewInit {
 
   getBaseURL() {
     if (this.selectedDataset == 'marine-v') {
-      return GlobalConstants.keyframeBaseURLMarine_Summaries; //XL 
+      return GlobalConstants.keyframeBaseURLMarine_SummariesXL; 
     }
     else if (this.selectedDataset == 'v3c-v') {
-      return GlobalConstants.keyframeBaseURLV3C_Summaries; //XL
+      return GlobalConstants.keyframeBaseURLV3C_SummariesXL; 
     }
     if (this.selectedDataset == 'marine-s') {
       return GlobalConstants.keyframeBaseURLMarine_Shots; 
