@@ -1,14 +1,25 @@
 import { LocalConfig } from "./local-config";
 
 export enum WebSocketEvent {
-    CLOSE = "closed",
-    OPEN = "open",
-    SEND = "sending",
-    MESSAGE = "message",
-    ERROR = "error"
-  }
+    UNSET = 'unset', 
+    CLOSE = 'disconnected',
+    OPEN = 'connected',
+    SEND = 'sending',
+    MESSAGE = 'message',
+    ERROR = 'error'
+}
+
+export enum VBSServerStatus {
+    UNSET = 'unset',
+    CONNECTED = 'connected',
+    DISCONNECTED = 'disconnected'
+}
 
 export class GlobalConstants {
+    public static configVBSSERVER = 'https://vbs.videobrowsing.org';
+    public static configUSER = 'divexplore';
+    public static configPASS = 'MRT7jDaRUq';
+    
     public static clipServerURL: string = 'ws://' + LocalConfig.config_CLIP_SERVER_HOST + ':' + LocalConfig.config_CLIP_SERVER_PORT;
     public static dataHost = LocalConfig.config_DATA_BASE_URL;
 
@@ -18,6 +29,9 @@ export class GlobalConstants {
     public static keyframeBaseURLV3C_SummariesXL: string = this.dataHost + 'summariesXL/';
     public static keyframeBaseURLMarine_Shots: string = this.dataHost + 'thumbsm/';
     public static keyframeBaseURLV3C_Shots: string = this.dataHost + 'thumbs/';
+
+    public static videoURLV3C = this.dataHost + 'v3cvideos/';
+    public static videoURLMarine = this.dataHost + 'marinevideos/';
 
     public static maxResultsToReturn = 1200;
     public static resultsPerPage = 30;

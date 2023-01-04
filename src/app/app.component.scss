@@ -68,6 +68,15 @@ button, select {
     padding: 2px;
 }
 
+.resultactions {
+    position: absolute;
+    background-color: rgba(255,255,255,0.4);
+    color: black;
+    left: 0;
+    bottom: 0;
+    padding: 2px;
+}
+
 .submitbutton {
     background-color: rgba(0,139,139,0.8);
     //background-color: rgba(0,110,0,0.8);
@@ -87,12 +96,12 @@ button, select {
     width: 100%;
 }
 
-button[class='closed'] {
+button[class='disconnected'] {
     background-color: red;
     color: white;
 }
 
-button[class='open'] {
+button[class='connected'] {
     background-color: green;
     color: white;
 }

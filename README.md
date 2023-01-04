@@ -25,3 +25,27 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+
+# OpenAPI Integration
+
+run `npm install @openapitools/openapi-generator-cli -g`
+(run `npm install -g ng-openapi-gen`)
+
+Next, add the following lines to your `package.json` file:
+
+  "scripts": {
+    "gen-dres-client": "openapi-generator-cli generate -g typescript-angular -i https://raw.githubusercontent.com/dres-dev/DRES/master/doc/oas-client.json -o openapi/dres --skip-validate-spec --additional-properties npmName=@dres-client-openapi/api,ngVersion=13.0.0,enumPropertyNaming=original",
+    "gen-dres-dev-client": "openapi-generator-cli generate -g typescript-angular -i https://raw.githubusercontent.com/dres-dev/DRES/dev/doc/oas-client.json -o openapi/dres --skip-validate-spec --additional-properties npmName=@dres-client-openapi/api,ngVersion=13.0.0,enumPropertyNaming=original"
+  },
+  
+  "dependencies": {
+    "@openapitools/openapi-generator-cli": "2.4.26"
+  },
+  
+Finally, generate the TypeScript files with these commands:
+`npm run-script gen-dres-client`
+`npm run-script gen-dres-dev-client`
+
+Simply import the generated files like this:
+`import {SubmissionService} from '../../openapi/dres/api/submission.service';`

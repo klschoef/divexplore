@@ -20,11 +20,15 @@
 <div class="queryresult" *ngFor="let item of queryresults; let i = index">
   <div class="videolabel">{{this.queryresult_ids[i]}}</div>
   <div class="resultnum">{{this.queryresult_num[i]}}.</div>
-  <img src="{{item}}" width="320" height="180">
-  <button class="submitbutton">Submit</button>
+  <img src="{{this.getBaseURL() + '/' + item}}" width="320" height="180">
+  <div class="resultactions">
+    <a href="/shots/{{this.queryresult_ids[i]}}">Shots</a>
+  </div>
+  <button class="submitbutton" (click)="submitResult(i)">Submit</button>
 </div>
 
 <div class="statusbar">
   Query server: <button class="{{clipSocketWorkerState}}" (click)="checkCLIPConnection()">{{clipSocketWorkerState}}</button>
+  VBS Server: <button class="{{vbsServerState}}" (click)="checkVBSServerConnection()">{{vbsServerState}}</button>
   <span class="help">SHORTCUTS: <b>1-9</b>: goto page, <b>left/right/tab</b>: switch page, <b>q</b>: edit query, <b>x</b>: reset query</span>
 </div>

@@ -1,8 +1,11 @@
 import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { GlobalConstants, WebSocketEvent } from './global-constants';
+import { GlobalConstants, VBSServerStatus, WebSocketEvent } from './global-constants';
 import { mdiImageSizeSelectSmall } from '@mdi/js';
 import { mdiImageSizeSelectLarge } from '@mdi/js';
+import { VBSServerConnectionService } from './vbsserver-connection.service';
+
+
 
 @Component({
   selector: 'app-root',
@@ -14,19 +17,25 @@ import { mdiImageSizeSelectLarge } from '@mdi/js';
 export class AppComponent implements AfterViewInit {
 
   @ViewChild('inputfield') inputfield!: ElementRef<HTMLInputElement>;
-
+  
   title = 'divexplore';
+  
   clipSocketWorker: Worker | undefined;
-  clipSocketWorkerState: WebSocketEvent | undefined;
+  clipSocketWorkerState: WebSocketEvent = WebSocketEvent.UNSET;
+
+  vbsServerState: VBSServerStatus = VBSServerStatus.UNSET;
+
   queryinput: string = '';
   queryresults: Array<string> = [];
   queryresult_ids: Array<string> = [];
   queryresult_num: Array<string> = [];
+  
   maxresults = GlobalConstants.maxResultsToReturn; 
   totalReturnedResults = 0; //how many results did our query return in total?
   resultsPerPage = GlobalConstants.resultsPerPage; 
   selectedPage = '1'; //user-selected page
   pages = ['1']
+  
   thumbSize = 'small';
   selectedDataset = 'v3c-v';
   queryFieldHasFocus = false;
@@ -37,9 +46,14 @@ export class AppComponent implements AfterViewInit {
     {id: 'marine-s', name: 'Shots: Marine'}
   ];
     
+  constructor(private vbsServerConnectionService: VBSServerConnectionService) {
+
+  }
+
   
   ngOnInit() {
     this.openWebSocketCLIP();
+    this.connectToVBSServer();
   }
 
   ngAfterViewInit(): void {
@@ -47,6 +61,7 @@ export class AppComponent implements AfterViewInit {
 
   @HostListener('document:keyup', ['$event'])
   handleKeyboardEventUp(event: KeyboardEvent) { 
+    
     if (this.queryFieldHasFocus == false) {
       if (event.key == 'q') {
         this.inputfield.nativeElement.select();
@@ -102,6 +117,14 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  connectToVBSServer() {
+    this.vbsServerConnectionService.connect(this);
+  }
+
+  disconnectFromVBSServer() {
+    this.vbsServerConnectionService.logout(this);
+  }
+
   onQueryInputFocus() {
     this.queryFieldHasFocus = true;
   }
@@ -153,6 +176,7 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+
   resetQuery() {
     this.queryinput = '';
     this.inputfield.nativeElement.focus();
@@ -190,9 +214,19 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  checkVBSServerConnection() {
+    if (this.vbsServerState == VBSServerStatus.UNSET || this.vbsServerState == VBSServerStatus.DISCONNECTED) {
+      this.connectToVBSServer();
+    } else if (this.vbsServerState == VBSServerStatus.CONNECTED) {
+      this.disconnectFromVBSServer();
+    } 
+  }
+
   checkCLIPConnection() {
-    if (this.clipSocketWorkerState != WebSocketEvent.OPEN) {
+    if (this.clipSocketWorkerState == WebSocketEvent.UNSET || this.clipSocketWorkerState == WebSocketEvent.CLOSE) {
       this.openWebSocketCLIP();
+    } else if (this.clipSocketWorkerState == WebSocketEvent.OPEN) {
+      this.closeWebSocketCLIP();
     }
   }
 
@@ -216,7 +250,7 @@ export class AppComponent implements AfterViewInit {
         else if (data.event === WebSocketEvent.MESSAGE) {
           console.log(data.event);
           //console.log(data.content);
-          let keyframeBaseURL = this.getBaseURL();
+          //let keyframeBaseURL = this.getBaseURL();
           let underscorePositionID = this.getIDPartNums();
 
           let qresults = JSON.parse(data.content);
@@ -227,12 +261,12 @@ export class AppComponent implements AfterViewInit {
             this.pages.push(i.toString());
           }
           //populate images
-          this.queryresults = [];
+          this.queryresults = []; //without baseURL
           this.queryresult_ids = [];
           this.queryresult_num = [];
           let num = (parseInt(this.selectedPage) - 1) * this.resultsPerPage + 1;
           for (var e of qresults.results) {
-            this.queryresults.push(keyframeBaseURL + e);
+            this.queryresults.push(e);
             //this.queryresult_ids.push(e.split('_',underscorePositionID).join('_'));
             this.queryresult_ids.push(e.split('/',1)[0]);
             this.queryresult_num.push(num.toString());
@@ -249,6 +283,16 @@ export class AppComponent implements AfterViewInit {
       // You should add a fallback so that your program still executes correctly.
       console.log('web workers are not supported');
     }
+  }
+
+
+  submitResult(index: number) {
+    let videoid = this.queryresult_ids[index];
+    let keyframe = this.queryresults[index];
+    let comps = keyframe.split('_');
+    let frameNumber = comps[comps.length-1].split('.')[0]
+    console.log(`${videoid} - ${keyframe} - ${frameNumber}`);
+    this.vbsServerConnectionService.submitFrame(videoid, parseInt(frameNumber));
   }
 
   closeWebSocketCLIP() {
