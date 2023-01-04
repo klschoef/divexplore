@@ -27,8 +27,15 @@ export class AppComponent implements AfterViewInit {
 
   queryinput: string = '';
   queryresults: Array<string> = [];
-  queryresult_ids: Array<string> = [];
+  queryresult_idx: Array<number> = [];
   queryresult_num: Array<string> = [];
+  queryresult_ids: Array<string> = [];
+  //queryresult_frame: Array<string> = [];
+
+  previousQuery : any | undefined;
+
+  querydataset: string = '';
+  queryBaseURL = this.getBaseURL();
   
   maxresults = GlobalConstants.maxResultsToReturn; 
   totalReturnedResults = 0; //how many results did our query return in total?
@@ -65,7 +72,19 @@ export class AppComponent implements AfterViewInit {
     if (this.queryFieldHasFocus == false) {
       if (event.key == 'q') {
         this.inputfield.nativeElement.select();
-      } else if (event.key == 'x') {
+      }
+      else if (event.key == 'e') {
+        this.inputfield.nativeElement.focus();
+      }  
+      else if (event.key == 'v') {
+        this.selectedDataset = this.selectedDataset.replace('-s','-v');
+        this.performTextQuery();
+      }
+      else if (event.key == 's') {
+        this.selectedDataset = this.selectedDataset.replace('-v','-s');
+        this.performTextQuery();
+      }
+      else if (event.key == 'x') {
         this.resetQuery();
       }
     }
@@ -117,22 +136,6 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
-  connectToVBSServer() {
-    this.vbsServerConnectionService.connect(this);
-  }
-
-  disconnectFromVBSServer() {
-    this.vbsServerConnectionService.logout(this);
-  }
-
-  onQueryInputFocus() {
-    this.queryFieldHasFocus = true;
-  }
-
-  onQueryInputBlur() {
-    this.queryFieldHasFocus = false;
-  }
-
   prevPage() {
     let currPage = parseInt(this.selectedPage);
     if (currPage > 1) {
@@ -156,11 +159,75 @@ export class AppComponent implements AfterViewInit {
       this.performQuery();
     }
   }
- 
+
+  getBaseURLFromKey(selDat: string) {
+    if (selDat == 'marine-v') {
+      return GlobalConstants.keyframeBaseURLMarine_SummariesXL; 
+    }
+    else if (selDat == 'v3c-v') {
+      return GlobalConstants.keyframeBaseURLV3C_SummariesXL; 
+    }
+    if (selDat == 'marine-s') {
+      return GlobalConstants.keyframeBaseURLMarine_Shots; 
+    }
+    else if (selDat == 'v3c-s') {
+      return GlobalConstants.keyframeBaseURLV3C_Shots;
+    }
+    else 
+    return '';
+  }
+
+  getBaseURL() {
+    return this.getBaseURLFromKey(this.selectedDataset);
+  }
+
+  isVideoResult(dataset: string): boolean {
+    return dataset.endsWith('v');
+  }
+
+  getIDPartNums() {
+    if (this.selectedDataset == 'marine-v' || this.selectedDataset == 'marine-s') {
+      return 3; 
+    }
+    else { //if (this.selectedDataset == 'v3c-v' || this.selectedDataset == 'v3c-v') {
+      return 1;
+    }
+  }
+
+  connectToVBSServer() {
+    this.vbsServerConnectionService.connect(this);
+  }
+
+  disconnectFromVBSServer() {
+    this.vbsServerConnectionService.logout(this);
+  }
+
+  onQueryInputFocus() {
+    this.queryFieldHasFocus = true;
+  }
+
+  onQueryInputBlur() {
+    this.queryFieldHasFocus = false;
+  }
+
+
   performQuery() {
-    console.log(this.clipSocketWorkerState);
+    //called from the paging buttons
+    if (this.previousQuery !== undefined && this.previousQuery.type === "similarityquery") {
+      this.performSimilarityQuery(parseInt(this.previousQuery.query));
+    } else {
+      this.performTextQuery();
+    }
+  }
+ 
+  performTextQuery() {
     if (this.clipSocketWorker !== undefined && this.clipSocketWorkerState == WebSocketEvent.OPEN) {
+      if (this.previousQuery !== undefined && this.previousQuery.type === 'textquery' && this.previousQuery.query !== this.queryinput) {
+        this.selectedPage = '1';
+      }
+
       console.log('query for', this.queryinput);
+      this.queryBaseURL = this.getBaseURL();
       let msg = { 
         type: "textquery", 
         query: this.queryinput,
@@ -169,6 +236,7 @@ export class AppComponent implements AfterViewInit {
         selectedpage: this.selectedPage, 
         dataset: this.selectedDataset
       };
+      this.previousQuery = msg;
       this.clipSocketWorker.postMessage({ event: WebSocketEvent.MESSAGE, content: msg });
       //this.clipSocketWorker.send(JSON.stringify(event));
     } else {
@@ -176,6 +244,34 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  performSimilarityQueryForIndex(idx:number) {
+    this.selectedPage = '1';
+    let serveridx = this.queryresult_idx[idx];
+    this.performSimilarityQuery(serveridx);
+  }
+
+  performSimilarityQuery(serveridx:number) {
+    if (this.clipSocketWorker !== undefined && this.clipSocketWorkerState == WebSocketEvent.OPEN) {
+      //alert(`search for ${i} ==> ${idx}`);
+      console.log('similarity-query for ', serveridx);
+      this.queryBaseURL = this.getBaseURL();
+      let msg = { 
+        type: "similarityquery", 
+        query: serveridx,
+        maxresults: this.maxresults,
+        resultsperpage: this.resultsPerPage, 
+        selectedpage: this.selectedPage, 
+        dataset: this.selectedDataset
+      };
+      this.previousQuery = msg;
+      this.clipSocketWorker.postMessage({ event: WebSocketEvent.MESSAGE, content: msg });
+    }
+  }
+
+  resetPageAndPerformQuery() {
+    this.selectedPage = '1';
+    this.performTextQuery();
+  }
 
   resetQuery() {
     this.queryinput = '';
@@ -186,32 +282,6 @@ export class AppComponent implements AfterViewInit {
     this.queryresults = [];
     this.queryresult_ids = [];
     this.queryresult_num = [];
-  }
-
-  getBaseURL() {
-    if (this.selectedDataset == 'marine-v') {
-      return GlobalConstants.keyframeBaseURLMarine_SummariesXL; 
-    }
-    else if (this.selectedDataset == 'v3c-v') {
-      return GlobalConstants.keyframeBaseURLV3C_SummariesXL; 
-    }
-    if (this.selectedDataset == 'marine-s') {
-      return GlobalConstants.keyframeBaseURLMarine_Shots; 
-    }
-    else if (this.selectedDataset == 'v3c-s') {
-      return GlobalConstants.keyframeBaseURLV3C_Shots;
-    }
-    else 
-    return '';
-  }
-
-  getIDPartNums() {
-    if (this.selectedDataset == 'marine-v' || this.selectedDataset == 'marine-s') {
-      return 3; 
-    }
-    else { //if (this.selectedDataset == 'v3c-v' || this.selectedDataset == 'v3c-v') {
-      return 1;
-    }
   }
 
   checkVBSServerConnection() {
@@ -237,7 +307,7 @@ export class AppComponent implements AfterViewInit {
 
       // messages from the worker
       this.clipSocketWorker.onmessage = ({ data }) => {
-        console.log(`page got message: ${data}`);
+        //console.log(`page got message: ${data}`);
         if (data.event === WebSocketEvent.OPEN) {
           this.clipSocketWorkerState = WebSocketEvent.OPEN;
         } 
@@ -262,12 +332,18 @@ export class AppComponent implements AfterViewInit {
           }
           //populate images
           this.queryresults = []; //without baseURL
+          this.queryresult_idx = [];
           this.queryresult_ids = [];
           this.queryresult_num = [];
           let num = (parseInt(this.selectedPage) - 1) * this.resultsPerPage + 1;
-          for (var e of qresults.results) {
-            this.queryresults.push(e);
-            //this.queryresult_ids.push(e.split('_',underscorePositionID).join('_'));
+          this.querydataset = qresults.dataset;
+          let keyframeBase = this.getBaseURLFromKey(qresults.dataset);
+          
+          //for (var e of qresults.results) {
+          for (let i = 0; i < qresults.results.length; i++) {
+            let e = qresults.results[i];
+            this.queryresults.push(keyframeBase + e);
+            this.queryresult_idx.push(qresults.resultsidx[i]);
             this.queryresult_ids.push(e.split('/',1)[0]);
             this.queryresult_num.push(num.toString());
             num++;

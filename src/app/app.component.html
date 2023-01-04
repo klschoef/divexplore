@@ -1,10 +1,10 @@
 <div class="queryarea">
   <img class="logo" src="assets/diveXplore_.png">
-  <select [(ngModel)]="selectedDataset" (change)="performQuery()">
+  <select [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
     <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
   </select>
-  <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
-  <button (click)="performQuery()">Search</button>
+  <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
+  <button (click)="performTextQuery()">Search</button>
   <button (click)="resetQuery()">x</button>
 </div>
 
@@ -18,17 +18,15 @@
 <br/>
 
 <div class="queryresult" *ngFor="let item of queryresults; let i = index">
-  <div class="videolabel">{{this.queryresult_ids[i]}}</div>
+  <img src="{{item}}" width="320" height="180">
   <div class="resultnum">{{this.queryresult_num[i]}}.</div>
-  <img src="{{this.getBaseURL() + '/' + item}}" width="320" height="180">
-  <div class="resultactions">
-    <a href="/shots/{{this.queryresult_ids[i]}}">Shots</a>
-  </div>
-  <button class="submitbutton" (click)="submitResult(i)">Submit</button>
+  <div class="videolabel"><a routerLink="/shots/{{this.queryresult_ids[i]}}" routerLinkActive="active">{{this.queryresult_ids[i]}}</a></div>
+  <button (click)="performSimilarityQueryForIndex(i)" class="resultactions">Similar</button>
+  <button *ngIf="!this.isVideoResult(this.querydataset)" class="submitbutton" (click)="submitResult(i)">Submit</button>
 </div>
 
 <div class="statusbar">
   Query server: <button class="{{clipSocketWorkerState}}" (click)="checkCLIPConnection()">{{clipSocketWorkerState}}</button>
   VBS Server: <button class="{{vbsServerState}}" (click)="checkVBSServerConnection()">{{vbsServerState}}</button>
-  <span class="help">SHORTCUTS: <b>1-9</b>: goto page, <b>left/right/tab</b>: switch page, <b>q</b>: edit query, <b>x</b>: reset query</span>
+  <span class="help">KEYBOARD: <b>1-9</b>: goto page, <b>left/right/tab</b>: switch page, <b>e</b>: extend query, <b>q</b>: edit query, <b>x</b>: reset query</span>
 </div>
