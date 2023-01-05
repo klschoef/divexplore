@@ -2,7 +2,7 @@
   <img class="logo" src="assets/diveXplore_.png">
   <select [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
     <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
-  </select>
+  </select> 
   <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
   <button (click)="performTextQuery()">Search</button>
   <button (click)="resetQuery()">x</button>

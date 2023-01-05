@@ -30,7 +30,7 @@ export class AppComponent implements AfterViewInit {
   queryresult_idx: Array<number> = [];
   queryresult_num: Array<string> = [];
   queryresult_ids: Array<string> = [];
-  //queryresult_frame: Array<string> = [];
+  queryresult_frames: Array<string> = [];
 
   previousQuery : any | undefined;
 
@@ -331,9 +331,10 @@ export class AppComponent implements AfterViewInit {
             this.pages.push(i.toString());
           }
           //populate images
-          this.queryresults = []; //without baseURL
+          this.queryresults = []; 
           this.queryresult_idx = [];
           this.queryresult_ids = [];
+          this.queryresult_frames = [];
           this.queryresult_num = [];
           let num = (parseInt(this.selectedPage) - 1) * this.resultsPerPage + 1;
           this.querydataset = qresults.dataset;
@@ -342,9 +343,11 @@ export class AppComponent implements AfterViewInit {
           //for (var e of qresults.results) {
           for (let i = 0; i < qresults.results.length; i++) {
             let e = qresults.results[i];
+            let filename = e.split('/',1);
             this.queryresults.push(keyframeBase + e);
             this.queryresult_idx.push(qresults.resultsidx[i]);
-            this.queryresult_ids.push(e.split('/',1)[0]);
+            this.queryresult_ids.push(filename[0]);
+            this.queryresult_frames.push(filename[1]);
             this.queryresult_num.push(num.toString());
             num++;
           }

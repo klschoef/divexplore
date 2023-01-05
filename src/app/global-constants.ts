@@ -1,4 +1,7 @@
 import { LocalConfig } from "./local-config";
+//import videoShots from '../data/vbsvideoinfo.json'
+
+//console.log(videoShots)
 
 export enum WebSocketEvent {
     UNSET = 'unset', 
