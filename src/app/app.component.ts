@@ -1,9 +1,8 @@
 import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { GlobalConstants, VBSServerStatus, WebSocketEvent } from './global-constants';
-import { mdiImageSizeSelectSmall } from '@mdi/js';
-import { mdiImageSizeSelectLarge } from '@mdi/js';
+import { GlobalConstants, WSServerStatus, WebSocketEvent } from './global-constants';
 import { VBSServerConnectionService } from './vbsserver-connection.service';
+import { NodeServerConnectionService } from './nodeserver-connection.service';
 import { Router } from '@angular/router';
 
 
@@ -26,8 +25,6 @@ export class AppComponent implements AfterViewInit {
 
   nodeSocketWorker: Worker | undefined;
   nodeSocketWorkerState: WebSocketEvent = WebSocketEvent.UNSET;
-
-  vbsServerState: VBSServerStatus = VBSServerStatus.UNSET;
 
   queryinput: string = '';
   queryresults: Array<string> = [];
@@ -58,16 +55,19 @@ export class AppComponent implements AfterViewInit {
   ];
     
   constructor(
-    private vbsServerConnectionService: VBSServerConnectionService,
+    public vbsService: VBSServerConnectionService,
+    public nodeService: NodeServerConnectionService, 
     private router: Router) {
-
+      this.nodeService.messages.subscribe(msg => {
+        console.log("Response from websocket: " + msg);
+      });
   }
 
   
   ngOnInit() {
     this.openWebSocketCLIP();
-    this.openWebSocketNode();
-    this.connectToVBSServer();
+    //this.openWebSocketNode();
+    //this.connectToVBSServer();
   }
 
   ngAfterViewInit(): void {
@@ -202,11 +202,11 @@ export class AppComponent implements AfterViewInit {
   }
 
   connectToVBSServer() {
-    this.vbsServerConnectionService.connect(this);
+    this.vbsService.connect();
   }
 
   disconnectFromVBSServer() {
-    this.vbsServerConnectionService.logout(this);
+    this.vbsService.logout(this);
   }
 
   onQueryInputFocus() {
@@ -255,14 +255,23 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  sendNodeMsg(msg:any) {
+    let message = {
+      source: 'appcomponent',
+      content: msg
+    };
+    this.nodeService.messages.next(message);
+  }
+
   showVideoShots(videoid:string) {
-    if (this.nodeSocketWorker !== undefined && this.nodeSocketWorkerState == WebSocketEvent.OPEN) {
+    if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
       console.log('get video info from database', videoid);
       let msg = { 
         type: "videoinfo", 
         videoid: videoid
       };
-      this.nodeSocketWorker.postMessage({ event: WebSocketEvent.MESSAGE, content: msg });
+      //this.nodeSocketWorker.postMessage({ event: WebSocketEvent.MESSAGE, content: msg });
+      this.sendNodeMsg(msg);
       this.router.navigate(['video',videoid]); //or navigateByUrl(`/video/${videoid}`)
     } else {
       alert(`Node connection down/worker issue state=${this.nodeSocketWorkerState}. Try to manually re-connect, please!`);
@@ -315,9 +324,9 @@ export class AppComponent implements AfterViewInit {
    ****************************************************************************/
 
   checkVBSServerConnection() {
-    if (this.vbsServerState == VBSServerStatus.UNSET || this.vbsServerState == VBSServerStatus.DISCONNECTED) {
+    if (this.vbsService.vbsServerState == WSServerStatus.UNSET || this.vbsService.vbsServerState == WSServerStatus.DISCONNECTED) {
       this.connectToVBSServer();
-    } else if (this.vbsServerState == VBSServerStatus.CONNECTED) {
+    } else if (this.vbsService.vbsServerState == WSServerStatus.CONNECTED) {
       this.disconnectFromVBSServer();
     } 
   }
@@ -399,14 +408,12 @@ export class AppComponent implements AfterViewInit {
   }
 
   checkNodeConnection() {
-    if (this.nodeSocketWorkerState == WebSocketEvent.UNSET || this.nodeSocketWorkerState == WebSocketEvent.CLOSE) {
-      this.openWebSocketNode();
-    } else if (this.nodeSocketWorkerState == WebSocketEvent.OPEN) {
-      this.closeWebSocketNode();
+    if (this.nodeService.connectionState !== WSServerStatus.CONNECTED) {
+      this.nodeService.connectToServer();
     }
   }
 
-  openWebSocketNode() {
+  /*openWebSocketNode() {
     if (typeof Worker !== 'undefined') {
       // Create a new worker
       this.nodeSocketWorker = new Worker(new URL('./wsnode.worker', import.meta.url));
@@ -437,12 +444,11 @@ export class AppComponent implements AfterViewInit {
       // You should add a fallback so that your program still executes correctly.
       console.log('web workers are not supported');
     }
-  }
+  }*/
 
   closeWebSocketNode() {
     this.nodeSocketWorker?.postMessage({ event: WebSocketEvent.CLOSE });
   }
-
 
   /****************************************************************************
    * Submission to VBS Server
@@ -454,7 +460,7 @@ export class AppComponent implements AfterViewInit {
     let comps = keyframe.split('_');
     let frameNumber = comps[comps.length-1].split('.')[0]
     console.log(`${videoid} - ${keyframe} - ${frameNumber}`);
-    this.vbsServerConnectionService.submitFrame(videoid, parseInt(frameNumber));
+    this.vbsService.submitFrame(videoid, parseInt(frameNumber));
   }
 
 

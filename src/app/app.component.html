@@ -1,4 +1,3 @@
-<router-outlet></router-outlet>
 
 <div class="queryarea">
   <img class="logo" src="assets/diveXplore_.png">
@@ -9,6 +8,8 @@
   <button (click)="performTextQuery()">Search</button>
   <button (click)="resetQuery()">x</button>
 </div>
+
+<router-outlet></router-outlet>
 
 <div class="queryarea">
   Pages: 
@@ -25,7 +26,7 @@
     <span class="resultnum">{{this.queryresult_num[i]}}.</span>
   </div>
   <div class="videolabel">
-    <a routerLink="/shots/{{this.queryresult_ids[i]}}" routerLinkActive="active">{{this.queryresult_ids[i]}}</a>
+    <a [routerLink]="['/video',this.queryresult_ids[i]]" >{{this.queryresult_ids[i]}}</a>
   </div>
   <div class="leftbottomcorner">
     <button (click)="showVideoShots(this.queryresult_ids[i])" class="resultaction">Shots</button>
@@ -36,8 +37,8 @@
 
 <div class="statusbar">
   CLIP server: <button class="{{clipSocketWorkerState}}" (click)="checkCLIPConnection()">{{clipSocketWorkerState}}</button>
-  Node server: <button class="{{nodeSocketWorkerState}}" (click)="checkNodeConnection()">{{nodeSocketWorkerState}}</button>
-  VBS Server: <button class="{{vbsServerState}}" (click)="checkVBSServerConnection()">{{vbsServerState}}</button>
+  Node server: <button class="{{nodeService.connectionState}}" (click)="checkNodeConnection()">{{nodeService.connectionState}}</button>
+  VBS Server: <button class="{{vbsService.vbsServerState}}" (click)="checkVBSServerConnection()">{{vbsService.vbsServerState}}</button>
   <span class="help">KEYBOARD: <b>1-9</b>: goto page, <b>left/right/tab</b>: switch page, <b>e</b>: extend query, <b>q</b>: edit query, <b>x</b>: reset query</span>
 </div>
 

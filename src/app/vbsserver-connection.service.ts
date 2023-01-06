@@ -15,7 +15,7 @@ import {
   SuccessStatus,
   UserDetails
 } from '../../openapi/dres/';
-import { GlobalConstants, VBSServerStatus } from './global-constants';
+import { GlobalConstants, WSServerStatus } from './global-constants';
 import { NONE_TYPE } from '@angular/compiler';
 import { UrlSegment } from '@angular/router';
 import { catchError, Observable, of, tap } from 'rxjs';
@@ -28,6 +28,8 @@ export class VBSServerConnectionService {
 
   sessionId: string | undefined; 
 
+  vbsServerState: WSServerStatus = WSServerStatus.UNSET;
+
   constructor(
     private userService: UserService,
     private runInfoService: ClientRunInfoService,
@@ -35,9 +37,10 @@ export class VBSServerConnectionService {
     private logService: LogService
   ) {
     this.println(`VBSServerConnectionService created`);
+    this.connect();
   }
 
-  connect(appComp: AppComponent) {
+  connect() {
 
       // === Handshake / Login ===
       this.userService.postApiV1Login({
@@ -51,7 +54,7 @@ export class VBSServerConnectionService {
           `session: ${login.sessionId}`);
 
           // Successful login
-          appComp.vbsServerState = VBSServerStatus.CONNECTED;
+          this.vbsServerState = WSServerStatus.CONNECTED;
 
           /*
           It is better pratice, to let the browser properly handle
@@ -135,7 +138,7 @@ export class VBSServerConnectionService {
       // === Graceful logout ===
       this.userService.getApiV1Logout(this.sessionId!).subscribe((logout: SuccessStatus) => {
         if (logout.status) {
-          appComp.vbsServerState = VBSServerStatus.DISCONNECTED;
+          this.vbsServerState = WSServerStatus.DISCONNECTED;
           this.println('Successfully logged out');
         } else {
           this.println('Error during logout: ' + logout.description);

@@ -15,12 +15,14 @@ import { ApiModule,Configuration } from 'openapi/dres';
 import { GlobalConstants } from './global-constants';
 import { HttpClientModule } from '@angular/common/http';
 import { VBSServerConnectionService } from './vbsserver-connection.service';
+import { QueryComponent } from './query/query.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    ShotlistComponent
+    ShotlistComponent,
+    QueryComponent
   ],
   imports: [
     BrowserModule,

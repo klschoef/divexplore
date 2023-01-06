@@ -1,7 +1,9 @@
 import { LocalConfig } from "./local-config";
-//import videoShots from '../data/vbsvideoinfo.json'
 
 //console.log(videoShots)
+
+//export var vbsServerConnectionService: VBSServerConnectionService | undefined;
+
 
 export enum WebSocketEvent {
     UNSET = 'unset', 
@@ -12,7 +14,7 @@ export enum WebSocketEvent {
     ERROR = 'error'
 }
 
-export enum VBSServerStatus {
+export enum WSServerStatus {
     UNSET = 'unset',
     CONNECTED = 'connected',
     DISCONNECTED = 'disconnected'
