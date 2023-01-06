@@ -24,6 +24,7 @@ export class GlobalConstants {
     public static configPASS = 'MRT7jDaRUq';
     
     public static clipServerURL: string = 'ws://' + LocalConfig.config_CLIP_SERVER_HOST + ':' + LocalConfig.config_CLIP_SERVER_PORT;
+    public static nodeServerURL: string = 'ws://' + LocalConfig.config_NODE_SERVER_HOST + ':' + LocalConfig.config_NODE_SERVER_PORT;
     public static dataHost = LocalConfig.config_DATA_BASE_URL;
 
     public static keyframeBaseURLMarine_Summaries: string = this.dataHost + 'marinesummaries/';

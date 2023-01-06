@@ -4,6 +4,7 @@ import { GlobalConstants, VBSServerStatus, WebSocketEvent } from './global-const
 import { mdiImageSizeSelectSmall } from '@mdi/js';
 import { mdiImageSizeSelectLarge } from '@mdi/js';
 import { VBSServerConnectionService } from './vbsserver-connection.service';
+import { Router } from '@angular/router';
 
 
 
@@ -22,6 +23,9 @@ export class AppComponent implements AfterViewInit {
   
   clipSocketWorker: Worker | undefined;
   clipSocketWorkerState: WebSocketEvent = WebSocketEvent.UNSET;
+
+  nodeSocketWorker: Worker | undefined;
+  nodeSocketWorkerState: WebSocketEvent = WebSocketEvent.UNSET;
 
   vbsServerState: VBSServerStatus = VBSServerStatus.UNSET;
 
@@ -53,13 +57,16 @@ export class AppComponent implements AfterViewInit {
     {id: 'marine-s', name: 'Shots: Marine'}
   ];
     
-  constructor(private vbsServerConnectionService: VBSServerConnectionService) {
+  constructor(
+    private vbsServerConnectionService: VBSServerConnectionService,
+    private router: Router) {
 
   }
 
   
   ngOnInit() {
     this.openWebSocketCLIP();
+    this.openWebSocketNode();
     this.connectToVBSServer();
   }
 
@@ -210,6 +217,10 @@ export class AppComponent implements AfterViewInit {
     this.queryFieldHasFocus = false;
   }
 
+   /****************************************************************************
+   * Queries
+   ****************************************************************************/
+
 
   performQuery() {
     //called from the paging buttons
@@ -240,7 +251,21 @@ export class AppComponent implements AfterViewInit {
       this.clipSocketWorker.postMessage({ event: WebSocketEvent.MESSAGE, content: msg });
       //this.clipSocketWorker.send(JSON.stringify(event));
     } else {
-      alert(`Connection down / worker issue sate=${this.clipSocketWorkerState}. Try to manually re-connect, please!`);
+      alert(`CLIP connection down / worker issue state=${this.clipSocketWorkerState}. Try to manually re-connect, please!`);
+    }
+  }
+
+  showVideoShots(videoid:string) {
+    if (this.nodeSocketWorker !== undefined && this.nodeSocketWorkerState == WebSocketEvent.OPEN) {
+      console.log('get video info from database', videoid);
+      let msg = { 
+        type: "videoinfo", 
+        videoid: videoid
+      };
+      this.nodeSocketWorker.postMessage({ event: WebSocketEvent.MESSAGE, content: msg });
+      this.router.navigate(['video',videoid]); //or navigateByUrl(`/video/${videoid}`)
+    } else {
+      alert(`Node connection down/worker issue state=${this.nodeSocketWorkerState}. Try to manually re-connect, please!`);
     }
   }
 
@@ -283,6 +308,11 @@ export class AppComponent implements AfterViewInit {
     this.queryresult_ids = [];
     this.queryresult_num = [];
   }
+
+
+  /****************************************************************************
+   * WebSockets (CLIP and Node.js)
+   ****************************************************************************/
 
   checkVBSServerConnection() {
     if (this.vbsServerState == VBSServerStatus.UNSET || this.vbsServerState == VBSServerStatus.DISCONNECTED) {
@@ -364,6 +394,59 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  closeWebSocketCLIP() {
+    this.clipSocketWorker?.postMessage({ event: WebSocketEvent.CLOSE });
+  }
+
+  checkNodeConnection() {
+    if (this.nodeSocketWorkerState == WebSocketEvent.UNSET || this.nodeSocketWorkerState == WebSocketEvent.CLOSE) {
+      this.openWebSocketNode();
+    } else if (this.nodeSocketWorkerState == WebSocketEvent.OPEN) {
+      this.closeWebSocketNode();
+    }
+  }
+
+  openWebSocketNode() {
+    if (typeof Worker !== 'undefined') {
+      // Create a new worker
+      this.nodeSocketWorker = new Worker(new URL('./wsnode.worker', import.meta.url));
+
+      // messages from the worker
+      this.nodeSocketWorker.onmessage = ({ data }) => {
+        //console.log(`page got message: ${data}`);
+        if (data.event === WebSocketEvent.OPEN) {
+          this.nodeSocketWorkerState = WebSocketEvent.OPEN;
+        } 
+        else if (data.event === WebSocketEvent.CLOSE) {
+          this.nodeSocketWorkerState = WebSocketEvent.CLOSE;
+        }
+        else if (data.event === WebSocketEvent.ERROR) {
+          this.nodeSocketWorkerState = WebSocketEvent.ERROR;
+        }
+        else if (data.event === WebSocketEvent.MESSAGE) {
+          console.log(data.event);
+          let dbResult = JSON.parse(data.content);
+
+          console.log(dbResult)
+          
+        }
+      };
+      this.nodeSocketWorker.postMessage({ event: WebSocketEvent.OPEN });
+    } else {
+      // Web Workers are not supported in this environment.
+      // You should add a fallback so that your program still executes correctly.
+      console.log('web workers are not supported');
+    }
+  }
+
+  closeWebSocketNode() {
+    this.nodeSocketWorker?.postMessage({ event: WebSocketEvent.CLOSE });
+  }
+
+
+  /****************************************************************************
+   * Submission to VBS Server
+   ****************************************************************************/
 
   submitResult(index: number) {
     let videoid = this.queryresult_ids[index];
@@ -374,9 +457,7 @@ export class AppComponent implements AfterViewInit {
     this.vbsServerConnectionService.submitFrame(videoid, parseInt(frameNumber));
   }
 
-  closeWebSocketCLIP() {
-    this.clipSocketWorker?.postMessage({ event: WebSocketEvent.CLOSE });
-  }
+
 
 
 }

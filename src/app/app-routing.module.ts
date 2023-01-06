@@ -3,9 +3,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { ShotlistComponent } from './shotlist/shotlist.component';
 import { AppComponent } from './app.component';
 
+//'' is default route
 const routes: Routes = [
   {path: '', component: AppComponent},
-  {path: 'shots/:videoid', component: ShotlistComponent}
+  {path: 'video/:id', component: ShotlistComponent}
 ];
 
 // /login and /register etc.

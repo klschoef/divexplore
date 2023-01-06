@@ -15,8 +15,9 @@ export class ShotlistComponent {
   ) {}
 
   ngOnInit() {
+    console.log('shot list initiated');
     this.route.queryParams.subscribe(params => {
-      this.videoid = params['videoid'];
+      this.videoid = params['id'];
       console.log(this.videoid);
     });
   }

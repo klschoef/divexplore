@@ -69,20 +69,25 @@ button, select {
     color: gray;
 }
 
-.resultnum {
+.lefttopcorner {
     position: absolute;
-    background-color: rgba(255,255,255,0.4);
     left: 0;
     top: 0;
-    padding: 2px;
 }
 
-.resultactions {
+.leftbottomcorner {
     position: absolute;
-    background-color: rgba(255,255,255,0.4);
-    color: black;
     left: 0;
     bottom: 0;
+}
+
+.resultnum {
+    background-color: rgba(255,255,255,0.4);
+}
+
+.resultaction {
+    background-color: rgba(255,255,255,0.4);
+    color: black;
     padding: 2px;
 }
 
