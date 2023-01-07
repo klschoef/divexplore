@@ -7,6 +7,7 @@ import { map } from 'rxjs/operators';
 
 
 const URL = GlobalConstants.nodeServerURL;
+let statusConnected = {'wsstatus':'connected'};
 
 export interface Message {
     source: string;
@@ -21,7 +22,7 @@ export class NodeServerConnectionService {
   private subject: AnonymousSubject<MessageEvent> | undefined;
   public messages: Subject<Message>;
 
-  public connectionState: WSServerStatus = WSServerStatus.UNSET;
+  public connectionState: WSServerStatus = WSServerStatus.UNSET;;
 
   constructor() {
     console.log('NodeServerConnectionService created');
@@ -54,6 +55,8 @@ export class NodeServerConnectionService {
           ws.onopen = (e) => {
             this.connectionState = WSServerStatus.CONNECTED;
             console.log("Connected to node-server: " + url);
+            let msg = {'data': JSON.stringify(statusConnected)};
+            obs.next(new MessageEvent('message', msg));
           }
           ws.onmessage = (msg) => {
             console.log('message from node-server');

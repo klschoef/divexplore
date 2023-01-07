@@ -1,6 +1,6 @@
 
 <div class="queryarea">
-    <img class="logo" src="assets/diveXplore_.png">
+    <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
     <select [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
       <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
     </select> 
@@ -21,16 +21,21 @@
   <div class="queryresult" *ngFor="let item of queryresults; let i = index">
     <img src="{{item}}" width="320" height="180">
     <div class="lefttopcorner">
-      <span class="resultnum">{{this.queryresult_num[i]}}.</span>
+      <span *ngIf="this.queryresult_frames[i] !== 'summary'" class="resultnum">{{this.queryresult_frames[i]}}</span>
     </div>
-    <div class="videolabel">
-      <a [routerLink]="['/video',this.queryresult_ids[i]]" >{{this.queryresult_ids[i]}}</a>
+    <div class="righttopcorner">
+        <span class="label">
+            <a [routerLink]="['/video',this.queryresult_videoids[i]]" >{{this.queryresult_videoids[i]}}</a>
+        </span>
     </div>
     <div class="leftbottomcorner">
-      <button (click)="showVideoShots(this.queryresult_ids[i])" class="resultaction">Shots</button>
+      <button (click)="showVideoShots(this.queryresult_videoids[i])" class="resultaction">Shots</button>
       <button (click)="performSimilarityQueryForIndex(i)" class="resultaction">Similar</button>
     </div>
-    <button *ngIf="!this.isVideoResult(this.querydataset)" class="submitbutton" (click)="submitResult(i)">Submit</button>
+    <div class="rightbottomcorner">
+        <button *ngIf="!this.isVideoResult(this.querydataset)" class="submitbutton" (click)="submitResult(i)">Submit</button>
+    </div>
+    
   </div>
   
   <div class="statusbar">

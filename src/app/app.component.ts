@@ -23,9 +23,13 @@ export class AppComponent implements AfterViewInit {
     public clipService: ClipServerConnectionService,
     private router: Router) {
       this.nodeService.messages.subscribe(msg => {
-        let result = msg.content;
-        console.log("Response from node-server: " + result[0]);
-        console.log(result[0]['shots']);
+        if ('wsstatus' in msg) { 
+          console.log('node-notification: connected');
+        } else {
+          let result = msg.content;
+          console.log("Response from node-server: " + result[0]);
+          console.log(result[0]['shots']);
+        }
       });
   }
 

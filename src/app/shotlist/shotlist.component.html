@@ -1,20 +1,53 @@
 <div class="queryarea">
-    <img class="logo" src="assets/diveXplore_.png">
-    <h2>Video {{videoid}}</h2>
-    <a routerLink="/query">Back to queries</a>
+    <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
+    <span class="headertitle">{{videoid}}</span>
+    <span *ngIf="this.hasMetadata(); else simplemetadata" class="videometainfo">
+        <span class="headerinfo">{{vtitle}}</span>
+        <span class="headerkeyword">[by {{vchannel}}]</span>
+        <span class="headerlabel">{{asTimeLabel(vduration.toString(),false)}}</span>
+        <span class="headerlabel">{{fps}} fps</span>
+        <span class="headerlabel">{{vduration}} secs</span>
+    </span>
+    <ng-template #simplemetadata>
+        <span class="headerlabel">{{fps}} fps</span>
+    </ng-template>
 </div>
 
-<span class="shotlist" *ngFor="let item of keyframes; let i = index">
+<div class="queryresult" *ngFor="let item of keyframes; let i = index">
     <img src="{{item}}" width="320" height="180">
-    <div class="videolabel">
+    <div class="lefttopcorner">
+        <span class="label">{{timelabels[i]}}</span>
+    </div>
+    <div class="righttopcorner">
+        <span class="label">
+            {{this.framenumbers[i]}}
+        </span>
     </div>
     <div class="leftbottomcorner">
+        
     </div>
-    <button class="submitbutton" (click)="submitResult(i)">Submit</button>
+    <div class="rightbottomcorner">
+        <button class="submitbutton" (click)="submitResult(i)">Submit</button>
+    </div>
+</div>
+
+<br/>
+<span class="video">
+    <video src="{{videoURL}}" (timeupdate)="setCurrentTime($event)" width="960" height="540" controls></video>
+    <button class="videosubmit" (click)="submitCurrentTime()">Submit: {{asTimeLabel(this.currentVideoTime.toString())}}</button>
 </span>
 
-<div>
-    <video src="{{videoURL}}" width="960" height="540" controls></video>
+<div class="footerinfo" *ngIf="this.hasMetadata()" >
+    <span class="videometainfo">
+        <h3>Description</h3>
+        <span class="headerdescription" [innerHTML]="vdescription"></span>
+        <h3>Tags</h3>
+        <span class="keyword" *ngFor="let tag of vtags">{{tag}}</span>
+        <h3>Categories</h3> 
+        <span class="keyword" *ngFor="let cat of vcategories">{{cat}}</span>
+        <h3>Channel</h3>
+        <span class="keyword">{{vchannel}}</span>
+    </span>
 </div>
 
 <div class="statusbar">

@@ -1,9 +1,14 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { VBSServerConnectionService } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
-import { GlobalConstants, WSServerStatus } from '../global-constants';
+import { formatAsTime, GlobalConstants, WSServerStatus } from '../global-constants';
+import { mdiConsoleLine } from '@mdi/js';
+
+
+const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
+
 
 @Component({
   selector: 'app-shotlist',
@@ -11,52 +16,84 @@ import { GlobalConstants, WSServerStatus } from '../global-constants';
   styleUrls: ['./shotlist.component.scss']
 })
 
-export class ShotlistComponent {
+export class ShotlistComponent implements AfterViewInit {
   videoid: string | undefined;
   videoURL: string = ''
   keyframes: Array<string> = [];
+  timelabels: Array<string> = [];
+  framenumbers: Array<string> = [];
+
+  keyframeBaseURL: string = '';
+  videoBaseURL: string = '';
+  fps = 0.0;
+  vduration = 0;
+  vdescription = '';
+  vchannel = '';
+  vtitle = '';
+  vuploaddate = '';
+  vtags = [];
+  vcategories = [];
+
+  currentVideoTime: number = 0;
 
   constructor(
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService, 
     private route: ActivatedRoute,
-  ) {
-    this.nodeService.messages.subscribe(msg => {
-      let result = msg.content;
-      console.log("Response from node-server: " + result[0]);
-      this.loadVideoShots(result[0]);
-    });
-  }
-
+  ) {}
+  
   ngOnInit() {
-    console.log('shot list initiated');
+    console.log('shotlist component (slc) initiated');
     this.route.paramMap.subscribe(paraMap => {
       this.videoid = paraMap.get('id')?.toString();
-      console.log(this.videoid);
-      this.requestVideoShots(this.videoid!);
+      console.log(`slc: ${this.videoid}`);
+      if (regExpBase.test(this.videoid!) == true) {
+        this.keyframeBaseURL = GlobalConstants.keyframeBaseURLV3C_Shots;
+        this.videoBaseURL = GlobalConstants.videoURLV3C;
+      } else {
+        this.keyframeBaseURL = GlobalConstants.keyframeBaseURLMarine_Shots;
+        this.videoBaseURL = GlobalConstants.videoURLMarine;
+      }
+
+    });
+
+    //already connected?
+    if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
+      this.requestDataFromDB();
+    }
+    this.nodeService.messages.subscribe(msg => {
+      console.log(`slc: response from node service: ${msg}`)
+      if ('wsstatus' in msg) { 
+        console.log('slc: node-service: connected');
+        this.requestDataFromDB();
+      } else {
+        let result = msg.content;
+        console.log("slc: response from node-service: " + result[0]);
+        this.loadVideoShots(result[0]);
+      }
     });
   }
 
-  getBaseURLFromKey(selDat: string) {
-    if (selDat == 'marine-v') {
-      return GlobalConstants.keyframeBaseURLMarine_SummariesXL; 
-    }
-    else if (selDat == 'v3c-v') {
-      return GlobalConstants.keyframeBaseURLV3C_SummariesXL; 
-    }
-    if (selDat == 'marine-s') {
-      return GlobalConstants.keyframeBaseURLMarine_Shots; 
-    }
-    else if (selDat == 'v3c-s') {
-      return GlobalConstants.keyframeBaseURLV3C_Shots;
-    }
-    else 
-    return '';
+  ngAfterViewInit(): void {
+    
   }
 
-  getBaseURL() {
-    return this.getBaseURLFromKey('v3c-s');
+  hasMetadata(): boolean {
+    if (this.vduration !== 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  asTimeLabel(frame:string, withFrames:boolean=true) {
+    return formatAsTime(frame, this.fps, withFrames);
+  }
+
+  requestDataFromDB() {
+    console.log('slc: sending request to node-server');
+    this.requestVideoShots(this.videoid!);
   }
 
   sendToNodeServer(msg:any) {
@@ -69,7 +106,7 @@ export class ShotlistComponent {
 
   requestVideoShots(videoid:string) {
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
-      console.log('get video info from database', videoid);
+      console.log('slc: get video info from database', videoid);
       let msg = { 
         type: "videoinfo", 
         videoid: videoid
@@ -82,12 +119,29 @@ export class ShotlistComponent {
   }
 
   loadVideoShots(videoinfo:any) {
-    console.log(videoinfo['shots']);
+    console.log(videoinfo);
+    this.fps = parseFloat(videoinfo['fps']);
+    if ('duration' in videoinfo) {
+      this.vduration = videoinfo['duration'];
+      this.vdescription = videoinfo['description'];
+      this.vtitle = videoinfo['title'];
+      this.vuploaddate = videoinfo['uploaddate'];
+      this.vchannel = videoinfo['channel'];
+      this.vtags = videoinfo['tags'];
+      this.vcategories = videoinfo['categories'];
+    }
+    this.keyframes = [];
+    this.framenumbers = [];
+    this.timelabels = [];
     for (let i=0; i < videoinfo['shots'].length; i++) {
       let shotinfo = videoinfo['shots'][i];
       let kf = shotinfo['keyframe'];
-      this.videoURL = GlobalConstants.videoURLV3C + '/' + this.videoid + '.mp4';
-      this.keyframes.push(`${this.getBaseURL()}/${this.videoid}/${kf}`);
+      this.videoURL = this.videoBaseURL + '/' + this.videoid + '.mp4';
+      this.keyframes.push(`${this.keyframeBaseURL}/${this.videoid}/${kf}`);
+      let comps = kf.replace('.jpg','').split('_');
+      let fnumber = comps[comps.length-1];
+      this.framenumbers.push(fnumber);
+      this.timelabels.push(formatAsTime(fnumber,this.fps));
     }
   }
 
@@ -120,17 +174,21 @@ export class ShotlistComponent {
     } 
   }
 
+  setCurrentTime(data:any) {
+    this.currentVideoTime = data.target.currentTime * this.fps;
+  }
+
 
   /****************************************************************************
    * Submission to VBS Server
    ****************************************************************************/
 
+  submitCurrentTime() {
+    this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime));
+  }
+
   submitResult(index: number) {
-    let keyframe = this.keyframes[index];
-    let comps = keyframe.split('_');
-    let frameNumber = comps[comps.length-1].split('.')[0]
-    console.log(`${this.videoid} - ${keyframe} - ${frameNumber}`);
-    this.vbsService.submitFrame(this.videoid!, parseInt(frameNumber));
+    this.vbsService.submitFrame(this.videoid!, parseInt(this.framenumbers[index]));
   }
 
 

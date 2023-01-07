@@ -1,6 +1,6 @@
 import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { GlobalConstants, WSServerStatus, WebSocketEvent } from '../global-constants';
+import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime } from '../global-constants';
 import { VBSServerConnectionService } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
@@ -20,7 +20,7 @@ export class QueryComponent implements AfterViewInit {
   queryresults: Array<string> = [];
   queryresult_idx: Array<number> = [];
   queryresult_num: Array<string> = [];
-  queryresult_ids: Array<string> = [];
+  queryresult_videoids: Array<string> = [];
   queryresult_frames: Array<string> = [];
 
   previousQuery : any | undefined;
@@ -49,26 +49,41 @@ export class QueryComponent implements AfterViewInit {
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService, 
     private router: Router) {
-      this.nodeService.messages.subscribe(msg => {
-        let result = msg.content;
-        console.log("Response from node-server: " + result[0]);
-        console.log(result[0]['shots']);
-      });
-
-      this.clipService.messages.subscribe(msg => {
-        console.log("Response from clip-server: " + msg);
-        this.handleCLIPMessage(msg);
-      });
   }
 
   
   ngOnInit() {
-    //this.openWebSocketCLIP();
-    //this.openWebSocketNode();
-    //this.connectToVBSServer();
+    console.log('query component (qc) initated');
+    //already connected?
+    if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
+      console.log('qc: node-service already connected');
+    }
+    if (this.clipService.connectionState == WSServerStatus.CONNECTED) {
+      console.log('qc: CLIP-service already connected');
+    }
+    this.nodeService.messages.subscribe(msg => {
+      if ('wsstatus' in msg) { 
+        console.log('qc: node-notification: connected');
+      } else {
+        let result = msg.content;
+        console.log("qc: response from node-server: " + result[0]);
+        console.log(result[0]['shots']);
+      }
+    });
+
+    this.clipService.messages.subscribe(msg => {
+      console.log("qc: response from clip-server: " + msg);
+      this.handleCLIPMessage(msg);
+    });
   }
 
   ngAfterViewInit(): void {
+  }
+
+  asTimeLabel(frame:string, withFrames:boolean=true) {
+    console.log('TODO: need FPS in query component!')
+    return frame;
+    //return formatAsTime(frame, this.fps, withFrames);
   }
 
   @HostListener('document:keyup', ['$event'])
@@ -243,7 +258,7 @@ export class QueryComponent implements AfterViewInit {
         this.selectedPage = '1';
       }
 
-      console.log('query for', this.queryinput);
+      console.log('qc: query for', this.queryinput);
       this.queryBaseURL = this.getBaseURL();
       let msg = { 
         type: "textquery", 
@@ -302,7 +317,7 @@ export class QueryComponent implements AfterViewInit {
     this.selectedPage = '1';
     this.pages = ['1'];
     this.queryresults = [];
-    this.queryresult_ids = [];
+    this.queryresult_videoids = [];
     this.queryresult_num = [];
   }
 
@@ -360,7 +375,7 @@ export class QueryComponent implements AfterViewInit {
     //populate images
     this.queryresults = []; 
     this.queryresult_idx = [];
-    this.queryresult_ids = [];
+    this.queryresult_videoids = [];
     this.queryresult_frames = [];
     this.queryresult_num = [];
     let num = (parseInt(this.selectedPage) - 1) * this.resultsPerPage + 1;
@@ -370,11 +385,11 @@ export class QueryComponent implements AfterViewInit {
     //for (var e of qresults.results) {
     for (let i = 0; i < qresults.results.length; i++) {
       let e = qresults.results[i];
-      let filename = e.split('/',1);
+      let filename = e.split('/');
       this.queryresults.push(keyframeBase + e);
       this.queryresult_idx.push(qresults.resultsidx[i]);
-      this.queryresult_ids.push(filename[0]);
-      this.queryresult_frames.push(filename[1]);
+      this.queryresult_videoids.push(filename[0]);
+      this.queryresult_frames.push(filename[1].split('_')[1].split('.')[0]);
       this.queryresult_num.push(num.toString());
       num++;
     }
@@ -393,7 +408,7 @@ export class QueryComponent implements AfterViewInit {
    ****************************************************************************/
 
   submitResult(index: number) {
-    let videoid = this.queryresult_ids[index];
+    let videoid = this.queryresult_videoids[index];
     let keyframe = this.queryresults[index];
     let comps = keyframe.split('_');
     let frameNumber = comps[comps.length-1].split('.')[0]
