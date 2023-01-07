@@ -1,44 +1,8 @@
-
-<div class="queryarea">
-  <img class="logo" src="assets/diveXplore_.png">
-  <select [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
-    <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
-  </select> 
-  <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
-  <button (click)="performTextQuery()">Search</button>
-  <button (click)="resetQuery()">x</button>
-</div>
-
 <router-outlet></router-outlet>
 
-<div class="queryarea">
-  Pages: 
-  <mat-button-toggle-group [(ngModel)]="selectedPage">
-    <mat-button-toggle *ngFor="let p of pages" [value]="p" (click)="performQuery()" [disabled]="totalReturnedResults == 0">{{p}}</mat-button-toggle> 
-  </mat-button-toggle-group>
-</div>
-  
-<br/>
-
-<div class="queryresult" *ngFor="let item of queryresults; let i = index">
-  <img src="{{item}}" width="320" height="180">
-  <div class="lefttopcorner">
-    <span class="resultnum">{{this.queryresult_num[i]}}.</span>
-  </div>
-  <div class="videolabel">
-    <a [routerLink]="['/video',this.queryresult_ids[i]]" >{{this.queryresult_ids[i]}}</a>
-  </div>
-  <div class="leftbottomcorner">
-    <button (click)="showVideoShots(this.queryresult_ids[i])" class="resultaction">Shots</button>
-    <button (click)="performSimilarityQueryForIndex(i)" class="resultaction">Similar</button>
-  </div>
-  <button *ngIf="!this.isVideoResult(this.querydataset)" class="submitbutton" (click)="submitResult(i)">Submit</button>
-</div>
-
 <div class="statusbar">
-  CLIP server: <button class="{{clipSocketWorkerState}}" (click)="checkCLIPConnection()">{{clipSocketWorkerState}}</button>
+  CLIP server: <button class="{{clipService.connectionState}}" (click)="checkCLIPConnection()">{{clipService.connectionState}}</button>
   Node server: <button class="{{nodeService.connectionState}}" (click)="checkNodeConnection()">{{nodeService.connectionState}}</button>
   VBS Server: <button class="{{vbsService.vbsServerState}}" (click)="checkVBSServerConnection()">{{vbsService.vbsServerState}}</button>
   <span class="help">KEYBOARD: <b>1-9</b>: goto page, <b>left/right/tab</b>: switch page, <b>e</b>: extend query, <b>q</b>: edit query, <b>x</b>: reset query</span>
 </div>
-

@@ -1,2 +1,25 @@
-<p>shotlist works!</p>
-{{videoid}}
+<div class="queryarea">
+    <img class="logo" src="assets/diveXplore_.png">
+    <h2>Video {{videoid}}</h2>
+    <a routerLink="/query">Back to queries</a>
+</div>
+
+<span class="shotlist" *ngFor="let item of keyframes; let i = index">
+    <img src="{{item}}" width="320" height="180">
+    <div class="videolabel">
+    </div>
+    <div class="leftbottomcorner">
+    </div>
+    <button class="submitbutton" (click)="submitResult(i)">Submit</button>
+</span>
+
+<div>
+    <video src="{{videoURL}}" width="960" height="540" controls></video>
+</div>
+
+<div class="statusbar">
+    CLIP server: <button class="{{clipService.connectionState}}" (click)="checkCLIPConnection()">{{clipService.connectionState}}</button>
+    Node server: <button class="{{nodeService.connectionState}}" (click)="checkNodeConnection()">{{nodeService.connectionState}}</button>
+    VBS Server: <button class="{{vbsService.vbsServerState}}" (click)="checkVBSServerConnection()">{{vbsService.vbsServerState}}</button>
+    <span class="help">KEYBOARD: <b>1-9</b>: goto page, <b>left/right/tab</b>: switch page, <b>e</b>: extend query, <b>q</b>: edit query, <b>x</b>: reset query</span>
+</div>

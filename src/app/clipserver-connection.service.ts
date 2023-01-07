@@ -5,8 +5,7 @@ import { AnonymousSubject } from 'rxjs/internal/Subject';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-
-const URL = GlobalConstants.nodeServerURL;
+const URL = GlobalConstants.clipServerURL;
 
 export interface Message {
     source: string;
@@ -16,7 +15,7 @@ export interface Message {
 @Injectable({
   providedIn: 'root'
 })
-export class NodeServerConnectionService {
+export class ClipServerConnectionService {
 
   private subject: AnonymousSubject<MessageEvent> | undefined;
   public messages: Subject<Message>;
@@ -24,7 +23,7 @@ export class NodeServerConnectionService {
   public connectionState: WSServerStatus = WSServerStatus.UNSET;
 
   constructor() {
-    console.log('NodeServerConnectionService created');
+    console.log('CLIPServerConnectionService created');
     this.messages = this.connectToServer();
   }
 
@@ -32,7 +31,7 @@ export class NodeServerConnectionService {
     this.messages = <Subject<Message>>this.connectToWebsocket(URL).pipe(
     map(
           (response: MessageEvent): Message => {
-              //console.log(`node-server: ${response.data}`);
+              //console.log(`CLIP-server: ${response.data}`);
               let data = JSON.parse(response.data)
               return data;
           }
@@ -53,18 +52,18 @@ export class NodeServerConnectionService {
       let observable = new Observable((obs: Observer<MessageEvent>) => {
           ws.onopen = (e) => {
             this.connectionState = WSServerStatus.CONNECTED;
-            console.log("Connected to node-server: " + url);
+            console.log("Connected to CLIP-server: " + url);
           }
           ws.onmessage = (msg) => {
-            console.log('message from node-server');
+            console.log('message from CLIP-server');
             obs.next(msg);
           };
           ws.onerror = (e) => {
-            console.log('Error with node-server');
+            console.log('Error with CLIP-server');
             obs.error(obs);
           };
           ws.onclose = (e) => {
-            console.log('Disconnected from node-server');
+            console.log('Disconnected from CLIP-server');
             this.connectionState = WSServerStatus.DISCONNECTED;
             this.subject = undefined
             return obs.complete.bind(obs);
@@ -75,7 +74,7 @@ export class NodeServerConnectionService {
           error: (err: any) => {},
           complete: () => {},
           next: (data: Object) => {
-              console.log('Sent to node-server: ', data);
+              console.log('Sent to CLIP-server: ', data);
               if (ws.readyState === WebSocket.OPEN) {
                   ws.send(JSON.stringify(data));
               }

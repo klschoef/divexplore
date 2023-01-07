@@ -6,8 +6,8 @@ import { QueryComponent } from './query/query.component';
 
 //'' is default route
 const routes: Routes = [
-  {path: '', component: QueryComponent},
-  //{path: 'query', component: QueryComponent},
+  {path: '', component: AppComponent},
+  {path: 'query', component: QueryComponent},
   {path: 'video/:id', component: ShotlistComponent}
 ];
 

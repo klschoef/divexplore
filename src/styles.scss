@@ -6,3 +6,101 @@ body {
     font-family: Roboto, "Helvetica Neue", sans-serif;
     background-color: rgba(220,220,220,1); 
 }
+
+div.queryarea {
+    background-color: rgba(29,30,33,1);// darkgray;//darkcyan;
+    padding: 8px;
+    color: white;
+    //float: left;
+}
+
+img.logo {
+    padding-right: 4px;
+    vertical-align: top;
+}
+
+.queryarea select {
+    margin-top: 15px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.queryresult {
+    margin-bottom: 2px;
+    margin-right: 2px;
+    position: relative;
+    float: left;
+}
+
+.videolabel {
+    position: absolute;
+    background-color: rgba(255,255,255,0.8);
+    right: 0;
+    top: 0;
+    padding: 2px;
+}
+
+.videolabel a {
+    color: black;
+}
+
+.videolabel a:visited {
+    color: gray;
+}
+
+.lefttopcorner {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.leftbottomcorner {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+.resultnum {
+    background-color: rgba(255,255,255,0.4);
+}
+
+.resultaction {
+    background-color: rgba(255,255,255,0.4);
+    color: black;
+    padding: 2px;
+}
+
+.submitbutton {
+    background-color: rgba(0,139,139,0.8);
+    //background-color: rgba(0,110,0,0.8);
+    font-size: 16px;
+    color: white;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 2px;
+}
+
+.statusbar {
+    position: absolute;
+    background-color: rgba(73,76,84,1); //lightgray;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    color: lightgray;
+}
+
+button[class='disconnected'] {
+    background-color: red;
+    color: white;
+}
+
+button[class='connected'] {
+    background-color: green;
+    color: white;
+}
+
+span.help {
+    float: right;
+    padding: 6px;
+}
