@@ -84,6 +84,14 @@ export class ShotlistComponent implements AfterViewInit {
     }
   }
 
+  getQueryResultCSSClass(idx:number) {
+    if (this.shotidx && idx == parseInt(this.shotidx)) {
+      return 'selectedqueryresult';
+    } else {
+      return 'queryresult';
+    }
+  }
+
   hasMetadata(): boolean {
     if (this.vduration !== 0) {
       return true;

@@ -76,11 +76,18 @@ div.shotlist {
     margin-right: 1px;
 }
 
-.queryresult {
+.queryresult,.selectedqueryresult {
     margin-bottom: 2px;
     margin-right: 2px;
     position: relative;
     float: left;
+}
+
+.selectedqueryresult {
+    border: 4px darkblue solid;
+    outline-width: 4px;
+    outline-style: solid;
+    outline-color: darkblue;
 }
 
 .headerlabel {

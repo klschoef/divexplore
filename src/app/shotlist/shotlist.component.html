@@ -13,7 +13,7 @@
     </ng-template>
 </div>
 
-<div class="queryresult" *ngFor="let item of keyframes; let i = index">
+<div class="{{getQueryResultCSSClass(i)}}" *ngFor="let item of keyframes; let i = index">
     <img src="{{item}}" width="320" height="180">
     <div class="lefttopcorner">
         <span class="label">{{timelabels[i]}}</span>
