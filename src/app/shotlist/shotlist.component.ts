@@ -18,7 +18,7 @@ const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important
 
 export class ShotlistComponent implements AfterViewInit {
   videoid: string | undefined;
-  shotidx: string | undefined;
+  framenumber: string | undefined;
   videoURL: string = ''
   keyframes: Array<string> = [];
   timelabels: Array<string> = [];
@@ -43,14 +43,15 @@ export class ShotlistComponent implements AfterViewInit {
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService, 
     private route: ActivatedRoute,
+    private router: Router
   ) {}
   
   ngOnInit() {
     console.log('shotlist component (slc) initiated');
     this.route.paramMap.subscribe(paraMap => {
       this.videoid = paraMap.get('id')?.toString();
-      this.shotidx = paraMap.get('id2')?.toString();
-      console.log(`slc: ${this.videoid} ${this.shotidx}`);
+      this.framenumber = paraMap.get('id2')?.toString();
+      console.log(`slc: ${this.videoid} ${this.framenumber}`);
       if (regExpBase.test(this.videoid!) == true) {
         this.keyframeBaseURL = GlobalConstants.keyframeBaseURLV3C_Shots;
         this.videoBaseURL = GlobalConstants.videoURLV3C;
@@ -79,13 +80,22 @@ export class ShotlistComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.shotidx) {
-      this.videoplayer.nativeElement.currentTime = parseFloat(this.framenumbers[parseInt(this.shotidx)]) / this.fps;
+    this.videoplayer.nativeElement.addEventListener('loadeddata', this.onVideoPlayerLoaded.bind(this));
+  }
+
+  performFileSimilarityQuery(keyframe:string) {
+    this.router.navigate(['filesimilarity',keyframe]); //or navigateByUrl(`/video/${videoid}`)
+  }
+
+  onVideoPlayerLoaded(event:any) {
+    console.log('video player loaded');
+    if (this.framenumber) {
+      this.gotoTimeOfFrame(parseInt(this.framenumber));
     }
   }
 
-  getQueryResultCSSClass(idx:number) {
-    if (this.shotidx && idx == parseInt(this.shotidx)) {
+  getQueryResultCSSClass(frame:string) {
+    if (this.framenumber && this.framenumber === frame) {
       return 'selectedqueryresult';
     } else {
       return 'queryresult';
@@ -156,11 +166,6 @@ export class ShotlistComponent implements AfterViewInit {
       this.framenumbers.push(fnumber);
       this.timelabels.push(formatAsTime(fnumber,this.fps));
     }
-
-    //shot passed?
-    if (this.shotidx) {
-      
-    }
   }
 
 
@@ -195,6 +200,18 @@ export class ShotlistComponent implements AfterViewInit {
   setCurrentTime(data:any) {
     this.currentVideoTime = data.target.currentTime * this.fps;
   }
+
+  gotoTimeOfShot(idx:number) {
+    console.log(`goto time of shot ${idx} (fps=${this.fps})`);
+    this.videoplayer.nativeElement.currentTime = parseFloat(this.framenumbers[idx]) / this.fps;
+  }
+
+  gotoTimeOfFrame(frame:number) {
+    console.log(`goto time of frame ${frame} (fps=${this.fps})`);
+    this.videoplayer.nativeElement.currentTime = frame / this.fps;
+  }
+
+
 
 
   /****************************************************************************

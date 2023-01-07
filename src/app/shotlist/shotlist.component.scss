@@ -7,6 +7,27 @@
 .videosubmit {
     //background-color: rgba(0,139,139,0.8);
     background-color: rgba(0,110,0,0.8);
-    font-size: 16px;
+    font-size: 18pt;
+    height: 50px;
     color: white;
+    vertical-align: middle;
+    margin-bottom: 42px;
+}
+
+.videobox {
+    display: block;
+    padding: 20px;
+    float: left;
+    position: relative;
+    left: 0;
+    top: 0;
+    padding-bottom: 40px;
+}
+
+.queryresult:hover {
+    cursor: pointer;
+}
+
+.footerinfo {
+    float: right;
 }

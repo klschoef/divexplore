@@ -19,6 +19,10 @@ div.queryarea, div.footerinfo {
     //float: left;
 }
 
+div.footerinfo {
+    width: 100%;
+}
+
 div.footerinfo a {
     color: white;
 }
@@ -32,7 +36,7 @@ span.headertitle {
     display: inline-block;
     margin-top: 20px;
     margin-left: 30px;
-
+    margin-right: 20px;
     background-color: rgba(255,255,255,0.8);
     padding: 6px;
     color: black;
@@ -76,16 +80,19 @@ div.shotlist {
     margin-right: 1px;
 }
 
-.queryresult,.selectedqueryresult {
-    margin-bottom: 2px;
-    margin-right: 2px;
+.queryresult {
+    margin: 4px;
     position: relative;
     float: left;
 }
 
 .selectedqueryresult {
-    border: 4px darkblue solid;
-    outline-width: 4px;
+    background-color: blue;
+    margin-bottom: 2px;
+    margin-right: 2px;
+    position: relative;
+    float: left;
+    outline-width: 6px;
     outline-style: solid;
     outline-color: darkblue;
 }
@@ -154,12 +161,21 @@ div.shotlist {
     padding: 2px;
 }
 
-.statusbar {
+/*.statusbar {
     position: absolute;
     background-color: rgba(73,76,84,1); //lightgray;
     left: 0;
     bottom: 0;
     width: 100%;
+    color: lightgray;
+}*/
+
+.statusbar {
+    position: fixed;
+    width: 100%;
+    background-color: rgba(73,76,84,1); //lightgray;
+    left: 0;
+    bottom: 0;
     color: lightgray;
 }
 

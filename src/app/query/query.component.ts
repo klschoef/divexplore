@@ -4,7 +4,7 @@ import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime } from '.
 import { VBSServerConnectionService } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
-import { Router } from '@angular/router';
+import { Router,ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-query',
@@ -15,13 +15,15 @@ export class QueryComponent implements AfterViewInit {
 
   @ViewChild('inputfield') inputfield!: ElementRef<HTMLInputElement>;
   
+  file_sim_keyframe: string | undefined
+  
   
   queryinput: string = '';
   queryresults: Array<string> = [];
-  queryresult_idx: Array<number> = [];
-  queryresult_num: Array<string> = [];
-  queryresult_videoids: Array<string> = [];
-  queryresult_frames: Array<string> = [];
+  queryresult_serveridx: Array<number> = [];
+  queryresult_resultnumber: Array<string> = [];
+  queryresult_videoid: Array<string> = [];
+  queryresult_frame: Array<string> = [];
 
   previousQuery : any | undefined;
 
@@ -48,18 +50,28 @@ export class QueryComponent implements AfterViewInit {
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService, 
+    private route: ActivatedRoute,
     private router: Router) {
   }
 
   
   ngOnInit() {
     console.log('query component (qc) initated');
+
+    this.route.paramMap.subscribe(paraMap => {
+      this.file_sim_keyframe = paraMap.get('id')?.toString();
+      console.log(`qc: ${this.file_sim_keyframe}`);
+    });
+
     //already connected?
     if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
       console.log('qc: node-service already connected');
     }
     if (this.clipService.connectionState == WSServerStatus.CONNECTED) {
       console.log('qc: CLIP-service already connected');
+      if (this.file_sim_keyframe) {
+        this.performFileSimilarityQuery(this.file_sim_keyframe, 'thumbsXL');
+      }
     }
     this.nodeService.messages.subscribe(msg => {
       if ('wsstatus' in msg) { 
@@ -277,13 +289,13 @@ export class QueryComponent implements AfterViewInit {
     }
   }
 
-  showVideoShots(videoid:string) {
-      this.router.navigate(['video',videoid]); //or navigateByUrl(`/video/${videoid}`)
+  showVideoShots(videoid:string, frame:string) {
+      this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
   }
 
   performSimilarityQueryForIndex(idx:number) {
     this.selectedPage = '1';
-    let serveridx = this.queryresult_idx[idx];
+    let serveridx = this.queryresult_serveridx[idx];
     this.performSimilarityQuery(serveridx);
   }
 
@@ -305,6 +317,24 @@ export class QueryComponent implements AfterViewInit {
     }
   }
 
+  performFileSimilarityQuery(keyframe:string, pathprefix:string) {
+    if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
+      //alert(`search for ${i} ==> ${idx}`);
+      console.log('file-similarity-query for ', keyframe);
+      let msg = { 
+        type: "file-similarityquery", 
+        filename: keyframe,
+        pathprefix: pathprefix, 
+        maxresults: this.maxresults,
+        resultsperpage: this.resultsPerPage, 
+        selectedpage: this.selectedPage,
+        dataset: this.selectedDataset //TODO
+      };
+      this.previousQuery = msg;
+      this.sendToCLIPServer(msg);
+    }
+  }
+
   resetPageAndPerformQuery() {
     this.selectedPage = '1';
     this.performTextQuery();
@@ -316,11 +346,17 @@ export class QueryComponent implements AfterViewInit {
     this.inputfield.nativeElement.select();
     this.selectedPage = '1';
     this.pages = ['1'];
-    this.queryresults = [];
-    this.queryresult_videoids = [];
-    this.queryresult_num = [];
+    this.clearResultArrays();
   }
 
+
+  private clearResultArrays() {
+    this.queryresults = [];
+    this.queryresult_serveridx = [];
+    this.queryresult_resultnumber = [];
+    this.queryresult_videoid = [];
+    this.queryresult_frame = [];
+  }
 
   /****************************************************************************
    * WebSockets (CLIP and Node.js)
@@ -373,12 +409,9 @@ export class QueryComponent implements AfterViewInit {
       this.pages.push(i.toString());
     }
     //populate images
-    this.queryresults = []; 
-    this.queryresult_idx = [];
-    this.queryresult_videoids = [];
-    this.queryresult_frames = [];
-    this.queryresult_num = [];
-    let num = (parseInt(this.selectedPage) - 1) * this.resultsPerPage + 1;
+    this.clearResultArrays();
+
+    let resultnum = (parseInt(this.selectedPage) - 1) * this.resultsPerPage + 1;
     this.querydataset = qresults.dataset;
     let keyframeBase = this.getBaseURLFromKey(qresults.dataset);
     
@@ -387,11 +420,11 @@ export class QueryComponent implements AfterViewInit {
       let e = qresults.results[i];
       let filename = e.split('/');
       this.queryresults.push(keyframeBase + e);
-      this.queryresult_idx.push(qresults.resultsidx[i]);
-      this.queryresult_videoids.push(filename[0]);
-      this.queryresult_frames.push(filename[1].split('_')[1].split('.')[0]);
-      this.queryresult_num.push(num.toString());
-      num++;
+      this.queryresult_serveridx.push(qresults.resultsidx[i]);
+      this.queryresult_videoid.push(filename[0]);
+      this.queryresult_frame.push(filename[1].split('_')[1].split('.')[0]);
+      this.queryresult_resultnumber.push(resultnum.toString());
+      resultnum++;
     }
 
     this.inputfield.nativeElement.blur();
@@ -408,7 +441,7 @@ export class QueryComponent implements AfterViewInit {
    ****************************************************************************/
 
   submitResult(index: number) {
-    let videoid = this.queryresult_videoids[index];
+    let videoid = this.queryresult_videoid[index];
     let keyframe = this.queryresults[index];
     let comps = keyframe.split('_');
     let frameNumber = comps[comps.length-1].split('.')[0]

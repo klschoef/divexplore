@@ -8,6 +8,7 @@ import { QueryComponent } from './query/query.component';
 const routes: Routes = [
   {path: '', component: AppComponent},
   {path: 'query', component: QueryComponent},
+  {path: 'filesimilarity/:id', component: QueryComponent},
   {path: 'video/:id', component: ShotlistComponent},
   {path: 'video/:id/:id2', component: ShotlistComponent}
 ];

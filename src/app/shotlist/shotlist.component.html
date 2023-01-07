@@ -1,3 +1,5 @@
+
+
 <div class="queryarea">
     <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
     <span class="headertitle">{{videoid}} ({{keyframes.length}} shots)</span>
@@ -13,8 +15,9 @@
     </ng-template>
 </div>
 
-<div class="{{getQueryResultCSSClass(i)}}" *ngFor="let item of keyframes; let i = index">
-    <img src="{{item}}" width="320" height="180">
+
+<div class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">
+    <img src="{{item}}" width="320" height="180" (click)="gotoTimeOfShot(i)">
     <div class="lefttopcorner">
         <span class="label">{{timelabels[i]}}</span>
     </div>
@@ -24,19 +27,17 @@
         </span>
     </div>
     <div class="leftbottomcorner">
-        
+        <button (click)="performFileSimilarityQuery(item)" class="resultaction">Similar</button>
     </div>
     <div class="rightbottomcorner">
         <button class="submitbutton" (click)="submitResult(i)">Submit</button>
     </div>
 </div>
 
-<br/>
-<span class="TMPvideo">
-    <video id="videoplayer" name="videoplayer" ngModel [(ngModel)]="videoplayer" src="{{videoURL}}" (timeupdate)="setCurrentTime($event)" width="960" height="540" controls></video>
+<div class="videobox">
+    <video #videoplayer src="{{videoURL}}" (timeupdate)="setCurrentTime($event)" width="960" height="540" controls></video>
     <button class="videosubmit" (click)="submitCurrentTime()">Submit: {{asTimeLabel(this.currentVideoTime.toString())}}</button>
-</span>
-
+</div>
 <div class="footerinfo" *ngIf="this.hasMetadata()" >
     <span class="videometainfo">
         <h3>Description</h3>
