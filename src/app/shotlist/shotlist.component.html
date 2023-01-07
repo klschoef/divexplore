@@ -1,6 +1,6 @@
 <div class="queryarea">
     <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
-    <span class="headertitle">{{videoid}}</span>
+    <span class="headertitle">{{videoid}} ({{keyframes.length}} shots)</span>
     <span *ngIf="this.hasMetadata(); else simplemetadata" class="videometainfo">
         <span class="headerinfo">{{vtitle}}</span>
         <span class="headerkeyword">[by {{vchannel}}]</span>
@@ -32,8 +32,8 @@
 </div>
 
 <br/>
-<span class="video">
-    <video src="{{videoURL}}" (timeupdate)="setCurrentTime($event)" width="960" height="540" controls></video>
+<span class="TMPvideo">
+    <video id="videoplayer" name="videoplayer" ngModel [(ngModel)]="videoplayer" src="{{videoURL}}" (timeupdate)="setCurrentTime($event)" width="960" height="540" controls></video>
     <button class="videosubmit" (click)="submitCurrentTime()">Submit: {{asTimeLabel(this.currentVideoTime.toString())}}</button>
 </span>
 

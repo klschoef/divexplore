@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { ViewChild,ElementRef,AfterViewInit, Component } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { VBSServerConnectionService } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
@@ -18,6 +18,7 @@ const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important
 
 export class ShotlistComponent implements AfterViewInit {
   videoid: string | undefined;
+  shotidx: string | undefined;
   videoURL: string = ''
   keyframes: Array<string> = [];
   timelabels: Array<string> = [];
@@ -35,6 +36,7 @@ export class ShotlistComponent implements AfterViewInit {
   vcategories = [];
 
   currentVideoTime: number = 0;
+  @ViewChild('videoplayer') videoplayer!: ElementRef<HTMLVideoElement>;
 
   constructor(
     public vbsService: VBSServerConnectionService,
@@ -47,7 +49,8 @@ export class ShotlistComponent implements AfterViewInit {
     console.log('shotlist component (slc) initiated');
     this.route.paramMap.subscribe(paraMap => {
       this.videoid = paraMap.get('id')?.toString();
-      console.log(`slc: ${this.videoid}`);
+      this.shotidx = paraMap.get('id2')?.toString();
+      console.log(`slc: ${this.videoid} ${this.shotidx}`);
       if (regExpBase.test(this.videoid!) == true) {
         this.keyframeBaseURL = GlobalConstants.keyframeBaseURLV3C_Shots;
         this.videoBaseURL = GlobalConstants.videoURLV3C;
@@ -76,7 +79,9 @@ export class ShotlistComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    
+    if (this.shotidx) {
+      this.videoplayer.nativeElement.currentTime = parseFloat(this.framenumbers[parseInt(this.shotidx)]) / this.fps;
+    }
   }
 
   hasMetadata(): boolean {
@@ -142,6 +147,11 @@ export class ShotlistComponent implements AfterViewInit {
       let fnumber = comps[comps.length-1];
       this.framenumbers.push(fnumber);
       this.timelabels.push(formatAsTime(fnumber,this.fps));
+    }
+
+    //shot passed?
+    if (this.shotidx) {
+      
     }
   }
 

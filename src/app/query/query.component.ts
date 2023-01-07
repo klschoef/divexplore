@@ -35,13 +35,13 @@ export class QueryComponent implements AfterViewInit {
   pages = ['1']
   
   thumbSize = 'small';
-  selectedDataset = 'v3c-v';
+  selectedDataset = 'v3c-s';
   queryFieldHasFocus = false;
   datasets = [
-    {id: 'v3c-v', name: 'Videos: V3C'},
     {id: 'v3c-s', name: 'Shots: V3C'},
-    {id: 'marine-v', name: 'Videos: Marine'}, 
-    {id: 'marine-s', name: 'Shots: Marine'}
+    {id: 'v3c-v', name: 'Videos: V3C'},
+    {id: 'marine-s', name: 'Shots: Marine'},
+    {id: 'marine-v', name: 'Videos: Marine'} 
   ];
     
   constructor(
