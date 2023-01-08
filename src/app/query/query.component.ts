@@ -101,8 +101,8 @@ export class QueryComponent implements AfterViewInit {
     this.clipService.messages.subscribe(msg => {
       if ('wsstatus' in msg) { 
         console.log('qc: CLIP-notification: connected');
-        if (this.file_sim_keyframe) {
-          this.performFileSimilarityQuery(this.file_sim_keyframe, 'thumbsXL');
+        if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
+          this.performFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
         }
       } else {
         console.log("qc: response from clip-server: " + msg);
