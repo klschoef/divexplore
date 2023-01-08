@@ -118,6 +118,9 @@ export class QueryComponent implements AfterViewInit {
 
   toggleHistorySelect() {
     this.historyDiv.nativeElement.hidden = !this.historyDiv.nativeElement.hidden;
+    /*if (!this.historyDiv.nativeElement.hidden) {
+      this.historyDiv.nativeElement.focus();
+    }*/
   }
 
   history() {
@@ -386,14 +389,21 @@ export class QueryComponent implements AfterViewInit {
     }
   }
 
-  runHistoryQuery() {
+  performHistoryQuery() {
     console.log(`run hist: ${this.selectedHistoryEntry}`)
     let hist = localStorage.getItem('history')
     if (hist && this.selectedHistoryEntry !== "-1") {
       let queryHistory:Array<QueryType> = JSON.parse(hist);
       let msg: QueryType = queryHistory[parseInt(this.selectedHistoryEntry!)];
+      if (msg.type === 'textquery') {
+        this.queryinput = msg.query;
+        this.selectedDataset = msg.dataset;
+        this.selectedPage = msg.selectedpage;
+      }
       this.sendToCLIPServer(msg);
       this.saveToHistory(msg);
+      this.selectedHistoryEntry = "-1";
+      this.historyDiv.nativeElement.hidden = true;
     }
   }
 
@@ -436,6 +446,8 @@ export class QueryComponent implements AfterViewInit {
     this.selectedPage = '1';
     this.pages = ['1'];
     this.clearResultArrays();
+    let queryHistory:Array<QueryType> = [];
+    localStorage.setItem('history', JSON.stringify(queryHistory));
   }
 
 

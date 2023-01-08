@@ -6,10 +6,10 @@
     </select> 
     <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
     <button class="searchButton" (click)="performTextQuery()">Search</button>
-    <button class="resetButton" (click)="resetQuery()">x</button>
     <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
+    <button class="resetButton" (click)="resetQuery()">Reset</button>
     <div class="historySelect" #historyDiv>
-      <select [(ngModel)]="selectedHistoryEntry" value="" (change)="runHistoryQuery()">
+      <select [(ngModel)]="selectedHistoryEntry" value="" (change)="performHistoryQuery()">
         <option value="-1" selected disabled>-- Search History --</option>
         <option *ngFor="let h of history(); let i = index" [ngValue]="i">{{h}}</option>
       </select>
