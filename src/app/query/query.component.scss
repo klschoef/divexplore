@@ -24,3 +24,21 @@ input[type="text"] {
     align-items: center;
 }
 
+.searchButton {
+    background-color: rgb(227, 227, 158);
+    color: black;
+    margin-right: 40px;
+}
+
+.resetButton {
+    background-color: red;
+    margin-right: 40px;
+}
+
+.historySelect {
+    float: right;
+}
+
+.historyToggle, .historySelect option {
+    background-color: lightgray;
+}

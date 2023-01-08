@@ -1,10 +1,11 @@
 import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime } from '../global-constants';
+import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType } from '../global-constants';
 import { VBSServerConnectionService } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { Router,ActivatedRoute } from '@angular/router';
+import { query } from '@angular/animations';
 
 @Component({
   selector: 'app-query',
@@ -14,8 +15,10 @@ import { Router,ActivatedRoute } from '@angular/router';
 export class QueryComponent implements AfterViewInit {
 
   @ViewChild('inputfield') inputfield!: ElementRef<HTMLInputElement>;
+  @ViewChild('historyDiv') historyDiv!: ElementRef<HTMLDivElement>;
   
   file_sim_keyframe: string | undefined
+  file_sim_pathPrefix: string | undefined
   
   
   queryinput: string = '';
@@ -38,6 +41,7 @@ export class QueryComponent implements AfterViewInit {
   
   thumbSize = 'small';
   selectedDataset = 'v3c-s';
+  selectedHistoryEntry: string | undefined
   queryFieldHasFocus = false;
   datasets = [
     {id: 'v3c-s', name: 'Shots: V3C'},
@@ -60,19 +64,30 @@ export class QueryComponent implements AfterViewInit {
 
     this.route.paramMap.subscribe(paraMap => {
       this.file_sim_keyframe = paraMap.get('id')?.toString();
-      console.log(`qc: ${this.file_sim_keyframe}`);
+      if (this.file_sim_keyframe) {
+        console.log(`qc: ${this.file_sim_keyframe}`);
+      }
+      this.file_sim_pathPrefix = paraMap.get('id2')?.toString();
+      if (this.file_sim_pathPrefix) {
+        console.log(`qc: ${this.file_sim_pathPrefix}`);
+      }
     });
 
     //already connected?
     if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
       console.log('qc: node-service already connected');
+    } else {
+      console.log('qc: node-service not connected yet');
     }
     if (this.clipService.connectionState == WSServerStatus.CONNECTED) {
       console.log('qc: CLIP-service already connected');
-      if (this.file_sim_keyframe) {
-        this.performFileSimilarityQuery(this.file_sim_keyframe, 'thumbsXL');
+      if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
+        this.performFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
       }
+    } else {
+      console.log('qc: CLIP-service not connected yet');
     }
+
     this.nodeService.messages.subscribe(msg => {
       if ('wsstatus' in msg) { 
         console.log('qc: node-notification: connected');
@@ -84,12 +99,70 @@ export class QueryComponent implements AfterViewInit {
     });
 
     this.clipService.messages.subscribe(msg => {
-      console.log("qc: response from clip-server: " + msg);
-      this.handleCLIPMessage(msg);
+      if ('wsstatus' in msg) { 
+        console.log('qc: CLIP-notification: connected');
+        if (this.file_sim_keyframe) {
+          this.performFileSimilarityQuery(this.file_sim_keyframe, 'thumbsXL');
+        }
+      } else {
+        console.log("qc: response from clip-server: " + msg);
+        this.handleCLIPMessage(msg);
+      }
     });
   }
 
   ngAfterViewInit(): void {
+    this.historyDiv.nativeElement.hidden = true;
+  }
+  
+
+  toggleHistorySelect() {
+    this.historyDiv.nativeElement.hidden = !this.historyDiv.nativeElement.hidden;
+  }
+
+  history() {
+    let historyList = [];
+    let hist = localStorage.getItem('history')
+    if (hist) {
+      let histj:[QueryType] = JSON.parse(hist);
+      for (let i=0; i < histj.length; i++) {
+        let ho = histj[i];
+        historyList.push(`${ho.type}: ${ho.query} (${ho.dataset})`)
+      }
+    }
+    return historyList; //JSON.parse(hist!);
+  }
+
+  saveToHistory(msg: QueryType) {
+    if (msg.query === '') {
+      return;
+    }
+
+    let hist = localStorage.getItem('history')
+    if (hist) {
+      let queryHistory:Array<QueryType> = JSON.parse(hist);
+      let containedPos = -1;
+      let i = 0;
+      for (let qh of queryHistory) {
+        if (qh.query === msg.query && qh.dataset === msg.dataset) {
+          containedPos = i;
+          break;
+        }
+        i++;
+      }
+      if (containedPos >= 0) {
+        queryHistory.splice(containedPos,1);
+        queryHistory.unshift(msg);
+        localStorage.setItem('history', JSON.stringify(queryHistory));
+      }
+      else {
+        queryHistory.unshift(msg);
+        localStorage.setItem('history', JSON.stringify(queryHistory));
+      }
+    } else {
+      let queryHistory:Array<QueryType> = [msg];
+      localStorage.setItem('history', JSON.stringify(queryHistory));
+    }
   }
 
   asTimeLabel(frame:string, withFrames:boolean=true) {
@@ -247,6 +320,83 @@ export class QueryComponent implements AfterViewInit {
       this.performTextQuery();
     }
   }
+  
+  performTextQuery() {
+    if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
+      if (this.previousQuery !== undefined && this.previousQuery.type === 'textquery' && this.previousQuery.query !== this.queryinput) {
+        this.selectedPage = '1';
+      }
+      
+      console.log('qc: query for', this.queryinput);
+      this.queryBaseURL = this.getBaseURL();
+      let msg = { 
+        type: "textquery", 
+        query: this.queryinput,
+        maxresults: this.maxresults,
+        resultsperpage: this.resultsPerPage, 
+        selectedpage: this.selectedPage, 
+        dataset: this.selectedDataset
+      };
+      this.previousQuery = msg;
+
+      this.sendToCLIPServer(msg);
+      this.saveToHistory(msg);
+      
+    } else {
+      alert(`CLIP connection down: ${this.clipService.connectionState}. Try reconnecting by pressing the red button!`);
+    }
+  }
+
+  performSimilarityQuery(serveridx:number) {
+    if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
+      //alert(`search for ${i} ==> ${idx}`);
+      console.log('similarity-query for ', serveridx);
+      this.queryBaseURL = this.getBaseURL();
+      let msg = { 
+        type: "similarityquery", 
+        query: serveridx.toString(),
+        maxresults: this.maxresults,
+        resultsperpage: this.resultsPerPage, 
+        selectedpage: this.selectedPage, 
+        dataset: this.selectedDataset
+      };
+      this.previousQuery = msg;
+
+      this.sendToCLIPServer(msg);
+      this.saveToHistory(msg);
+    }
+  }
+
+  performFileSimilarityQuery(keyframe:string, pathprefix:string) {
+    if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
+      //alert(`search for ${i} ==> ${idx}`);
+      console.log('file-similarity-query for ', keyframe);
+      let msg = { 
+        type: "file-similarityquery", 
+        query: keyframe,
+        pathprefix: pathprefix, 
+        maxresults: this.maxresults,
+        resultsperpage: this.resultsPerPage, 
+        selectedpage: this.selectedPage,
+        dataset: this.selectedDataset //TODO
+      };
+      this.previousQuery = msg;
+      this.sendToCLIPServer(msg);
+      this.saveToHistory(msg);
+    }
+  }
+
+  runHistoryQuery() {
+    console.log(`run hist: ${this.selectedHistoryEntry}`)
+    let hist = localStorage.getItem('history')
+    if (hist && this.selectedHistoryEntry !== "-1") {
+      let queryHistory:Array<QueryType> = JSON.parse(hist);
+      let msg: QueryType = queryHistory[parseInt(this.selectedHistoryEntry!)];
+      this.sendToCLIPServer(msg);
+      this.saveToHistory(msg);
+    }
+  }
+
 
   sendToCLIPServer(msg:any) {
     let message = {
@@ -263,76 +413,15 @@ export class QueryComponent implements AfterViewInit {
     };
     this.nodeService.messages.next(message);
   }
- 
-  performTextQuery() {
-    if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
-      if (this.previousQuery !== undefined && this.previousQuery.type === 'textquery' && this.previousQuery.query !== this.queryinput) {
-        this.selectedPage = '1';
-      }
-
-      console.log('qc: query for', this.queryinput);
-      this.queryBaseURL = this.getBaseURL();
-      let msg = { 
-        type: "textquery", 
-        query: this.queryinput,
-        maxresults: this.maxresults,
-        resultsperpage: this.resultsPerPage, 
-        selectedpage: this.selectedPage, 
-        dataset: this.selectedDataset
-      };
-      this.previousQuery = msg;
-      
-      this.sendToCLIPServer(msg);
-
-    } else {
-      alert(`CLIP connection down: ${this.clipService.connectionState}. Try reconnecting by pressing the red button!`);
-    }
-  }
-
+  
   showVideoShots(videoid:string, frame:string) {
-      this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
+    this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
   }
 
   performSimilarityQueryForIndex(idx:number) {
     this.selectedPage = '1';
     let serveridx = this.queryresult_serveridx[idx];
     this.performSimilarityQuery(serveridx);
-  }
-
-  performSimilarityQuery(serveridx:number) {
-    if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
-      //alert(`search for ${i} ==> ${idx}`);
-      console.log('similarity-query for ', serveridx);
-      this.queryBaseURL = this.getBaseURL();
-      let msg = { 
-        type: "similarityquery", 
-        query: serveridx,
-        maxresults: this.maxresults,
-        resultsperpage: this.resultsPerPage, 
-        selectedpage: this.selectedPage, 
-        dataset: this.selectedDataset
-      };
-      this.previousQuery = msg;
-      this.sendToCLIPServer(msg);
-    }
-  }
-
-  performFileSimilarityQuery(keyframe:string, pathprefix:string) {
-    if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
-      //alert(`search for ${i} ==> ${idx}`);
-      console.log('file-similarity-query for ', keyframe);
-      let msg = { 
-        type: "file-similarityquery", 
-        filename: keyframe,
-        pathprefix: pathprefix, 
-        maxresults: this.maxresults,
-        resultsperpage: this.resultsPerPage, 
-        selectedpage: this.selectedPage,
-        dataset: this.selectedDataset //TODO
-      };
-      this.previousQuery = msg;
-      this.sendToCLIPServer(msg);
-    }
   }
 
   resetPageAndPerformQuery() {

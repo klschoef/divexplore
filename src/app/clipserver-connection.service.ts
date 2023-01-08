@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 const URL = GlobalConstants.clipServerURL;
+let statusConnected = {'wsstatus':'connected'};
 
 export interface Message {
     source: string;
@@ -53,6 +54,8 @@ export class ClipServerConnectionService {
           ws.onopen = (e) => {
             this.connectionState = WSServerStatus.CONNECTED;
             console.log("Connected to CLIP-server: " + url);
+            let msg = {'data': JSON.stringify(statusConnected)};
+            obs.next(new MessageEvent('message', msg));
           }
           ws.onmessage = (msg) => {
             console.log('message from CLIP-server');

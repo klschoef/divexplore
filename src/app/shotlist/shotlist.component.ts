@@ -26,6 +26,7 @@ export class ShotlistComponent implements AfterViewInit {
 
   keyframeBaseURL: string = '';
   videoBaseURL: string = '';
+  datasetBase: string = '';
   fps = 0.0;
   vduration = 0;
   vdescription = '';
@@ -34,6 +35,8 @@ export class ShotlistComponent implements AfterViewInit {
   vuploaddate = '';
   vtags = [];
   vcategories = [];
+  vtexts =[]; 
+  vspeech: any | undefined;
 
   currentVideoTime: number = 0;
   @ViewChild('videoplayer') videoplayer!: ElementRef<HTMLVideoElement>;
@@ -55,9 +58,11 @@ export class ShotlistComponent implements AfterViewInit {
       if (regExpBase.test(this.videoid!) == true) {
         this.keyframeBaseURL = GlobalConstants.keyframeBaseURLV3C_Shots;
         this.videoBaseURL = GlobalConstants.videoURLV3C;
+        this.datasetBase = 'thumbsXL';
       } else {
         this.keyframeBaseURL = GlobalConstants.keyframeBaseURLMarine_Shots;
         this.videoBaseURL = GlobalConstants.videoURLMarine;
+        this.datasetBase = 'thumbsmXL';
       }
 
     });
@@ -84,7 +89,7 @@ export class ShotlistComponent implements AfterViewInit {
   }
 
   performFileSimilarityQuery(keyframe:string) {
-    this.router.navigate(['filesimilarity',keyframe]); //or navigateByUrl(`/video/${videoid}`)
+    this.router.navigate(['filesimilarity',keyframe,this.datasetBase]); //or navigateByUrl(`/video/${videoid}`)
   }
 
   onVideoPlayerLoaded(event:any) {
@@ -152,6 +157,8 @@ export class ShotlistComponent implements AfterViewInit {
       this.vchannel = videoinfo['channel'];
       this.vtags = videoinfo['tags'];
       this.vcategories = videoinfo['categories'];
+      this.vtexts = videoinfo['texts'];
+      this.vspeech = videoinfo['speech'];
     }
     this.keyframes = [];
     this.framenumbers = [];
@@ -160,7 +167,7 @@ export class ShotlistComponent implements AfterViewInit {
       let shotinfo = videoinfo['shots'][i];
       let kf = shotinfo['keyframe'];
       this.videoURL = this.videoBaseURL + '/' + this.videoid + '.mp4';
-      this.keyframes.push(`${this.keyframeBaseURL}/${this.videoid}/${kf}`);
+      this.keyframes.push(`${this.videoid}/${kf}`);
       let comps = kf.replace('.jpg','').split('_');
       let fnumber = comps[comps.length-1];
       this.framenumbers.push(fnumber);
@@ -182,7 +189,7 @@ export class ShotlistComponent implements AfterViewInit {
       this.nodeService.connectToServer();
     }
   }
-
+  
   checkCLIPConnection() {
     if (this.clipService.connectionState !== WSServerStatus.CONNECTED) {
       this.clipService.connectToServer();

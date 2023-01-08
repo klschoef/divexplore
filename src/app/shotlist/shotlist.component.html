@@ -17,7 +17,7 @@
 
 
 <div class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">
-    <img src="{{item}}" width="320" height="180" (click)="gotoTimeOfShot(i)">
+    <img src="{{keyframeBaseURL}}/{{item}}" width="320" height="180" (click)="gotoTimeOfShot(i)">
     <div class="lefttopcorner">
         <span class="label">{{timelabels[i]}}</span>
     </div>
@@ -48,6 +48,14 @@
         <span class="keyword" *ngFor="let cat of vcategories">{{cat}}</span>
         <h3>Channel</h3>
         <span class="keyword">{{vchannel}}</span>
+        <span *ngIf="vtexts.length > 0">
+            <h3>Detected Text</h3>
+            <span class="keyword" *ngFor="let txt of vtexts">{{txt['frame']}}: {{txt['text']}}</span>
+        </span>
+        <span *ngIf="vspeech">
+            <h3>Detected Speech</h3>
+            <span class="keyword">{{vspeech['text']}}</span>
+        </span>
     </span>
 </div>
 

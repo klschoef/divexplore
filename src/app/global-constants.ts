@@ -4,6 +4,7 @@ import { LocalConfig } from "./local-config";
 
 //export var vbsServerConnectionService: VBSServerConnectionService | undefined;
 
+//export var queryHistory:Array<string> = [];
 
 export enum WebSocketEvent {
     UNSET = 'unset', 
@@ -19,6 +20,8 @@ export enum WSServerStatus {
     CONNECTED = 'connected',
     DISCONNECTED = 'disconnected'
 }
+
+export interface QueryType { type: string; query: string; maxresults: number; resultsperpage: number; selectedpage: string; dataset: string; }
 
 export class GlobalConstants {
     public static configVBSSERVER = 'https://vbs.videobrowsing.org';
