@@ -21,7 +21,39 @@ export enum WSServerStatus {
     DISCONNECTED = 'disconnected'
 }
 
-export interface QueryType { type: string; query: string; maxresults: number; resultsperpage: number; selectedpage: string; dataset: string; }
+export interface QueryType { 
+  type: string; 
+  query: string; 
+  maxresults: number; 
+  resultsperpage: number; 
+  selectedpage: string; 
+  dataset: string; 
+}
+
+/*
+export interface LogResultItem { 
+  item: string; 
+  frame: string; 
+  score: number; 
+  rank: number;
+}
+
+export interface LogQueryEvent {
+  timestamp: number;
+  category: string;
+  type: string;
+  value: string;
+}
+
+export interface ResultLog {
+    timestamp: number;
+    source: string;
+    sortType: string;
+    resultSetAvailability: string,  
+    results: Array<LogResultItem>,
+    evets: Array<LogQueryEvent>
+}
+*/
 
 export class GlobalConstants {
     public static configVBSSERVER = 'https://vbs.videobrowsing.org';
@@ -36,13 +68,13 @@ export class GlobalConstants {
     public static keyframeBaseURLMarine_SummariesXL: string = this.dataHost + 'marinesummariesXL/';
     public static keyframeBaseURLV3C_Summaries: string = this.dataHost + 'summaries/';
     public static keyframeBaseURLV3C_SummariesXL: string = this.dataHost + 'summariesXL/';
-    public static keyframeBaseURLMarine_Shots: string = this.dataHost + 'thumbsm/';
-    public static keyframeBaseURLV3C_Shots: string = this.dataHost + 'thumbs/';
+    public static keyframeBaseURLMarine_Shots: string = this.dataHost + 'thumbsmXL/';
+    public static keyframeBaseURLV3C_Shots: string = this.dataHost + 'thumbsXL/';
 
     public static videoURLV3C = this.dataHost + 'v3cvideos/';
     public static videoURLMarine = this.dataHost + 'marinevideos/';
 
-    public static maxResultsToReturn = 1200;
+    public static maxResultsToReturn = 1200; //10000;
     public static resultsPerPage = 30;
 }
 
@@ -68,6 +100,9 @@ export function formatAsTime(frame:string, fps:number, withFrames:boolean=true) 
     }
   }
 
+export function getTimestampInSeconds () {
+  return Math.floor(Date.now() / 1000)
+}
 /**
  * EXAMPLE OF LOCAL CONFIG (local-config.ts)
  * 

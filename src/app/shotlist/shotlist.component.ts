@@ -3,8 +3,9 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { VBSServerConnectionService } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
-import { formatAsTime, GlobalConstants, WSServerStatus } from '../global-constants';
+import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } from '../global-constants';
 import { mdiConsoleLine } from '@mdi/js';
+import { QueryEvent } from 'openapi/dres';
 
 
 const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
@@ -37,6 +38,8 @@ export class ShotlistComponent implements AfterViewInit {
   vcategories = [];
   vtexts =[]; 
   vspeech: any | undefined;
+
+  showButtons = -1;
 
   currentVideoTime: number = 0;
   @ViewChild('videoplayer') videoplayer!: ElementRef<HTMLVideoElement>;
@@ -227,12 +230,31 @@ export class ShotlistComponent implements AfterViewInit {
 
   submitCurrentTime() {
     this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime));
+
+    let queryEvent:QueryEvent = {
+      timestamp: getTimestampInSeconds(),
+      category: QueryEvent.CategoryEnum.OTHER,
+      type: 'submit',
+      value: `videoid:${this.videoid} frame:${this.currentVideoTime}` 
+    }
+    this.vbsService.queryEvents.push(queryEvent);
+    this.vbsService.submitLog();
+    this.vbsService.saveLogLocally();
   }
 
   submitResult(index: number) {
     this.vbsService.submitFrame(this.videoid!, parseInt(this.framenumbers[index]));
-  }
 
+    let queryEvent:QueryEvent = {
+      timestamp: getTimestampInSeconds(),
+      category: QueryEvent.CategoryEnum.OTHER,
+      type: 'submit',
+      value: `videoid:${this.videoid} freame:${this.framenumbers[index]}` 
+    }
+    this.vbsService.queryEvents.push(queryEvent);
+    this.vbsService.submitLog();
+    this.vbsService.saveLogLocally();
+  }
 
 }
 

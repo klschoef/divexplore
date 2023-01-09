@@ -9,6 +9,7 @@ import {
   ClientRunInfo,
   ClientRunInfoList,
   LoginRequest,
+  QueryEvent,
   QueryResult,
   QueryResultLog,
   SuccessfulSubmissionsStatus,
@@ -27,8 +28,10 @@ import { AppComponent } from './app.component';
 export class VBSServerConnectionService {
 
   sessionId: string | undefined; 
-
   vbsServerState: WSServerStatus = WSServerStatus.UNSET;
+
+  queryEvents: Array<QueryEvent> = [];
+  resultLog: QueryResultLog | undefined;
 
   constructor(
     private userService: UserService,
@@ -38,6 +41,34 @@ export class VBSServerConnectionService {
   ) {
     this.println(`VBSServerConnectionService created`);
     this.connect();
+  }
+
+  submitLog() {
+    if (this.resultLog && this.queryEvents) {
+      this.resultLog.events = this.queryEvents;
+      this.logService.postApiV1LogResult(this.sessionId!, this.resultLog).pipe(
+            tap(o => {
+              console.log(`Successfully submitted result log to DRES!`);
+            }),
+            catchError((err) => {
+              return of(`Failed to submit segment to DRES due to a HTTP error (${err.status}).`)
+            })
+        );
+      }
+  }
+
+  saveLogLocally() {
+    if (this.resultLog) {
+      let log = localStorage.getItem('VBSQueryLog');
+      if (log) {
+        let loga = JSON.parse(log);
+        loga.push(this.resultLog)
+        localStorage.setItem('VBSQueryLog',JSON.stringify(loga));
+      } else {
+        let loga  = [this.resultLog];
+        localStorage.setItem('VBSQueryLog',JSON.stringify(loga));
+      }
+    }
   }
 
   connect() {
@@ -83,7 +114,7 @@ export class VBSServerConnectionService {
   }
 
   handleSubmissionResponse(status: SuccessfulSubmissionsStatus, segment: string) {
-    this.println('The submission was successful. LOG missing');
+    this.println('The submission was successful.');
 
     // === Example 3: Log ===
     /*

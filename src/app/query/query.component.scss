@@ -3,7 +3,7 @@
 input[type="text"] {
     font-size: 20px;
     height: 26px;
-    width: 60%;
+    width: 57%;
 }
 
 .queryarea input {
@@ -36,8 +36,22 @@ input[type="text"] {
 
 .historySelect {
     float: right;
+    padding-right: 20px;
+    padding-bottom: 30px;
 }
 
 .historyToggle, .historySelect option {
     background-color: lightgray;
+}
+
+.videopreview {
+    background-color: white;
+    display: none;
+    position: absolute;
+    left: 5px;
+    top: 150px;
+    z-index: 10;
+    border: 1px solid;
+    padding: 10px;
+    box-shadow: 5px 10px;
 }

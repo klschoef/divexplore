@@ -24,11 +24,16 @@
 </div>
     
 <br/>
+
+<div class="videopreview" #videopreview>
+  <img [src]="videopreviewimage" width="1600">
+  <button (click)="closeVideoPreview()">Close</button>
+</div>
   
-<div class="queryresult" *ngFor="let item of queryresults; let i = index">
+<div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="queryresult" *ngFor="let item of queryresults; let i = index">
   <img src="{{item}}" width="320" height="180">
   <div class="lefttopcorner">
-    <span *ngIf="this.queryresult_frame[i] !== 'summary'" class="resultnum">{{this.queryresult_frame[i]}}</span>
+    <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">{{this.queryresult_frame[i]}}</span>
   </div>
   <div class="righttopcorner">
       <span class="label">
@@ -36,14 +41,15 @@
       </span>
   </div>
   <div class="leftbottomcorner">
-    <button (click)="showVideoShots(this.queryresult_videoid[i],this.queryresult_frame[i])" class="resultaction">Shots</button>
-    <button (click)="performSimilarityQueryForIndex(i)" class="resultaction">Similar</button>
+    <button *ngIf="showButtons === i" (click)="showVideoPreview(i)" class="resultaction">Video-Preview</button>
+    <button *ngIf="showButtons === i" (click)="showVideoShots(this.queryresult_videoid[i],this.queryresult_frame[i])" class="resultaction">Shotlist</button>
+    <button *ngIf="showButtons === i" (click)="performSimilarityQueryForIndex(i)" class="resultaction">Similar</button>
   </div>
   <div class="rightbottomcorner">
-      <button *ngIf="!this.isVideoResult(this.querydataset)" class="submitbutton" (click)="submitResult(i)">Submit</button>
+      <button *ngIf="showButtons === i && !this.isVideoResult(this.querydataset)" class="submitbutton" (click)="submitResult(i)">Submit</button>
   </div>
 </div>
-    
+  
 
 <div class="statusbar">
   CLIP server: <button class="{{clipService.connectionState}}" (click)="checkCLIPConnection()">{{clipService.connectionState}}</button>
@@ -52,4 +58,6 @@
   <span class="help">KEYBOARD: <b>1-9</b>: goto page, <b>left/right/tab</b>: switch page, <b>e</b>: extend query, <b>q</b>: edit query, <b>x</b>: reset query</span>
 </div>
   
-  
+<br/>&nbsp;
+<br/>&nbsp;
+<br/>&nbsp;

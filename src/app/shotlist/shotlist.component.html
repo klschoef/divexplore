@@ -16,7 +16,7 @@
 </div>
 
 
-<div class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">
+<div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">
     <img src="{{keyframeBaseURL}}/{{item}}" width="320" height="180" (click)="gotoTimeOfShot(i)">
     <div class="lefttopcorner">
         <span class="label">{{timelabels[i]}}</span>
@@ -27,10 +27,10 @@
         </span>
     </div>
     <div class="leftbottomcorner">
-        <button (click)="performFileSimilarityQuery(item)" class="resultaction">Similar</button>
+        <button *ngIf="showButtons === i" (click)="performFileSimilarityQuery(item)" class="resultaction">Similar</button>
     </div>
     <div class="rightbottomcorner">
-        <button class="submitbutton" (click)="submitResult(i)">Submit</button>
+        <button *ngIf="showButtons === i" class="submitbutton" (click)="submitResult(i)">Submit</button>
     </div>
 </div>
 
