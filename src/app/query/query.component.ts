@@ -200,10 +200,12 @@ export class QueryComponent implements AfterViewInit {
         this.inputfield.nativeElement.focus();
       }  
       else if (event.key == 'v') {
+        this.selectedPage = '1';
         this.selectedDataset = this.selectedDataset.replace('-s','-v');
         this.performTextQuery();
       }
       else if (event.key == 's') {
+        this.selectedPage = '1';
         this.selectedDataset = this.selectedDataset.replace('-v','-s');
         this.performTextQuery();
       }
@@ -349,6 +351,14 @@ export class QueryComponent implements AfterViewInit {
       this.performTextQuery();
     }
   }
+
+  performNewTextQuery() {
+    this.selectedPage = '1';
+    this.previousQuery = undefined;
+    this.file_sim_keyframe = undefined;
+    this.file_sim_pathPrefix = undefined;
+    this.performQuery();
+  }
   
   performTextQuery() {
     if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
@@ -450,6 +460,13 @@ export class QueryComponent implements AfterViewInit {
         this.queryinput = msg.query;
         this.selectedDataset = msg.dataset;
         this.selectedPage = msg.selectedpage;
+        this.previousQuery = undefined;
+        this.file_sim_keyframe = undefined;
+        this.file_sim_pathPrefix = undefined;
+      }
+      else if (msg.type === 'file-similarityquery') {
+        this.previousQuery = undefined;
+        this.queryinput = '';
       }
 
       this.sendToCLIPServer(msg);
@@ -529,10 +546,16 @@ export class QueryComponent implements AfterViewInit {
   }
 
   resetQuery() {
+    this.vbsService.submitLog();
+    this.vbsService.saveLogLocally();
     this.queryinput = '';
     this.inputfield.nativeElement.focus();
     this.inputfield.nativeElement.select();
+    this.file_sim_keyframe = undefined
+    this.file_sim_pathPrefix = undefined
+    this.previousQuery = undefined
     this.selectedPage = '1';
+    this.selectedDataset = 'v3c-s';
     this.pages = ['1'];
     this.clearResultArrays();
     let queryHistory:Array<QueryType> = [];

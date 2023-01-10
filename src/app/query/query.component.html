@@ -4,8 +4,8 @@
     <select [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
       <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
     </select> 
-    <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
-    <button class="searchButton" (click)="performTextQuery()">Search</button>
+    <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
+    <button class="searchButton" (click)="performNewTextQuery()">Search</button>
     <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
     <button class="resetButton" (click)="resetQuery()">Reset</button>
     <div class="historySelect" #historyDiv>
@@ -26,7 +26,7 @@
 <br/>
 
 <div class="videopreview" #videopreview>
-  <img [src]="videopreviewimage" width="1600">
+  <img [src]="videopreviewimage" class="videopreviewimage" width="2200">
   <button (click)="closeVideoPreview()">Close</button>
 </div>
   
