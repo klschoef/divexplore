@@ -70,6 +70,7 @@ export class GlobalConstants {
     public static keyframeBaseURLV3C_SummariesXL: string = this.dataHost + 'summariesXL/';
     public static keyframeBaseURLMarine_Shots: string = this.dataHost + 'thumbsmXL/';
     public static keyframeBaseURLV3C_Shots: string = this.dataHost + 'thumbsXL/';
+    public static keyframeBaseURLV3C: string = this.dataHost + 'keyframes/';
 
     public static videoURLV3C = this.dataHost + 'v3cvideos/';
     public static videoURLMarine = this.dataHost + 'marinevideos/';

@@ -16,13 +16,17 @@ import { GlobalConstants } from './global-constants';
 import { HttpClientModule } from '@angular/common/http';
 import { VBSServerConnectionService } from './vbsserver-connection.service';
 import { QueryComponent } from './query/query.component';
+import { ExplorationComponent } from './exploration/exploration.component';
+import { SafePipe } from './safe.pipe';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     ShotlistComponent,
-    QueryComponent
+    QueryComponent,
+    ExplorationComponent,
+    SafePipe
   ],
   imports: [
     BrowserModule,

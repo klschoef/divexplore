@@ -130,6 +130,9 @@ export class QueryComponent implements AfterViewInit {
     this.historyDiv.nativeElement.hidden = true;
   }
   
+  browseClusters() {
+    this.router.navigate(['exploration']); 
+  }
 
   toggleHistorySelect() {
     this.historyDiv.nativeElement.hidden = !this.historyDiv.nativeElement.hidden;
@@ -303,7 +306,7 @@ export class QueryComponent implements AfterViewInit {
       return GlobalConstants.keyframeBaseURLV3C_Shots;
     }
     else 
-    return '';
+    return GlobalConstants.keyframeBaseURLV3C;
   }
 
   getBaseURL() {
@@ -625,6 +628,7 @@ export class QueryComponent implements AfterViewInit {
 
   handleCLIPMessage(qresults:any) {
     console.log(qresults);
+    //console.log('dataset=' + qresults.dataset);
     
     
 
@@ -644,7 +648,7 @@ export class QueryComponent implements AfterViewInit {
     let logResults:Array<QueryResult> = [];
     //for (var e of qresults.results) {
     for (let i = 0; i < qresults.results.length; i++) {
-      let e = qresults.results[i];
+      let e = qresults.results[i].replace('.png', '.jpg');
       let filename = e.split('/');
       let videoid = filename[0];
       let framenumber = filename[1].split('_')[1].split('.')[0];
