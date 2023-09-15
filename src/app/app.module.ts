@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ShotlistComponent } from './shotlist/shotlist.component';
 import { ApiModule,Configuration } from 'openapi/dres';
 import { GlobalConstants } from './global-constants';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { VBSServerConnectionService } from './vbsserver-connection.service';
 import { QueryComponent } from './query/query.component';
 

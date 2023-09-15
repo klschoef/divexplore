@@ -50,12 +50,42 @@
   </div>
 </div>
   
-
 <div class="statusbar">
+  <span class="{{clipService.connectionState}}">CLIP</span>
+  <span class="{{nodeService.connectionState}}">Node</span>
+  <span class="{{vbsService.vbsServerState}}">DRES</span>
+<!--
   CLIP server: <button class="{{clipService.connectionState}}" (click)="checkCLIPConnection()">{{clipService.connectionState}}</button>
   Node server: <button class="{{nodeService.connectionState}}" (click)="checkNodeConnection()">{{nodeService.connectionState}}</button>
   VBS Server: <button class="{{vbsService.vbsServerState}}" (click)="checkVBSServerConnection()">{{vbsService.vbsServerState}}</button>
-  <span class="help">KEYBOARD: <b>1-9</b>: goto page, <b>left/right/tab</b>: switch page, <b>e</b>: extend query, <b>q</b>: edit query, <b>x</b>: reset query</span>
+-->
+
+  &nbsp; 
+  <span>User: {{vbsService.activeUsername}}</span>
+  
+  <span class="spacer2">&nbsp;</span>
+  <span class="spacer2">&nbsp;</span>
+  <span class="spacer2">&nbsp;</span>
+
+  <!--
+  <span class="whiteColor">Topic Answer:</span> 
+  <input type="text" id="topicanswer" name="topicanswer" ngModel #inputfield [(ngModel)]="topicanswer" (keyup.enter)="sendTopicAnswer()" autofocus (focus)="onAnswerInputFocus()" (blur)="onAnswerInputBlur()" />
+  <button class="topicanswerbutton" (click)="sendTopicAnswer()">Submit</button>
+  -->
+
+  <span class="spacer">&nbsp;</span>
+
+  <span>
+    <select class="grayBackground" [(ngModel)]="this.selectedServerRun" value="0" (change)="selectRun()">
+      <option *ngFor="let r of this.vbsService.serverRuns; let i = index" [ngValue]="i" [selected]="(i === 0 && this.selectedServerRun === undefined) || (i === +this.selectedServerRun!)">{{r}}</option>
+    </select>
+  </span>
+  &nbsp;
+  <span>{{statusTaskInfoText}}</span>
+  &nbsp;
+  <span class="remainingTimeInfo">{{statusTaskRemainingTime}}</span>
+  
+
 </div>
   
 <br/>&nbsp;

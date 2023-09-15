@@ -1,7 +1,7 @@
 import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../global-constants';
-import { VBSServerConnectionService } from '../vbsserver-connection.service';
+import { VBSServerConnectionService, GUIAction, GUIActionType } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { Router,ActivatedRoute } from '@angular/router';
@@ -22,6 +22,8 @@ export class QueryComponent implements AfterViewInit {
   file_sim_keyframe: string | undefined
   file_sim_pathPrefix: string | undefined
   
+  nodeServerInfo: string | undefined;
+
   
   queryinput: string = '';
   queryresults: Array<string> = [];
@@ -31,7 +33,11 @@ export class QueryComponent implements AfterViewInit {
   queryresult_frame: Array<string> = [];
   queryresult_videopreview: Array<string> = [];
   queryTimestamp: number = 0;
-  
+  queryType: string = '';
+  metadata: any;
+
+  public statusTaskInfoText: string = ""; //property binding
+  statusTaskRemainingTime: string = ""; //property binding
 
   videopreviewimage: string = '';
 
@@ -47,15 +53,18 @@ export class QueryComponent implements AfterViewInit {
   pages = ['1']
   
   thumbSize = 'small';
-  selectedDataset = 'v3c-s';
+  selectedDataset =  'v3c'; //'v3c-s';
   selectedHistoryEntry: string | undefined
+  selectedServerRun: string | undefined
   queryFieldHasFocus = false;
   showButtons = -1;
   datasets = [
-    {id: 'v3c-s', name: 'Shots: V3C'},
+    {id: 'v3c', name: 'Text-Query:'}
+    /*{id: 'v3c-s', name: 'Shots: V3C'},
     {id: 'v3c-v', name: 'Videos: V3C'},
     {id: 'marine-s', name: 'Shots: Marine'},
     {id: 'marine-v', name: 'Videos: Marine'} 
+    */
   ];
     
   constructor(
@@ -104,12 +113,34 @@ export class QueryComponent implements AfterViewInit {
     }
 
     this.nodeService.messages.subscribe(msg => {
+      this.nodeServerInfo = undefined; 
+
       if ('wsstatus' in msg) { 
         console.log('qc: node-notification: connected');
       } else {
-        let result = msg.content;
-        console.log("qc: response from node-server: " + result[0]);
-        this.handleNodeMessage(result[0]);
+        //let result = msg.content;
+        console.log("qc: response from node-server: " + msg);
+        if ("scores" in msg) {
+          this.handleQueryResponseMessage(msg); 
+        } else {
+          if ("type" in msg) {
+            let m = JSON.parse(JSON.stringify(msg));
+            if (m.type == 'metadata') {
+              this.metadata = m.results[0];
+              console.log('received metadata: ' + JSON.stringify(msg));
+              if (this.metadata?.location) {
+              }
+            } else if (m.type === 'info'){
+              console.log(m.message);
+              this.nodeServerInfo = m.message;
+            } else if (m.type === 'objects') {
+              console.log(m);
+            }
+          } else {
+            //this.handleNodeMessage(msg);
+            this.handleQueryResponseMessage(msg);
+          } 
+        }
       }
     });
 
@@ -121,13 +152,22 @@ export class QueryComponent implements AfterViewInit {
         }
       } else {
         console.log("qc: response from clip-server: " + msg);
-        this.handleCLIPMessage(msg);
+        this.handleQueryResponseMessage(msg);
       }
     });
+
+    //repeatedly retrieve task info
+    setInterval(() => {
+      this.requestTaskInfo();
+    }, 1000);
   }
 
   ngAfterViewInit(): void {
     this.historyDiv.nativeElement.hidden = true;
+  }
+
+  requestTaskInfo() {
+    this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[0], this);
   }
   
 
@@ -299,7 +339,7 @@ export class QueryComponent implements AfterViewInit {
     if (selDat == 'marine-s') {
       return GlobalConstants.keyframeBaseURLMarine_Shots; 
     }
-    else if (selDat == 'v3c-s') {
+    else if (selDat == 'v3c-s' || selDat == 'v3c') {
       return GlobalConstants.keyframeBaseURLV3C_Shots;
     }
     else 
@@ -361,7 +401,8 @@ export class QueryComponent implements AfterViewInit {
   }
   
   performTextQuery() {
-    if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
+    if (this.clipService.connectionState === WSServerStatus.CONNECTED ||
+      this.nodeService.connectionState === WSServerStatus.CONNECTED) {
       if (this.previousQuery !== undefined && this.previousQuery.type === 'textquery' && this.previousQuery.query !== this.queryinput) {
         this.selectedPage = '1';
       }
@@ -370,6 +411,7 @@ export class QueryComponent implements AfterViewInit {
       this.queryBaseURL = this.getBaseURL();
       let msg = { 
         type: "textquery", 
+        clientId: "direct", 
         query: this.queryinput,
         maxresults: this.maxresults,
         resultsperpage: this.resultsPerPage, 
@@ -378,9 +420,22 @@ export class QueryComponent implements AfterViewInit {
       };
       this.previousQuery = msg;
 
-      this.sendToCLIPServer(msg);
+      //this.sendToCLIPServer(msg);
+
+      this.queryTimestamp = getTimestampInSeconds();
+
+      if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
+        this.queryType = 'database/joint';
+        this.sendToNodeServer(msg);
+      } else {
+        this.queryType = 'CLIP';
+        this.sendToCLIPServer(msg);
+      }
+
       this.saveToHistory(msg);
 
+
+      //query logging
       let queryEvent:QueryEvent = {
         timestamp: getTimestampInSeconds(),
         category: QueryEvent.CategoryEnum.TEXT,
@@ -388,6 +443,16 @@ export class QueryComponent implements AfterViewInit {
         value: this.queryinput
       }
       this.vbsService.queryEvents.push(queryEvent);
+
+      //interaction logging
+      let GUIaction: GUIAction = {
+        timestamp: getTimestampInSeconds(), 
+        actionType: GUIActionType.TEXTQUERY,
+        info: this.queryinput, 
+        page: this.selectedPage
+      }
+      this.vbsService.interactionLog.push(GUIaction);
+
       
     } else {
       alert(`CLIP connection down: ${this.clipService.connectionState}. Try reconnecting by pressing the red button!`);
@@ -448,6 +513,10 @@ export class QueryComponent implements AfterViewInit {
       }
       this.vbsService.queryEvents.push(queryEvent);
     }
+  }
+
+  selectRun() {
+
   }
 
   performHistoryQuery() {
@@ -572,7 +641,7 @@ export class QueryComponent implements AfterViewInit {
     this.queryresult_videopreview = [];
     this.queryTimestamp = 0;
     this.vbsService.queryEvents = []
-    this.vbsService.resultLog = undefined
+    //this.vbsService.resultLog = []
   }
 
   /****************************************************************************
@@ -623,12 +692,15 @@ export class QueryComponent implements AfterViewInit {
     this.videopreview.nativeElement.style.display = 'none';
   }
 
-  handleCLIPMessage(qresults:any) {
+  handleQueryResponseMessage(qresults:any) {
     console.log(qresults);
     
-    
+    if (qresults.totalresults === 0) {
+      this.nodeServerInfo = 'The query returned 0 results!';
+    }
 
     this.totalReturnedResults = qresults.totalresults; //totally existing results
+
     //create pages array
     this.pages = [];
     for (let i = 1; i < this.totalReturnedResults / this.resultsPerPage; i++) {
@@ -644,7 +716,7 @@ export class QueryComponent implements AfterViewInit {
     let logResults:Array<QueryResult> = [];
     //for (var e of qresults.results) {
     for (let i = 0; i < qresults.results.length; i++) {
-      let e = qresults.results[i];
+      let e = qresults.results[i].replace('.png','.jpg');
       let filename = e.split('/');
       let videoid = filename[0];
       let framenumber = filename[1].split('_')[1].split('.')[0];
@@ -674,7 +746,9 @@ export class QueryComponent implements AfterViewInit {
       results: logResults,
       events: this.vbsService.queryEvents
     }
-    this.vbsService.resultLog = log;
+    this.vbsService.resultLog.push(log);
+
+    this.nodeServerInfo = undefined;
 
   }
 
