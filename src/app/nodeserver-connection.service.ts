@@ -30,6 +30,7 @@ export class NodeServerConnectionService {
   }
 
   public connectToServer() {
+    console.log(`will connect to node server: ${URL}`)
     this.messages = <Subject<Message>>this.connectToWebsocket(URL).pipe(
     map(
           (response: MessageEvent): Message => {
@@ -78,9 +79,9 @@ export class NodeServerConnectionService {
           error: (err: any) => {},
           complete: () => {},
           next: (data: Object) => {
-              console.log('Sent to node-server: ', data);
               if (ws.readyState === WebSocket.OPEN) {
                   ws.send(JSON.stringify(data));
+                  console.log('Sent to node-server: ', data);
               }
           }
       };

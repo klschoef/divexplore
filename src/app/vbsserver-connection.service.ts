@@ -8,6 +8,7 @@ import {LogService} from '../../openapi/dres/api/log.service';
 import {
   ClientRunInfo,
   ClientRunInfoList,
+  ClientTaskInfo,
   LoginRequest,
   QueryEvent,
   QueryResult,
@@ -21,6 +22,32 @@ import { NONE_TYPE } from '@angular/compiler';
 import { UrlSegment } from '@angular/router';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { AppComponent } from './app.component';
+import { QueryComponent } from './query/query.component';
+
+export enum GUIActionType {
+  TEXTQUERY = 'TEXTQUERY',
+  SIMILARITY = 'SIMILARITY',
+  FILESIMILARITY = 'FILESIMILARITY',
+  HISTORYQUERY = 'HISTORYQUERY', 
+  INSPECTFULLIMAGE = 'INSPECTFULLIMAGE',
+  HIDEFULLIMAGE = 'HIDEFULLIMAGE',
+  NEXTPAGE = 'NEXTPAGE',
+  PREVPAGE = 'PREVPAGE',
+  SHOWHELP = 'SHOWHELP',
+  RESETQUERY = 'RESETQUERY',
+  SUBMIT = 'SUBMIT',
+  SUBMITANSWER = 'SUBMITANSWER', 
+  CLEARQUERY = 'CLEARQUERY'
+}
+
+export interface GUIAction { 
+  timestamp: number;
+  actionType: GUIActionType;
+  page?: string;
+  info?: string; 
+  item?: number; 
+  results?: Array<string>;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -30,8 +57,16 @@ export class VBSServerConnectionService {
   sessionId: string | undefined; 
   vbsServerState: WSServerStatus = WSServerStatus.UNSET;
 
+  serverRuns: Array<string> = [];
+  serverRunIDs: Array<string> = [];
+
   queryEvents: Array<QueryEvent> = [];
-  resultLog: QueryResultLog | undefined;
+  resultLog: Array<QueryResultLog> = [];
+  interactionLog: Array<GUIAction> = [];
+
+  lastRunInfoRequestReturned404 = false;
+
+  activeUsername: string = '';
 
   constructor(
     private userService: UserService,
@@ -40,20 +75,25 @@ export class VBSServerConnectionService {
     private logService: LogService
   ) {
     this.println(`VBSServerConnectionService created`);
+    if (localStorage.getItem("LSCusername")) {
+      this.activeUsername = localStorage.getItem("LSCusername")!;
+    } else {
+      this.activeUsername = GlobalConstants.configUSER;
+    }
     this.connect();
   }
 
   submitLog() {
-    if (this.resultLog && this.queryEvents) {
-      this.resultLog.events = this.queryEvents;
-      this.logService.postApiV1LogResult(this.sessionId!, this.resultLog).pipe(
+    if (this.resultLog.length > 0 && this.queryEvents.length > 0) {
+      this.resultLog[this.resultLog.length-1].events = this.queryEvents;
+      this.logService.postApiV1LogResult(this.sessionId!, this.resultLog[this.resultLog.length-1]).pipe(
             tap(o => {
               console.log(`Successfully submitted result log to DRES!`);
             }),
             catchError((err) => {
               return of(`Failed to submit segment to DRES due to a HTTP error (${err.status}).`)
             })
-        );
+        ).subscribe();
       }
   }
 
@@ -100,17 +140,76 @@ export class VBSServerConnectionService {
               // === Evaluation Run Info ===
               this.runInfoService.getApiV1ClientRunInfoList(this.sessionId!).subscribe((currentRuns: ClientRunInfoList) => {
               this.println(`Found ${currentRuns.runs.length} ongoing evaluation runs`);
+              this.serverRuns = [];
+              this.serverRunIDs = [];
               currentRuns.runs.forEach((run: ClientRunInfo) => {
                       this.println(`${run.name} (${run.id}): ${run.status}`);
                       if (run.description) {
-                      this.println(run.description);
-                      this.println('');
+                        this.println(run.description);
+                        this.println('');
+                        this.serverRuns.push(run.description);  
+                      } else {
+                        this.serverRuns.push(run.name);
                       }
+                      this.serverRunIDs.push(run.id);
                   });
               });
           });
 
       });
+  }
+
+  getClientTaskInfo(runId: string, qcomp: QueryComponent) {
+    try {
+      if (this.lastRunInfoRequestReturned404) {
+        return;
+      }
+
+      this.runInfoService.getApiV1ClientRunInfoCurrenttaskWithRunid(runId, this.sessionId!)
+      .pipe(
+        catchError((error: any) => {
+          if (error.status == 404) {
+            console.log('A 404 error occurred when requesting run-info!', error);
+            this.lastRunInfoRequestReturned404 = true;
+          }
+          return of(null);  // Return an observable that emits no items to the observer
+        })
+      ).subscribe((info: ClientTaskInfo | null) => {
+        if (info != null) {
+          //console.log(info)
+          qcomp.statusTaskInfoText = info.name; //+ ', ' + info.id + ", " + info.taskGroup;
+          if (info.running) {
+            qcomp.statusTaskRemainingTime = ' ' + this.createTimestamp(info.remainingTime) + ' ';
+          } else {
+            qcomp.statusTaskRemainingTime = '';
+          }
+        }
+      })
+    } catch (error) {
+      console.log('issue with task info request');
+    }
+  }
+
+
+  createTimestamp(seconds: number): string {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+  
+    const timestamp = `${this.padZero(hours)}:${this.padZero(minutes)}:${this.padZero(remainingSeconds)}`;
+    return timestamp;
+  }
+  
+  padZero(value: number): string {
+    return value.toString().padStart(2, '0');
+  }
+
+  getRunInfoList() {
+    this.runInfoService.getApiV1ClientRunInfoList(this.sessionId!).subscribe((info: ClientRunInfoList) => {
+      for (const r of info.runs) {
+        console.log(r)
+      }
+    })
   }
 
   handleSubmissionResponse(status: SuccessfulSubmissionsStatus, segment: string) {
