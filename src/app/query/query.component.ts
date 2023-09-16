@@ -721,7 +721,7 @@ export class QueryComponent implements AfterViewInit {
     let logResults:Array<QueryResult> = [];
     //for (var e of qresults.results) {
     for (let i = 0; i < qresults.results.length; i++) {
-      let e = qresults.results[i];
+      let e = qresults.results[i].replace('.png','.jpg');
       let filename = e.split('/');
       let videoid = filename[0];
       let framenumber = filename[1].split('_')[1].split('.')[0];
