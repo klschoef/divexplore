@@ -2,7 +2,7 @@
 
 <div class="queryarea">
     <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
-    <span class="headertitle">{{videoid}} ({{keyframes.length}} shots)</span>
+    <span class="headertitle">v{{videoid}} ({{keyframes.length}} shots)</span>
     <span *ngIf="this.hasMetadata(); else simplemetadata" class="videometainfo">
         <span class="headerinfo">{{vtitle}}</span>
         <span class="headerkeyword">[by {{vchannel}}]</span>
@@ -22,12 +22,12 @@
 
 <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">
     <img src="{{keyframeBaseURL}}/{{item}}" width="320" height="180" (click)="gotoTimeOfShot(i)">
-    <div class="lefttopcorner">
+    <div class="righttopcorner">
         <span class="label">{{timelabels[i]}}</span>
     </div>
-    <div class="righttopcorner">
+    <div class="lefttopcorner">
         <span class="label">
-            {{this.framenumbers[i]}}
+            f{{this.framenumbers[i]}}
         </span>
     </div>
     <div class="leftbottomcorner">

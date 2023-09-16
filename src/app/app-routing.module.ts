@@ -10,6 +10,7 @@ const routes: Routes = [
   {path: '', component: AppComponent},
   {path: 'query', component: QueryComponent},
   {path: 'filesimilarity/:id/:id2', component: QueryComponent},
+  {path: 'filesimilarity/:id/:id2/:page', component: QueryComponent},
   {path: 'video/:id', component: ShotlistComponent},
   {path: 'video/:id/:id2', component: ShotlistComponent},
   {path: 'exploration', component: ExplorationComponent}

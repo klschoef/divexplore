@@ -64,16 +64,16 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     this.route.paramMap.subscribe(paraMap => {
       this.videoid = paraMap.get('id')?.toString();
       this.framenumber = paraMap.get('id2')?.toString();
-      this.titleService.setTitle('' + this.videoid);
+      this.titleService.setTitle('v' + this.videoid);
       console.log(`slc: ${this.videoid} ${this.framenumber}`);
       if (regExpBase.test(this.videoid!) == true) {
         this.keyframeBaseURL = GlobalConstants.keyframeBaseURLV3C_Shots;
         this.videoBaseURL = GlobalConstants.videoURLV3C;
-        this.datasetBase = 'thumbsXL';
+        this.datasetBase = 'keyframes'; //'thumbsXL';
       } else {
         this.keyframeBaseURL = GlobalConstants.keyframeBaseURLMarine_Shots;
         this.videoBaseURL = GlobalConstants.videoURLMarine;
-        this.datasetBase = 'thumbsmXL';
+        this.datasetBase = 'keyframes'; //'thumbsmXL';
       }
 
     });
@@ -113,7 +113,8 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
   }
 
   performFileSimilarityQuery(keyframe:string) {
-    this.router.navigate(['filesimilarity',keyframe,this.datasetBase]); //or navigateByUrl(`/video/${videoid}`)
+    //this.router.navigate(['filesimilarity',keyframe,this.datasetBase]); //or navigateByUrl(`/video/${videoid}`)
+    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg','.png')) + '/' + encodeURIComponent(this.datasetBase), '_blank');
   }
 
   onVideoPlayerLoaded(event:any) {

@@ -23,6 +23,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   
   file_sim_keyframe: string | undefined
   file_sim_pathPrefix: string | undefined
+  file_sim_page: string = "1"
   
   nodeServerInfo: string | undefined;
 
@@ -48,6 +49,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   querydataset: string = '';
   queryBaseURL = this.getBaseURL();
+  datasetBase: string = 'keyframes';
+  keyframeBaseURL: string = '';
   
   maxresults = GlobalConstants.maxResultsToReturn; 
   totalReturnedResults = 0; //how many results did our query return in total?
@@ -86,15 +89,21 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.file_sim_keyframe = paraMap.get('id')?.toString();
       if (this.file_sim_keyframe) {
         console.log(`qc: ${this.file_sim_keyframe}`);
+        this.titleService.setTitle(this.file_sim_keyframe.substring(this.file_sim_keyframe.indexOf('/') + 1));
       }
       this.file_sim_pathPrefix = paraMap.get('id2')?.toString();
       if (this.file_sim_pathPrefix) {
         console.log(`qc: ${this.file_sim_pathPrefix}`);
-        if (this.file_sim_pathPrefix === 'thumbsXL') {
+        this.selectedDataset = 'v3c';
+        /*if (this.file_sim_pathPrefix === 'thumbsXL') {
           this.selectedDataset = 'v3c-s';
         } else if (this.file_sim_pathPrefix === 'thumbsmXL') {
           this.selectedDataset = 'marine-s';
-        }
+        }*/
+      }
+      if (paraMap.get('page')) {
+        this.file_sim_page = paraMap.get('page')!.toString();
+        this.selectedPage = this.file_sim_page;
       }
     });
 
@@ -107,7 +116,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     if (this.clipService.connectionState == WSServerStatus.CONNECTED) {
       console.log('qc: CLIP-service already connected');
       if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
-        this.performFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
+        this.sendFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
       } else {
         this.performHistoryLastQuery();
       }
@@ -156,7 +165,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       if ('wsstatus' in msg) { 
         console.log('qc: CLIP-notification: connected');
         if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
-          this.performFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
+          this.sendFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
         }
       } else {
         console.log("qc: response from clip-server: " + msg);
@@ -395,7 +404,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   performQuery() {
     //called from the paging buttons
     if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
-      this.performFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
+      this.performFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix, this.selectedPage);
     }
     else if (this.previousQuery !== undefined && this.previousQuery.type === "similarityquery") {
       this.performSimilarityQuery(parseInt(this.previousQuery.query));
@@ -499,8 +508,17 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }
   }
 
-  performFileSimilarityQuery(keyframe:string, pathprefix:string) {
-    if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
+  performFileSimilarityQuery(keyframe:string, pathprefix:string = this.datasetBase, selectedPage:string = "1") {
+    //this.router.navigate(['filesimilarity',keyframe,this.datasetBase,selectedPage]); //or navigateByUrl(`/video/${videoid}`)
+    let target = '_blank';
+    if (this.file_sim_keyframe === keyframe) {
+      target = '_self';
+    }
+    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg','.png')) + '/' + encodeURIComponent(this.datasetBase) + '/' + selectedPage, target);
+  }
+
+  sendFileSimilarityQuery(keyframe:string, pathprefix:string) {
+    if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
 
       console.log('file-similarity-query for ', keyframe);
       let msg = { 
@@ -509,12 +527,12 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         pathprefix: pathprefix, 
         maxresults: this.maxresults,
         resultsperpage: this.resultsPerPage, 
-        selectedpage: this.selectedPage,
+        selectedpage: this.file_sim_page,
         dataset: this.selectedDataset 
       };
       this.previousQuery = msg;
 
-      this.sendToCLIPServer(msg);
+      this.sendToNodeServer(msg);
       this.saveToHistory(msg);
 
       let queryEvent:QueryEvent = {
@@ -715,7 +733,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
     let resultnum = (parseInt(this.selectedPage) - 1) * this.resultsPerPage + 1;
     this.querydataset = qresults.dataset;
-    let keyframeBase = this.getBaseURLFromKey(qresults.dataset);
+    this.keyframeBaseURL = this.getBaseURLFromKey(qresults.dataset);
     
     let logResults:Array<QueryResult> = [];
     //for (var e of qresults.results) {
@@ -724,7 +742,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       let filename = e.split('/');
       let videoid = filename[0];
       let framenumber = filename[1].split('_')[1].split('.')[0];
-      this.queryresults.push(keyframeBase + e);
+      this.queryresults.push(e);
       this.queryresult_serveridx.push(qresults.resultsidx[i]);
       this.queryresult_videoid.push(videoid);
       this.queryresult_frame.push(framenumber);

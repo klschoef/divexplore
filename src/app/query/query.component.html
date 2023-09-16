@@ -32,7 +32,7 @@
 </div>
   
 <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="queryresult" *ngFor="let item of queryresults; let i = index">
-  <img src="{{item}}" width="320" height="180" (click)="showVideoPreview(i)">
+  <img src="{{keyframeBaseURL}}/{{item}}" width="320" height="180" (click)="showVideoPreview(i)">
   <div class="lefttopcorner">
     <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">f{{this.queryresult_frame[i]}}</span>
   </div>
@@ -44,7 +44,8 @@
   <div class="leftbottomcorner">
     <!-- <button *ngIf="showButtons === i" (click)="showVideoPreview(i)" class="resultaction">Video-Preview</button> -->
     <button *ngIf="showButtons === i" (click)="showVideoShots(this.queryresult_videoid[i],this.queryresult_frame[i])" class="resultaction">Shotlist</button>
-    <button *ngIf="showButtons === i" (click)="performSimilarityQueryForIndex(i)" class="resultaction">Similar</button>
+    <!-- <button *ngIf="showButtons === i" (click)="performSimilarityQueryForIndex(i)" class="resultaction">Similar</button> -->
+    <button *ngIf="showButtons == i" (click)="performFileSimilarityQuery(item)" class="resultaction">Similar</button>
   </div>
   <div class="rightbottomcorner">
       <button *ngIf="showButtons === i && !this.isVideoResult(this.querydataset)" class="submitbutton" (click)="submitResult(i)">Submit</button>
