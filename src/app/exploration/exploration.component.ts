@@ -1,4 +1,9 @@
 import { Component } from '@angular/core';
+import { VBSServerConnectionService } from '../vbsserver-connection.service';
+import { NodeServerConnectionService } from '../nodeserver-connection.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { WSServerStatus } from '../global-constants';
+import { ClipServerConnectionService } from '../clipserver-connection.service';
 //import { HttpClient } from '@angular/common/http';
 
 interface Link {
@@ -27,9 +32,21 @@ export class ExplorationComponent {
     { title: 'cluster10', url: './cluster/cluster10.html', content: '' }
   ];
   selectedLink: Link | undefined;
-  localPageHtml: String | undefined
+  localPageHtml: String | undefined;
 
-  //constructor(private http: HttpClient) { }
+  nodeServerInfo: string | undefined;
+  selectedServerRun: string | undefined;
+
+  public statusTaskInfoText: string = ""; //property binding
+  statusTaskRemainingTime: string = ""; //property binding
+
+  constructor(
+    public vbsService: VBSServerConnectionService,
+    public nodeService: NodeServerConnectionService,
+    public clipService: ClipServerConnectionService,
+    private route: ActivatedRoute,
+    private router: Router) {
+  }
 
   onSelectLink(link: Link) {
     this.selectedLink = link;
@@ -38,4 +55,56 @@ export class ExplorationComponent {
     });*/
   }
   sandbox="allow-scripts"
+
+
+  ngOnInit() {
+    
+    //already connected?
+    if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
+      console.log('qc: node-service already connected');
+    } else {
+      console.log('qc: node-service not connected yet');
+    }
+
+    this.nodeService.messages.subscribe(msg => {
+      this.nodeServerInfo = undefined; 
+
+      if ('wsstatus' in msg) { 
+        console.log('qc: node-notification: connected');
+      } else {
+        //let result = msg.content;
+        console.log("qc: response from node-server: " + msg);
+        let m = JSON.parse(JSON.stringify(msg));
+        console.log(m);
+      }
+    });
+
+    //get all clusters with delay (of one second)
+    setTimeout(() => {
+      this.queryAllClusters();
+    }, 1000);
+  }
+
+  queryAllClusters() {
+    let msg = { 
+      type: "clusters", 
+      clientId: "direct"
+    };
+
+    if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
+      this.sendToNodeServer(msg);
+    } 
+  }
+
+  sendToNodeServer(msg:any) {
+    let message = {
+      source: 'appcomponent',
+      content: msg
+    };
+    this.nodeService.messages.next(message);
+  }
+
+  selectRun() {
+
+  }
 }

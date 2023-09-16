@@ -69,4 +69,29 @@ div.cluster img.zoom {
     transform: translate(-50%,-50%) scale(5);
     z-index: 999;
 }
+
+
+.spacer {
+  margin-right: 40px;
+}
+
+.spacer2 {
+  margin-right: 18%;
+}
+
+
+.whiteColor {
+  color: white;
+}
+
+.remainingTimeInfo {
+  background-color: red;
+  color: white;
+  font-size: 14pt;
+}
+
+.grayBackground {
+  background-color: rgba(73,76,84,1); //lightgray;
+  color: lightgray;
+}
   
