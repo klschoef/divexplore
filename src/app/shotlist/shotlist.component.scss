@@ -10,18 +10,32 @@
     font-size: 18pt;
     height: 50px;
     color: white;
+    margin-bottom: 42px;
+    margin-left: 16px;
+}
+
+.videosubmitinfo {
+    //background-color: rgba(0,139,139,0.8);
+    padding-left: 20px;
+    color: rgba(0,110,0,0.8);
+    font-size: 18pt;
+    height: 50px;
     vertical-align: middle;
     margin-bottom: 42px;
 }
 
 .videobox {
     display: block;
-    padding: 20px;
+    padding: 16px;
     float: left;
     position: relative;
     left: 0;
     top: 0;
-    padding-bottom: 40px;
+}
+
+.videoheader {
+    border-bottom: 2px solid white;
+    padding: 12px;
 }
 
 .queryresult:hover {
@@ -33,3 +47,35 @@
     padding: 16px;
     padding-bottom: 100px;
 }
+
+
+.spacer {
+    margin-right: 40px;
+}
+
+.spacer2 {
+    margin-right: 18%;
+}
+
+.grayBackground {
+    background-color: rgba(73,76,84,1); //lightgray;
+    color: lightgray;
+}
+
+.remainingTimeInfo {
+    background-color: red;
+    color: white;
+    font-size: 14pt;
+}
+
+.whiteColor {
+    color: white;
+}
+
+.topicanswerbutton {
+    background-color: rgba(0,110,0,0.8);
+    color: white;
+    padding: 2px;
+    width: 100px;
+}
+

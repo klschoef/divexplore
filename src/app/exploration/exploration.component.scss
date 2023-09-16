@@ -71,6 +71,7 @@ div.cluster img.zoom {
 }
 
 
+
 .spacer {
   margin-right: 40px;
 }
@@ -79,9 +80,9 @@ div.cluster img.zoom {
   margin-right: 18%;
 }
 
-
-.whiteColor {
-  color: white;
+.grayBackground {
+  background-color: rgba(73,76,84,1); //lightgray;
+  color: lightgray;
 }
 
 .remainingTimeInfo {
@@ -90,8 +91,15 @@ div.cluster img.zoom {
   font-size: 14pt;
 }
 
-.grayBackground {
-  background-color: rgba(73,76,84,1); //lightgray;
-  color: lightgray;
+.whiteColor {
+  color: white;
 }
+
+.topicanswerbutton {
+  background-color: rgba(0,110,0,0.8);
+  color: white;
+  padding: 2px;
+  width: 100px;
+}
+
   

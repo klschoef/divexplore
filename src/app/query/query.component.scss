@@ -57,15 +57,19 @@ input[type="text"] {
     margin-right: 18%;
 }
 
-
-.whiteColor {
-    color: white;
+.grayBackground {
+    background-color: rgba(73,76,84,1); //lightgray;
+    color: lightgray;
 }
 
 .remainingTimeInfo {
     background-color: red;
     color: white;
     font-size: 14pt;
+}
+
+.whiteColor {
+    color: white;
 }
 
 .topicanswerbutton {
@@ -75,10 +79,7 @@ input[type="text"] {
     width: 100px;
 }
 
-.grayBackground {
-    background-color: rgba(73,76,84,1); //lightgray;
-    color: lightgray;
-}
+
 
 .videopreview {
     background-color: rgba(255,255,255,0.75);

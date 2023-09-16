@@ -13,11 +13,11 @@
     <ng-template #simplemetadata>
         <span class="headerlabel">{{fps}} fps</span>
     </ng-template>
+    <button class="videosubmit" (click)="submitCurrentTime()">Submit Frame</button> <span class="videosubmitinfo">{{asTimeLabel(this.currentVideoTime.toString())}}</span>
 </div>
 
 <div class="videobox">
     <video #videoplayer src="{{videoURL}}" (timeupdate)="setCurrentTime($event)" width="960" height="540" controls></video>
-    <button class="videosubmit" (click)="submitCurrentTime()">Submit: {{asTimeLabel(this.currentVideoTime.toString())}}</button>
 </div>
 
 <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">
@@ -41,28 +41,65 @@
 
 <div class="footerinfo" *ngIf="this.hasMetadata()" >
     <span class="videometainfo">
-        <h3>Description</h3>
+        <h3 class="videoheader">Video Description</h3>
         <span class="headerdescription" [innerHTML]="vdescription"></span>
-        <h3>Tags</h3>
+        <h3 class="videoheader">Video Tags</h3>
         <span class="keyword" *ngFor="let tag of vtags">{{tag}}</span>
-        <h3>Categories</h3> 
+        <h3 class="videoheader">Categories</h3> 
         <span class="keyword" *ngFor="let cat of vcategories">{{cat}}</span>
-        <h3>Channel</h3>
+        <h3 class="videoheader">Video Channel</h3>
         <span class="keyword">{{vchannel}}</span>
         <span *ngIf="vtexts.length > 0">
-            <h3>Detected Text</h3>
-            <span class="keyword" *ngFor="let txt of vtexts">{{txt['frame']}}: {{txt['text']}}</span>
+        <h3 class="videoheader">Detected Text</h3>
+        <span class="keyword" *ngFor="let txt of vtexts">{{txt['frame']}}: {{txt['text']}}</span>
         </span>
         <span *ngIf="vspeech">
-            <h3>Detected Speech</h3>
-            <span class="keyword">{{vspeech['text']}}</span>
+        <h3 class="videoheader">Detected Speech</h3>
+        <span class="keyword">{{vspeech['text']}}</span>
         </span>
     </span>
 </div>
 
+
 <div class="statusbar">
+    <span class="{{clipService.connectionState}}">CLIP</span>
+    <span class="{{nodeService.connectionState}}">Node</span>
+    <span class="{{vbsService.vbsServerState}}">DRES</span>
+  <!--
     CLIP server: <button class="{{clipService.connectionState}}" (click)="checkCLIPConnection()">{{clipService.connectionState}}</button>
     Node server: <button class="{{nodeService.connectionState}}" (click)="checkNodeConnection()">{{nodeService.connectionState}}</button>
     VBS Server: <button class="{{vbsService.vbsServerState}}" (click)="checkVBSServerConnection()">{{vbsService.vbsServerState}}</button>
-    <span class="help">KEYBOARD: <b>1-9</b>: goto page, <b>left/right/tab</b>: switch page, <b>e</b>: extend query, <b>q</b>: edit query, <b>x</b>: reset query</span>
-</div>
+  -->
+  
+    &nbsp; 
+    <span>User: {{vbsService.activeUsername}}</span>
+    
+    <!--
+    <span class="spacer2">&nbsp;</span>
+    <span class="spacer2">&nbsp;</span>
+  -->
+  
+    <!--
+    <span class="whiteColor">Topic Answer:</span> 
+    <input type="text" id="topicanswer" name="topicanswer" ngModel #inputfield [(ngModel)]="topicanswer" (keyup.enter)="sendTopicAnswer()" autofocus (focus)="onAnswerInputFocus()" (blur)="onAnswerInputBlur()" />
+    <button class="topicanswerbutton" (click)="sendTopicAnswer()">Submit</button>
+    -->
+  
+    <span class="spacer">&nbsp;</span>
+  
+    <span>
+      <select class="grayBackground" [(ngModel)]="this.selectedServerRun" value="0" (change)="selectRun()">
+        <option *ngFor="let r of this.vbsService.serverRuns; let i = index" [ngValue]="i" [selected]="(i === 0 && this.selectedServerRun === undefined) || (i === +this.selectedServerRun!)">{{r}}</option>
+      </select>
+    </span>
+    &nbsp;
+    <span>{{statusTaskInfoText}}</span>
+    &nbsp;
+    <span class="remainingTimeInfo">{{statusTaskRemainingTime}}</span>
+    
+  
+  </div>
+    
+  <br/>&nbsp;
+  <br/>&nbsp;
+  <br/>&nbsp;

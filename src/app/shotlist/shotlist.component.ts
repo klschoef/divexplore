@@ -1,11 +1,13 @@
 import { ViewChild,ElementRef,AfterViewInit, Component } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { VBSServerConnectionService } from '../vbsserver-connection.service';
+import { VBSServerConnectionService, VbsServiceCommunication } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } from '../global-constants';
 import { mdiConsoleLine } from '@mdi/js';
 import { QueryEvent } from 'openapi/dres';
+import { Title } from '@angular/platform-browser';
+
 
 
 const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
@@ -17,13 +19,17 @@ const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important
   styleUrls: ['./shotlist.component.scss']
 })
 
-export class ShotlistComponent implements AfterViewInit {
+export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication {
   videoid: string | undefined;
   framenumber: string | undefined;
   videoURL: string = ''
   keyframes: Array<string> = [];
   timelabels: Array<string> = [];
   framenumbers: Array<string> = [];
+
+  selectedServerRun: string | undefined;
+  public statusTaskInfoText: string = ""; //property binding
+  statusTaskRemainingTime: string = ""; //property binding
 
   keyframeBaseURL: string = '';
   videoBaseURL: string = '';
@@ -48,6 +54,7 @@ export class ShotlistComponent implements AfterViewInit {
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService, 
+    private titleService: Title, 
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -57,6 +64,7 @@ export class ShotlistComponent implements AfterViewInit {
     this.route.paramMap.subscribe(paraMap => {
       this.videoid = paraMap.get('id')?.toString();
       this.framenumber = paraMap.get('id2')?.toString();
+      this.titleService.setTitle('' + this.videoid);
       console.log(`slc: ${this.videoid} ${this.framenumber}`);
       if (regExpBase.test(this.videoid!) == true) {
         this.keyframeBaseURL = GlobalConstants.keyframeBaseURLV3C_Shots;
@@ -85,10 +93,23 @@ export class ShotlistComponent implements AfterViewInit {
         this.loadVideoShots(result[0]);
       }
     });
+
+    //repeatedly retrieve task info
+    setInterval(() => {
+      this.requestTaskInfo();
+    }, 1000);
   }
 
   ngAfterViewInit(): void {
     this.videoplayer.nativeElement.addEventListener('loadeddata', this.onVideoPlayerLoaded.bind(this));
+  }
+
+  requestTaskInfo() {
+    this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[0], this);
+  }
+
+  selectRun() {
+
   }
 
   performFileSimilarityQuery(keyframe:string) {
@@ -214,6 +235,10 @@ export class ShotlistComponent implements AfterViewInit {
   gotoTimeOfShot(idx:number) {
     console.log(`goto time of shot ${idx} (fps=${this.fps})`);
     this.videoplayer.nativeElement.currentTime = parseFloat(this.framenumbers[idx]) / this.fps;
+    if (this.videoplayer.nativeElement.paused) {
+      this.videoplayer.nativeElement.play();
+    }
+    window.scrollTo(0, 0);
   }
 
   gotoTimeOfFrame(frame:number) {

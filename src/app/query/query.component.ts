@@ -1,19 +1,21 @@
 import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../global-constants';
-import { VBSServerConnectionService, GUIAction, GUIActionType } from '../vbsserver-connection.service';
+import { VBSServerConnectionService, GUIAction, GUIActionType, VbsServiceCommunication } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { Router,ActivatedRoute } from '@angular/router';
 import { query } from '@angular/animations';
 import { QueryEvent, QueryResult, QueryResultLog } from 'openapi/dres';
+import { Title } from '@angular/platform-browser';
+
 
 @Component({
   selector: 'app-query',
   templateUrl: './query.component.html',
   styleUrls: ['./query.component.scss']
 })
-export class QueryComponent implements AfterViewInit {
+export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   @ViewChild('inputfield') inputfield!: ElementRef<HTMLInputElement>;
   @ViewChild('historyDiv') historyDiv!: ElementRef<HTMLDivElement>;
@@ -36,6 +38,7 @@ export class QueryComponent implements AfterViewInit {
   queryType: string = '';
   metadata: any;
 
+  selectedServerRun: string | undefined
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
 
@@ -55,7 +58,6 @@ export class QueryComponent implements AfterViewInit {
   thumbSize = 'small';
   selectedDataset =  'v3c'; //'v3c-s';
   selectedHistoryEntry: string | undefined
-  selectedServerRun: string | undefined
   queryFieldHasFocus = false;
   showButtons = -1;
   datasets = [
@@ -71,6 +73,7 @@ export class QueryComponent implements AfterViewInit {
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService, 
+    private titleService: Title, 
     private route: ActivatedRoute,
     private router: Router) {
   }
@@ -135,9 +138,14 @@ export class QueryComponent implements AfterViewInit {
               this.nodeServerInfo = m.message;
             } else if (m.type === 'objects') {
               console.log(m);
+            } else if (m.type === 'videosummaries') {
+              let summaries = msg.content[0]['summaries'];
+              let summary = summaries[summaries.length-1];
+              console.log(summary);
+              this.videopreviewimage = GlobalConstants.dataHost + '/' + summary;
+              this.videopreview.nativeElement.style.display = 'block';
             }
           } else {
-            //this.handleNodeMessage(msg);
             this.handleQueryResponseMessage(msg);
           } 
         }
@@ -464,7 +472,7 @@ export class QueryComponent implements AfterViewInit {
   }
 
   performSimilarityQuery(serveridx:number) {
-    if (this.clipService.connectionState === WSServerStatus.CONNECTED) {
+    if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
       //alert(`search for ${i} ==> ${idx}`);
       console.log('similarity-query for ', serveridx);
       this.queryBaseURL = this.getBaseURL();
@@ -478,7 +486,7 @@ export class QueryComponent implements AfterViewInit {
       };
       this.previousQuery = msg;
 
-      this.sendToCLIPServer(msg);
+      this.sendToNodeServer(msg);
       this.saveToHistory(msg);
 
       let queryEvent:QueryEvent = {
@@ -604,7 +612,8 @@ export class QueryComponent implements AfterViewInit {
   }
   
   showVideoShots(videoid:string, frame:string) {
-    this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
+    //this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
+    window.open('video/' + videoid + '/' + frame, '_blank');
   }
 
   performSimilarityQueryForIndex(idx:number) {
@@ -681,16 +690,6 @@ export class QueryComponent implements AfterViewInit {
     } 
   }
 
-
-  handleNodeMessage(msg:any) {
-    if (msg['summaries']) {
-      let summaries = msg['summaries'];
-      let summary = summaries[summaries.length-1];
-      console.log(summary);
-      this.videopreviewimage = GlobalConstants.dataHost + '/' + summary;
-      this.videopreview.nativeElement.style.display = 'block';
-    } 
-  }
 
   closeVideoPreview() {
     this.videopreview.nativeElement.style.display = 'none';

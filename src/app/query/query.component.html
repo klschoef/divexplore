@@ -27,22 +27,22 @@
 <br/>
 
 <div class="videopreview" #videopreview>
-  <img [src]="videopreviewimage" class="videopreviewimage" width="2200">
-  <button (click)="closeVideoPreview()">Close</button>
+  <img [src]="videopreviewimage" class="videopreviewimage" width="2200" (click)="closeVideoPreview()">
+  <!-- <button (click)="closeVideoPreview()">Close</button> -->
 </div>
   
 <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="queryresult" *ngFor="let item of queryresults; let i = index">
-  <img src="{{item}}" width="320" height="180">
+  <img src="{{item}}" width="320" height="180" (click)="showVideoPreview(i)">
   <div class="lefttopcorner">
-    <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">{{this.queryresult_frame[i]}}</span>
+    <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">f{{this.queryresult_frame[i]}}</span>
   </div>
   <div class="righttopcorner">
       <span class="label">
-          <a [routerLink]="['/video',this.queryresult_videoid[i],this.queryresult_frame[i]]" target="_blank">{{this.queryresult_videoid[i]}}</a>
+          <a [routerLink]="['/video',this.queryresult_videoid[i],this.queryresult_frame[i]]" target="_blank">v{{this.queryresult_videoid[i]}}</a>
       </span>
   </div>
   <div class="leftbottomcorner">
-    <button *ngIf="showButtons === i" (click)="showVideoPreview(i)" class="resultaction">Video-Preview</button>
+    <!-- <button *ngIf="showButtons === i" (click)="showVideoPreview(i)" class="resultaction">Video-Preview</button> -->
     <button *ngIf="showButtons === i" (click)="showVideoShots(this.queryresult_videoid[i],this.queryresult_frame[i])" class="resultaction">Shotlist</button>
     <button *ngIf="showButtons === i" (click)="performSimilarityQueryForIndex(i)" class="resultaction">Similar</button>
   </div>

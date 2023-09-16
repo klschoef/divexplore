@@ -49,6 +49,11 @@ export interface GUIAction {
   results?: Array<string>;
 }
 
+export interface VbsServiceCommunication {
+  statusTaskRemainingTime: string;
+  statusTaskInfoText: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -159,7 +164,7 @@ export class VBSServerConnectionService {
       });
   }
 
-  getClientTaskInfo(runId: string, qcomp: QueryComponent) {
+  getClientTaskInfo(runId: string, comm: VbsServiceCommunication) {
     try {
       if (this.lastRunInfoRequestReturned404) {
         return;
@@ -177,11 +182,11 @@ export class VBSServerConnectionService {
       ).subscribe((info: ClientTaskInfo | null) => {
         if (info != null) {
           //console.log(info)
-          qcomp.statusTaskInfoText = info.name; //+ ', ' + info.id + ", " + info.taskGroup;
+          comm.statusTaskInfoText = info.name; //+ ', ' + info.id + ", " + info.taskGroup;
           if (info.running) {
-            qcomp.statusTaskRemainingTime = ' ' + this.createTimestamp(info.remainingTime) + ' ';
+            comm.statusTaskRemainingTime = ' ' + this.createTimestamp(info.remainingTime) + ' ';
           } else {
-            qcomp.statusTaskRemainingTime = '';
+            comm.statusTaskRemainingTime = '';
           }
         }
       })
