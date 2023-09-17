@@ -30,7 +30,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   
   queryinput: string = '';
   queryresults: Array<string> = [];
-  queryresult_serveridx: Array<number> = [];
+  //: Array<number> = [];
   queryresult_resultnumber: Array<string> = [];
   queryresult_videoid: Array<string> = [];
   queryresult_frame: Array<string> = [];
@@ -641,11 +641,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     window.open('video/' + videoid + '/' + frame, '_blank');
   }
 
-  performSimilarityQueryForIndex(idx:number) {
+  /*performSimilarityQueryForIndex(idx:number) {
     this.selectedPage = '1';
     let serveridx = this.queryresult_serveridx[idx];
     this.performSimilarityQuery(serveridx);
-  }
+  }*/
 
   resetPageAndPerformQuery() {
     this.selectedPage = '1';
@@ -672,7 +672,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   private clearResultArrays() {
     this.queryresults = [];
-    this.queryresult_serveridx = [];
+    //this.queryresult_serveridx = [];
     this.queryresult_resultnumber = [];
     this.queryresult_videoid = [];
     this.queryresult_frame = [];
@@ -750,7 +750,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       let videoid = filename[0];
       let framenumber = filename[1].split('_')[1].split('.')[0];
       this.queryresults.push(e);
-      this.queryresult_serveridx.push(qresults.resultsidx[i]);
+      //this.queryresult_serveridx.push(qresults.resultsidx[i]);
       this.queryresult_videoid.push(videoid);
       this.queryresult_frame.push(framenumber);
       this.queryresult_resultnumber.push(resultnum.toString());
