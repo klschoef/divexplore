@@ -75,6 +75,9 @@ export class GlobalConstants {
     public static videoURLV3C = this.dataHost + 'v3cvideos/';
     public static videoURLMarine = this.dataHost + 'marinevideos/';
 
+    public static replacePNG2 = '.jpg'; //display
+    public static replaceJPG_back2 = '.jpg'; //file-similarity
+
     public static maxResultsToReturn = 1200; //10000;
     public static resultsPerPage = 30;
 }

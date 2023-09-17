@@ -114,7 +114,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
 
   performFileSimilarityQuery(keyframe:string) {
     //this.router.navigate(['filesimilarity',keyframe,this.datasetBase]); //or navigateByUrl(`/video/${videoid}`)
-    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg','.png')) + '/' + encodeURIComponent(this.datasetBase), '_blank');
+    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg',GlobalConstants.replaceJPG_back2)) + '/' + encodeURIComponent(this.datasetBase), '_blank');
   }
 
   onVideoPlayerLoaded(event:any) {

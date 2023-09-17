@@ -521,7 +521,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     if (this.file_sim_keyframe === keyframe) {
       target = '_self';
     }
-    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg','.png')) + '/' + encodeURIComponent(this.datasetBase) + '/' + selectedPage, target);
+    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg',GlobalConstants.replaceJPG_back2)) + '/' + encodeURIComponent(this.datasetBase) + '/' + selectedPage, target);
   }
 
   sendFileSimilarityQuery(keyframe:string, pathprefix:string) {
@@ -745,7 +745,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     let logResults:Array<QueryResult> = [];
     //for (var e of qresults.results) {
     for (let i = 0; i < qresults.results.length; i++) {
-      let e = qresults.results[i].replace('.png','.jpg');
+      let e = qresults.results[i].replace('.png',GlobalConstants.replacePNG2);
       let filename = e.split('/');
       let videoid = filename[0];
       let framenumber = filename[1].split('_')[1].split('.')[0];
