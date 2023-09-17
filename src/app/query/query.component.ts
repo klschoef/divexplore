@@ -64,7 +64,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   queryFieldHasFocus = false;
   showButtons = -1;
   datasets = [
-    {id: 'v3c', name: 'Text-Query:'}
+    {id: 'v3c', name: 'Free-Text:'},
+    {id: 'v3ct', name: 'OCR Text:'}
     /*{id: 'v3c-s', name: 'Shots: V3C'},
     {id: 'v3c-v', name: 'Videos: V3C'},
     {id: 'marine-s', name: 'Shots: Marine'},
@@ -131,12 +132,13 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         console.log('qc: node-notification: connected');
       } else {
         //let result = msg.content;
+        let m = JSON.parse(JSON.stringify(msg));
         console.log("qc: response from node-server: " + msg);
-        if ("scores" in msg) {
+        if ("scores" in msg || m.type === 'ocr-text') {
           this.handleQueryResponseMessage(msg); 
         } else {
           if ("type" in msg) {
-            let m = JSON.parse(JSON.stringify(msg));
+            
             if (m.type == 'metadata') {
               this.metadata = m.results[0];
               console.log('received metadata: ' + JSON.stringify(msg));
@@ -440,6 +442,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         dataset: this.selectedDataset
       };
       this.previousQuery = msg;
+
+      if (this.selectedDataset === 'v3ct') {
+        msg.dataset = 'v3c';
+        msg.type = 'ocr-text';
+      }
 
       //this.sendToCLIPServer(msg);
 
