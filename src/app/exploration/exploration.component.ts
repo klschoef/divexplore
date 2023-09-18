@@ -16,7 +16,9 @@ interface Link {
 
 interface Cluster {
   cluster_id: string;
-  memberss: [string]; 
+  name: string; 
+  count: number; 
+  members: [string]; 
 }
 
 @Component({

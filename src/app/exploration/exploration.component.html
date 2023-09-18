@@ -8,7 +8,7 @@
 <div class="link-container">
     <div class="link-list">
       <!-- <a *ngFor="let link of links" [routerLink]="['.']" (click)="onSelectLink(link)">{{ link.title }}</a> -->
-      <p *ngFor="let c of clusters" (click)="queryCluster(c.cluster_id)">{{c.cluster_id}}</p> &nbsp;&nbsp;
+      <p *ngFor="let c of clusters" (click)="queryCluster(c.cluster_id)">{{c.name}} ({{c.count}})</p> &nbsp;&nbsp;
     </div>
 </div>
 
