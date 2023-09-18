@@ -11,15 +11,21 @@
   
   .link-list {
     display: flex;
-    flex-wrap: nowrap;
-    padding: 8px;
+    flex-wrap: wrap;
   }
   
-  .link-list a {
+  .link-list p {
     display: inline-block;
-    padding: 8px;
     margin-right: 8px;
     white-space: nowrap;
+    background-color: black;
+    color: white;
+    padding: 4px;
+    margin: 4px;
+  }
+
+  .link-list p:hover {
+    cursor: pointer;
   }
   
   .link-list a:last-child {

@@ -65,7 +65,9 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   showButtons = -1;
   datasets = [
     {id: 'v3c', name: 'Free-Text:'},
-    {id: 'v3ct', name: 'OCR Text:'}
+    {id: 'v3ct', name: 'OCR Text:'},
+    {id: 'v3cm', name: 'Metadata'}, 
+    {id: 'v3cv', name: 'VideoID'}
     /*{id: 'v3c-s', name: 'Shots: V3C'},
     {id: 'v3c-v', name: 'Videos: V3C'},
     {id: 'marine-s', name: 'Shots: Marine'},
@@ -446,6 +448,12 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       if (this.selectedDataset === 'v3ct') {
         msg.dataset = 'v3c';
         msg.type = 'ocr-text';
+      } else if (this.selectedDataset === 'v3cm') {
+        msg.dataset = 'v3c';
+        msg.type = 'metadata';
+      } else if (this.selectedDataset === 'v3cv') {
+        msg.dataset = 'v3c';
+        msg.type = 'videoid';
       }
 
       //this.sendToCLIPServer(msg);

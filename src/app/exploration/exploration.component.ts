@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { VBSServerConnectionService, VbsServiceCommunication } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { WSServerStatus } from '../global-constants';
+import { GlobalConstants, WSServerStatus } from '../global-constants';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { Title } from '@angular/platform-browser';
 
@@ -12,6 +12,11 @@ interface Link {
   title: string;
   url: string;
   content: string;
+}
+
+interface Cluster {
+  cluster_id: string;
+  memberss: [string]; 
 }
 
 @Component({
@@ -41,6 +46,10 @@ export class ExplorationComponent implements VbsServiceCommunication {
   selectedServerRun: string | undefined;
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
+  summariesBase: string | undefined;
+
+  clusters: Array<Cluster> = [];
+  summaries: Array<string> = [];
 
   constructor(
     public vbsService: VBSServerConnectionService,
@@ -62,6 +71,8 @@ export class ExplorationComponent implements VbsServiceCommunication {
 
   ngOnInit() {
     
+    this.summariesBase = GlobalConstants.keyframeBaseURLV3C_Summaries;
+
     //already connected?
     if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
       console.log('ec: node-service already connected');
@@ -79,6 +90,11 @@ export class ExplorationComponent implements VbsServiceCommunication {
         console.log("ec: response from node-server: " + msg);
         let m = JSON.parse(JSON.stringify(msg));
         console.log(m);
+        if (m.type === 'clusters') {
+          this.clusters = m.results;
+        } else if (m.type === 'cluster') {
+          this.summaries = m.results;
+        }
       }
     });
 
@@ -99,7 +115,21 @@ export class ExplorationComponent implements VbsServiceCommunication {
 
   queryAllClusters() {
     let msg = { 
+      dataset: 'v3c', 
       type: "clusters", 
+      clientId: "direct"
+    };
+
+    if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
+      this.sendToNodeServer(msg);
+    } 
+  }
+
+  queryCluster(clusterid:string) {
+    let msg = { 
+      dataset: 'v3c', 
+      type: "cluster",
+      query: clusterid, 
       clientId: "direct"
     };
 
@@ -114,6 +144,12 @@ export class ExplorationComponent implements VbsServiceCommunication {
       content: msg
     };
     this.nodeService.messages.next(message);
+  }
+
+  showVideoShots(summary:string) {
+    let videoid = summary.substring(0, summary.indexOf('/'));
+    //this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
+    window.open('video/' + videoid + '/1', '_blank');
   }
 
   selectRun() {

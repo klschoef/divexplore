@@ -7,7 +7,8 @@
 
 <div class="link-container">
     <div class="link-list">
-      <a *ngFor="let link of links" [routerLink]="['.']" (click)="onSelectLink(link)">{{ link.title }}</a>
+      <!-- <a *ngFor="let link of links" [routerLink]="['.']" (click)="onSelectLink(link)">{{ link.title }}</a> -->
+      <p *ngFor="let c of clusters" (click)="queryCluster(c.cluster_id)">{{c.cluster_id}}</p> &nbsp;&nbsp;
     </div>
 </div>
 
@@ -17,7 +18,12 @@
 </div>
 -->
 
-<div class="cluster" [innerHTML]="selectedLink?.content"></div>
+<div class="cluster">
+  <img *ngFor="let img of summaries" [src]="summariesBase + '/' + img" (click)="showVideoShots(img)">
+</div>
+
+
+<!-- <div class="cluster" [innerHTML]="selectedLink?.content"></div> -->
 
 <script>
     const images = document.querySelectorAll('.image');
