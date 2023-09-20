@@ -9,12 +9,15 @@
     <button class="browseButton" (click)="browseClusters()">Xplore</button>
     <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
     <button class="resetButton" (click)="resetQuery()">Reset</button>
+    
     <div class="historySelect" #historyDiv>
       <select [(ngModel)]="selectedHistoryEntry" value="" (change)="performHistoryQuery()">
         <option value="-1" selected disabled>-- Search History --</option>
         <option *ngFor="let h of history(); let i = index" [ngValue]="i">{{h}}</option>
       </select>
     </div>
+
+    <button class="helpButton" (click)="showHelp()">Help</button>
 </div>
   
 <div class="queryarea">
@@ -22,6 +25,7 @@
   <mat-button-toggle-group [(ngModel)]="selectedPage">
     <mat-button-toggle *ngFor="let p of pages" [value]="p" (click)="performQuery()" [disabled]="totalReturnedResults == 0">{{p}}</mat-button-toggle> 
   </mat-button-toggle-group>
+  <span class="resultcount">{{this.queryresult_videoid.length}} results</span>
 </div>
     
 <br/>
@@ -50,6 +54,43 @@
   <div class="rightbottomcorner">
       <button *ngIf="showButtons === i && !this.isVideoResult(this.querydataset)" class="submitbutton" (click)="submitResult(i)">Submit</button>
   </div>
+</div>
+
+
+<div *ngIf="nodeServerInfo !== undefined" class="full-message">
+  {{nodeServerInfo}}
+  <button (click)="nodeServerInfo = undefined">Close</button>
+</div>
+
+<div *ngIf="showHelpActive === true" class="full-help">
+  <h4>Query Types</h4>
+  <ul>
+    <li><b>Free-Text</b>: most powerful search with OpenCLIP.</li>
+    <li><b>OCR-Text</b>: database search for recognized text in keyframes (with Optical Character Recognition).</li>
+    <li><b>Metadata</b>: database search for title, description, channel, and tags (all provided by video author).</li>
+    <li><b>Speech</b>: database search for recognized speech.</li>
+    <li><b>VideoId</b>: database search for a particular video id.</li>
+  </ul>
+
+  <h4>Thumbnail Actions</h4>
+  <ul>
+    <li>Click thumbnail (or press space) to open <b>preview video summary</b> view.</li>
+    <li>Click <b>Shot-List</b> to open the video view with shots in a new tab.</li>
+    <li>Click <b>Similar</b> to perform a <b>similarity query</b> in a new tab.</li>
+    <li>Click <b>Submit</b> to send result to <b>DRES</b>.</li>
+  </ul>
+  
+  <h4>Keyboard Shortcuts</h4>
+  <ul>
+    <li><b>left/right/tab</b>: switch page</li>
+    <li><b>1-9</b>: goto page</li>
+    <li><b>e</b>: extend query</li>
+    <li><b>q</b>: edit query</li>
+    <li><b>x</b>: reset query</li>
+    <li><b>Space</b>: show/hide preview video summary of selected item</li>
+    <li><b>Esc</b>: close preview video summary (alternative to Space)</li>
+  </ul>
+  <button (click)="showHelpActive = false">Close</button>
 </div>
   
 <div class="statusbar">

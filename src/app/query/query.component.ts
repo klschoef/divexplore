@@ -62,6 +62,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   selectedItem = 0;
   showPreview = false;
+  showHelpActive = false;
   
   thumbSize = 'small';
   selectedDataset =  'v3c'; //'v3c-s';
@@ -70,10 +71,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   showButtons = -1;
   datasets = [
     {id: 'v3c', name: 'Free-Text'},
-    {id: 'v3ct', name: 'OCR Text'},
+    {id: 'v3ct', name: 'OCR-Text'},
     {id: 'v3cm', name: 'Metadata'}, 
     {id: 'v3cs', name: 'Speech'},
-    {id: 'v3cv', name: 'VideoID'}
+    {id: 'v3cv', name: 'VideoId'}
     /*{id: 'v3c-s', name: 'Shots: V3C'},
     {id: 'v3c-v', name: 'Videos: V3C'},
     {id: 'marine-s', name: 'Shots: Marine'},
@@ -195,6 +196,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.historyDiv.nativeElement.hidden = true;
   }
 
+  showHelp() {
+    this.showHelpActive = !this.showHelpActive;
+  }
+
   requestTaskInfo() {
     this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[0], this);
   }
@@ -273,14 +278,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         this.inputfield.nativeElement.focus();
       }  
       else if (event.key == 'v') {
-        this.selectedPage = '1';
+        /*this.selectedPage = '1';
         this.selectedDataset = this.selectedDataset.replace('-s','-v');
-        this.performTextQuery();
+        this.performTextQuery();*/
       }
       else if (event.key == 's') {
-        this.selectedPage = '1';
+        /*this.selectedPage = '1';
         this.selectedDataset = this.selectedDataset.replace('-v','-s');
-        this.performTextQuery();
+        this.performTextQuery();*/
       }
       else if (event.key == 'x') {
         this.resetQuery();
@@ -480,6 +485,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
     if (this.clipService.connectionState === WSServerStatus.CONNECTED ||
       this.nodeService.connectionState === WSServerStatus.CONNECTED) {
+
+      this.nodeServerInfo = "processing query, please wait...";
 
       if (this.previousQuery !== undefined && this.previousQuery.type === 'textquery' && this.previousQuery.query !== this.queryinput) {
         this.selectedPage = '1';

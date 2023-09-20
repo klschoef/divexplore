@@ -79,7 +79,7 @@ export class GlobalConstants {
     public static replacePNG2 = '.jpg'; //display
     public static replaceJPG_back2 = '.png'; //'.jpg'; //file-similarity
 
-    public static maxResultsToReturn = 1200; //10000;
+    public static maxResultsToReturn = 780; //1200; //10000;
     public static resultsPerPage = 20;
 }
 

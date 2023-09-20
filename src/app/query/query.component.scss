@@ -112,3 +112,29 @@ input[type="text"] {
     box-shadow: 5px 10px;
     width: 98%
 }
+
+.resultcount {
+    padding-left: 10px;
+}
+
+.full-message {
+    padding: 40px;
+    background-color: #ffffe0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    font-size: 20pt;
+  }
+
+  .full-help {
+    padding: 40px;
+    background-color: #ffffe0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    font-size: 12pt;
+  }
