@@ -7,7 +7,7 @@ import { ExplorationComponent } from './exploration/exploration.component';
 
 //'' is default route
 const routes: Routes = [
-  {path: '', component: AppComponent},
+  {path: '', redirectTo: 'query', pathMatch: 'full'}, // component: AppComponent
   {path: 'query', component: QueryComponent},
   {path: 'filesimilarity/:id/:id2', component: QueryComponent},
   {path: 'filesimilarity/:id/:id2/:page', component: QueryComponent},

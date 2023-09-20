@@ -63,6 +63,7 @@ export class GlobalConstants {
     public static clipServerURL: string = 'ws://' + LocalConfig.config_CLIP_SERVER_HOST + ':' + LocalConfig.config_CLIP_SERVER_PORT;
     public static nodeServerURL: string = 'ws://' + LocalConfig.config_NODE_SERVER_HOST + ':' + LocalConfig.config_NODE_SERVER_PORT;
     public static dataHost = LocalConfig.config_DATA_BASE_URL;
+    public static dataHostVideos = LocalConfig.config_DATA_BASE_URL_VIDEOS;
 
     public static keyframeBaseURLMarine_Summaries: string = this.dataHost + 'marinesummaries/';
     public static keyframeBaseURLMarine_SummariesXL: string = this.dataHost + 'marinesummariesXL/';
@@ -72,14 +73,14 @@ export class GlobalConstants {
     public static keyframeBaseURLV3C_Shots: string = this.dataHost + 'thumbsXL/';
     public static keyframeBaseURLV3C: string = this.dataHost + 'keyframes/';
 
-    public static videoURLV3C = this.dataHost + 'v3cvideos/';
-    public static videoURLMarine = this.dataHost + 'marinevideos/';
+    public static videoURLV3C = this.dataHostVideos + 'v3cvideos/';
+    public static videoURLMarine = this.dataHostVideos + 'marinevideos/';
 
     public static replacePNG2 = '.jpg'; //display
-    public static replaceJPG_back2 = '.jpg'; //file-similarity
+    public static replaceJPG_back2 = '.png'; //'.jpg'; //file-similarity
 
     public static maxResultsToReturn = 1200; //10000;
-    public static resultsPerPage = 30;
+    public static resultsPerPage = 20;
 }
 
 export function twoDigits(str:string):string {

@@ -38,6 +38,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   queryTimestamp: number = 0;
   queryType: string = '';
   metadata: any;
+  summaries: Array<string> = [];
+  selectedSummaryIdx = 0;
 
   selectedServerRun: string | undefined
   public statusTaskInfoText: string = ""; //property binding
@@ -57,6 +59,9 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   resultsPerPage = GlobalConstants.resultsPerPage; 
   selectedPage = '1'; //user-selected page
   pages = ['1']
+
+  selectedItem = 0;
+  showPreview = false;
   
   thumbSize = 'small';
   selectedDataset =  'v3c'; //'v3c-s';
@@ -64,9 +69,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   queryFieldHasFocus = false;
   showButtons = -1;
   datasets = [
-    {id: 'v3c', name: 'Free-Text:'},
-    {id: 'v3ct', name: 'OCR Text:'},
+    {id: 'v3c', name: 'Free-Text'},
+    {id: 'v3ct', name: 'OCR Text'},
     {id: 'v3cm', name: 'Metadata'}, 
+    {id: 'v3cs', name: 'Speech'},
     {id: 'v3cv', name: 'VideoID'}
     /*{id: 'v3c-s', name: 'Shots: V3C'},
     {id: 'v3c-v', name: 'Videos: V3C'},
@@ -143,20 +149,17 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
             
             if (m.type == 'metadata') {
               this.metadata = m.results[0];
+              //this.pages = ['1'];
               console.log('received metadata: ' + JSON.stringify(msg));
               if (this.metadata?.location) {
               }
             } else if (m.type === 'info'){
               console.log(m.message);
               this.nodeServerInfo = m.message;
-            } else if (m.type === 'objects') {
-              console.log(m);
             } else if (m.type === 'videosummaries') {
-              let summaries = msg.content[0]['summaries'];
-              let summary = summaries[summaries.length-1];
-              console.log(summary);
-              this.videopreviewimage = GlobalConstants.dataHost + '/' + summary;
-              this.videopreview.nativeElement.style.display = 'block';
+              this.summaries = msg.content[0]['summaries'];
+              this.selectedSummaryIdx = Math.floor(this.summaries.length/2);
+              this.displayVideoSummary();
             }
           } else {
             this.handleQueryResponseMessage(msg);
@@ -181,6 +184,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     setInterval(() => {
       this.requestTaskInfo();
     }, 1000);
+  }
+
+  private displayVideoSummary() {
+    this.videopreviewimage = GlobalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
+    this.videopreview.nativeElement.style.display = 'block';
   }
 
   ngAfterViewInit(): void {
@@ -288,9 +296,42 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   handleKeyboardEvent(event: KeyboardEvent) { 
     if (this.queryFieldHasFocus == false) {
       if (event.key == 'ArrowRight' || event.key == 'Tab') {
-        this.nextPage();     
+        if (this.showPreview) {
+          if (this.selectedItem < this.queryresult_videoid.length-1) {
+            this.selectedItem += 1;
+            this.showVideoPreview();
+          }
+          event.preventDefault(); 
+        } else {
+          this.nextPage();     
+        }
       } else if (event.key == "ArrowLeft") {
-        this.prevPage();
+        if (this.showPreview) {
+          if (this.selectedItem > 0) {
+            this.selectedItem -= 1;
+            this.showVideoPreview();
+          }
+          event.preventDefault(); 
+        } else {
+          this.prevPage();     
+        }
+      } else if (event.key == "ArrowUp") {
+        if (this.selectedSummaryIdx > 0) {
+          this.selectedSummaryIdx -= 1;
+          this.displayVideoSummary();
+        }
+        event.preventDefault();
+      } else if (event.key == "ArrowDown") {
+        if (this.selectedSummaryIdx < this.summaries.length-1) {
+          this.selectedSummaryIdx += 1;
+          this.displayVideoSummary();
+        }
+        event.preventDefault();
+      } else if (event.key == 'Space' || event.key == ' ') {
+        this.showPreview = !this.showPreview;
+        if (this.showPreview)
+          this.showVideoPreview();
+        event.preventDefault();
       } else {
         switch (event.key) {
           case '1':
@@ -396,8 +437,15 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.queryFieldHasFocus = false;
   }
 
-  showVideoPreview(idx:number) {
-    this.requestVideoSummaries(this.queryresult_videoid[idx]);
+  selectItemAndShowSummary(idx:number) {
+    this.selectedItem = idx;
+    this.showPreview = true;
+    this.showVideoPreview();
+  }
+
+  showVideoPreview() {
+    this.requestVideoSummaries(this.queryresult_videoid[this.selectedItem]);
+    window.scrollTo(0, 0);
   }
 
    /****************************************************************************
@@ -426,8 +474,13 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
   
   performTextQuery() {
+
+    if (this.queryinput.trim() === '')
+      return;
+
     if (this.clipService.connectionState === WSServerStatus.CONNECTED ||
       this.nodeService.connectionState === WSServerStatus.CONNECTED) {
+
       if (this.previousQuery !== undefined && this.previousQuery.type === 'textquery' && this.previousQuery.query !== this.queryinput) {
         this.selectedPage = '1';
       }
@@ -451,6 +504,9 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       } else if (this.selectedDataset === 'v3cm') {
         msg.dataset = 'v3c';
         msg.type = 'metadata';
+      } else if (this.selectedDataset === 'v3cs') {
+        msg.dataset = 'v3c';
+        msg.type = 'speech';
       } else if (this.selectedDataset === 'v3cv') {
         msg.dataset = 'v3c';
         msg.type = 'videoid';
@@ -725,7 +781,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
 
   closeVideoPreview() {
-    this.videopreview.nativeElement.style.display = 'none';
+    //this.videopreview.nativeElement.style.display = 'none';
+    this.showPreview = false;
   }
 
   handleQueryResponseMessage(qresults:any) {
@@ -740,8 +797,12 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
     //create pages array
     this.pages = [];
-    for (let i = 1; i < this.totalReturnedResults / this.resultsPerPage; i++) {
-      this.pages.push(i.toString());
+    if (qresults.type === 'ocr-text' || qresults.type === 'videoid' || qresults.type === 'metadata' || qresults.type === 'speech') {
+      this.pages.push('1');
+    } else {
+      for (let i = 1; i < this.totalReturnedResults / this.resultsPerPage; i++) {
+        this.pages.push(i.toString());
+      }
     }
     //populate images
     this.clearResultArrays();

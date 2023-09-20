@@ -26,13 +26,13 @@
     
 <br/>
 
-<div class="videopreview" #videopreview>
-  <img [src]="videopreviewimage" class="videopreviewimage" width="2200" (click)="closeVideoPreview()">
-  <!-- <button (click)="closeVideoPreview()">Close</button> -->
+<div *ngIf="showPreview" class="videopreview" #videopreview>
+  <span class="videosummaryheader" (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video {{this.queryresult_videoid[this.selectedItem]}} ({{this.selectedItem+1}}/{{this.queryresult_videoid.length}})</span><br/>
+  <img [src]="videopreviewimage" class="videopreviewimage" (click)="closeVideoPreview()">
 </div>
   
 <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="queryresult" *ngFor="let item of queryresults; let i = index">
-  <img src="{{keyframeBaseURL}}/{{item}}" width="320" height="180" (click)="showVideoPreview(i)">
+  <img src="{{keyframeBaseURL}}/{{item}}" width="320" height="180" (click)="selectItemAndShowSummary(i)" [ngClass]="{'blueborder': this.selectedItem == i}">
   <div class="lefttopcorner">
     <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">f{{this.queryresult_frame[i]}}</span>
   </div>

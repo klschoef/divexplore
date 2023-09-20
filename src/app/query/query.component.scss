@@ -79,20 +79,36 @@ input[type="text"] {
     width: 100px;
 }
 
+.blueborder {
+    border: 3px solid blue;
+    box-sizing: border-box;
+}
 
 
 .videopreview {
     background-color: rgba(255,255,255,0.75);
     display: none;
     position: absolute;
-    left: 5px;
-    top: 140px;
+    left: 4px;
+    top: 90px;
     height: 100%;
+    width: 100%;
     z-index: 10;
+}
+
+.videosummaryheader {
+    font-size: larger;
+    font-weight: bold;
+    color: black;
+    background-color: white;
+    width: 100%;
+    cursor: pointer;
+    padding: 6px;
 }
 
 .videopreviewimage {
     border: 1px solid;
     padding: 10px;
     box-shadow: 5px 10px;
+    width: 98%
 }
