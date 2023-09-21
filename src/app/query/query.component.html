@@ -1,6 +1,6 @@
 
 <div class="queryarea">
-    <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
+    <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
     <select [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
       <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
     </select> 
@@ -82,11 +82,12 @@
   
   <h4>Keyboard Shortcuts</h4>
   <ul>
-    <li><b>left/right/tab</b>: switch page</li>
+    <li><b>left/right/tab</b>: switch page (or preview summary when in preview mode)</li>
     <li><b>1-9</b>: goto page</li>
     <li><b>e</b>: extend query</li>
     <li><b>q</b>: edit query</li>
-    <li><b>x</b>: reset query</li>
+    <!--<li><b>x</b>: reset query</li>-->
+    <li><b>v</b>: open corresponding video in a new tab for current preview</li>
     <li><b>Space</b>: show/hide preview video summary of selected item</li>
     <li><b>Esc</b>: close preview video summary (alternative to Space)</li>
   </ul>

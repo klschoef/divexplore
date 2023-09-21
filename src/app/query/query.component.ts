@@ -187,13 +187,18 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }, 1000);
   }
 
+  
+  ngAfterViewInit(): void {
+    this.historyDiv.nativeElement.hidden = true;
+  }
+  
   private displayVideoSummary() {
     this.videopreviewimage = GlobalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
     this.videopreview.nativeElement.style.display = 'block';
   }
 
-  ngAfterViewInit(): void {
-    this.historyDiv.nativeElement.hidden = true;
+  reloadComponent(): void {
+    window.location.reload();
   }
 
   showHelp() {
@@ -288,7 +293,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         this.performTextQuery();*/
       }
       else if (event.key == 'x') {
-        this.resetQuery();
+        //this.resetQuery();
       }
       else if (event.key == 'Escape') {
         this.closeVideoPreview();
@@ -337,7 +342,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         if (this.showPreview)
           this.showVideoPreview();
         event.preventDefault();
-      } else {
+      } else if (event.key === 'v' && this.showPreview) {
+        this.showVideoShots(this.queryresult_videoid[this.selectedSummaryIdx],'1');
+      } 
+      else {
         switch (event.key) {
           case '1':
             this.gotoPage('1');
@@ -733,7 +741,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.file_sim_pathPrefix = undefined
     this.previousQuery = undefined
     this.selectedPage = '1';
-    this.selectedDataset = 'v3c-s';
+    this.selectedDataset = 'v3c';
     this.pages = ['1'];
     this.clearResultArrays();
     let queryHistory:Array<QueryType> = [];
