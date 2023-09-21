@@ -19,6 +19,13 @@ import { QueryComponent } from './query/query.component';
 import { ExplorationComponent } from './exploration/exploration.component';
 import { SafePipe } from './safe.pipe';
 
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ReactiveFormsModule } from '@angular/forms';
+
+
+
 
 @NgModule({
   declarations: [
@@ -42,7 +49,12 @@ import { SafePipe } from './safe.pipe';
     BrowserAnimationsModule, 
     MatIconModule,
     MatSliderModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [VBSServerConnectionService],
   bootstrap: [AppComponent]

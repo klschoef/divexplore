@@ -61,19 +61,51 @@ div.cluster img {
 
   
 div.cluster img {
-	width: 400px;
+	width: 530px;
 	height: 200px;
 	margin: 20px;
 	transition: transform 0.5s;
 }
 
-div.cluster img.zoom {
+.videopreview {
+  background-color: rgba(255,255,255,0.75);
+  position: absolute;
+  left: 4px;
+  top: 90px;
+  height: 100%;
+  width: 100%;
+  z-index: 10;
+}
+
+.videosummaryheader {
+  font-size: larger;
+  font-weight: bold;
+  color: black;
+  background-color: white;
+  width: 100%;
+  cursor: pointer;
+  padding: 6px;
+}
+
+div.videopreview img.zoom {
+  width:100%;
+  /*transform: translate(-50%,-50%) scale(5);*/
+  z-index: 999;
+}
+
+/*div.cluster img.zoom {
     display: none;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%) scale(5);
     z-index: 999;
+}*/
+
+.custom-option {
+  font-size: 18px; /* Adjust size as needed */
+  padding: 10px;   /* Adjust padding as needed */
+  /* Other styles as needed */
 }
 
 

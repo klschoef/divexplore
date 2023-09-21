@@ -5,52 +5,44 @@
     <span class="headertitle">Cluster Exploration</span>
 </div>
 
-<div class="link-container">
+<button (click)="showHideClusterList()">Show/Hide Entire Cluster List</button>
+<span class="spacer"></span>
+Find cluster by text:
+<mat-form-field>
+    <input type="text" placeholder="Select item" matInput [formControl]="itemCtrl" [matAutocomplete]="auto">
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="queryClusterFromSelectBox($event)" [displayWith]="displayFn">
+      <mat-option *ngFor="let item of filteredItems | async" [value]="item">
+        {{ item.name }} ({{ item.count}})
+      </mat-option>
+    </mat-autocomplete>
+</mat-form-field>
+  
+
+
+<div *ngIf="showClusterList" class="link-container">
     <div class="link-list">
-      <!-- <a *ngFor="let link of links" [routerLink]="['.']" (click)="onSelectLink(link)">{{ link.title }}</a> -->
-      <p *ngFor="let c of clusters" (click)="queryCluster(c.cluster_id)">{{c.name}} ({{c.count}})</p> &nbsp;&nbsp;
+      <p *ngFor="let c of clusters" (click)="queryCluster(c.cluster_id)">{{c.cluster_id}}: {{c.name}} ({{c.count}})</p> &nbsp;&nbsp;
     </div>
 </div>
+
 
 <!--
 <div class="iframe-container">
     <iframe sandbox="allow-scripts" [src]="selectedLink?.url | safe"></iframe>
 </div>
 -->
+<div *ngIf="showZoomedSummary" class="videopreview" #videopreview>
+    <button class="videosummaryheader" (click)="showVideoShots(this.summaries[this.selectedSummary])"> {{this.summaries[this.selectedSummary]}}</button><br/>
+    <img class="zoom" [src]="summariesBase + '/' + summaries[selectedSummary]" (click)="closeSummary()">
+</div>
 
 <div class="cluster">
-  <img *ngFor="let img of summaries" [src]="summariesBase + '/' + img" (click)="showVideoShots(img)">
+  <!--<img *ngFor="let img of summaries" [src]="summariesBase + '/' + img" (click)="showVideoShots(img)">-->
+  <img class="image" *ngFor="let img of summaries; let i = index" [src]="summariesBase + '/' + img" (click)="selectSummary(i)">
 </div>
 
 
-<!-- <div class="cluster" [innerHTML]="selectedLink?.content"></div> -->
-
-<script>
-    const images = document.querySelectorAll('.image');
-const zooms = document.querySelectorAll('.zoom');
-
-// Loop through each image and add a click event listener
-images.forEach((image, index) => {
-    image.addEventListener('click', () => {
-        // Hide all other zoomed images
-        zooms.forEach((zoom) => {
-            if (zoom !== zooms[index]) {
-                zoom.style.display = 'none';
-            }
-        });
-
-        // Show the zoomed image for the clicked image
-        zooms[index].style.display = 'block';
-        zooms[index].parentNode.style.overflow = 'visible';
-    });
-
-    // Add a click event listener to the zoomed image to hide it
-    zooms[index].addEventListener('click', () => {
-        zooms[index].style.display = 'none';
-        zooms[index].parentNode.style.overflow = 'hidden';
-    });
-});
-</script>
+<!--<div class="cluster" [innerHTML]="selectedLink?.content"></div> -->
 
 
   

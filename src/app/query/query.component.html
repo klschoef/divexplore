@@ -31,7 +31,7 @@
 <br/>
 
 <div *ngIf="showPreview" class="videopreview" #videopreview>
-  <span class="videosummaryheader" (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video {{this.queryresult_videoid[this.selectedItem]}} ({{this.selectedItem+1}}/{{this.queryresult_videoid.length}})</span><br/>
+  <button class="videosummaryheader" (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video {{this.queryresult_videoid[this.selectedItem]}} ({{this.selectedItem+1}}/{{this.queryresult_videoid.length}})</button><br/>
   <img [src]="videopreviewimage" class="videopreviewimage" (click)="closeVideoPreview()">
 </div>
   
