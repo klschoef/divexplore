@@ -269,6 +269,29 @@ export class VBSServerConnectionService {
     
   }
 
+
+  submitText(text: string) {
+    // === Submission ===
+    //'00:00:10:00', // timecode - in this case, we use the timestamp in the form HH:MM:SS:FF
+    this.submissionService.getApiV1Submit(
+      undefined, // collection - does not usually need to be set
+      undefined, // item -  item which is to be submitted
+      text, //text - in case the task is not targeting a particular content object but plaintext
+      undefined, // frame - for items with temporal components, such as video
+      undefined, // shot - only one of the time fields needs to be set.
+      undefined, // timecode - in this case, we use the timestamp in the form HH:MM:SS:FF
+      this.sessionId! // the sessionId, as always
+    ).pipe(
+      tap((status: SuccessfulSubmissionsStatus) => {
+        this.handleSubmissionResponse(status, 'text:'+text);
+      }), 
+      catchError(err => {
+        return this.handleSubmissionError(err);
+      })
+    ).subscribe()
+    
+  }
+
   logout(appComp: AppComponent) {
       // === Graceful logout ===
       this.userService.getApiV1Logout(this.sessionId!).subscribe((logout: SuccessStatus) => {

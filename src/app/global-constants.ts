@@ -79,8 +79,11 @@ export class GlobalConstants {
     public static replacePNG2 = '.jpg'; //display
     public static replaceJPG_back2 = '.png'; //'.jpg'; //file-similarity
 
-    public static maxResultsToReturn = 780; //1200; //10000;
-    public static resultsPerPage = 20;
+    public static resultsPerPage = 35;
+    public static maxResultsToReturn = this.resultsPerPage*41; //780; //1200; //10000;
+    public static imgRatio = 320.0/180.0;
+    public static imgWidth = 236; 
+    public static imgHeight = this.imgWidth/this.imgRatio;
 }
 
 export function twoDigits(str:string):string {

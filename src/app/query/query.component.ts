@@ -27,8 +27,12 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   
   nodeServerInfo: string | undefined;
 
+  imgWidth = GlobalConstants.imgWidth;
+  imgHeight = GlobalConstants.imgHeight;
+
   
   queryinput: string = '';
+  topicanswer: string = '';
   queryresults: Array<string> = [];
   //: Array<number> = [];
   queryresult_resultnumber: Array<string> = [];
@@ -68,6 +72,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   selectedDataset =  'v3c'; //'v3c-s';
   selectedHistoryEntry: string | undefined
   queryFieldHasFocus = false;
+  answerFieldHasFocus = false;
   showButtons = -1;
   datasets = [
     {id: 'v3c', name: 'Free-Text'},
@@ -274,29 +279,30 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   @HostListener('document:keyup', ['$event'])
   handleKeyboardEventUp(event: KeyboardEvent) { 
-    
-    if (this.queryFieldHasFocus == false) {
-      if (event.key == 'q') {
-        this.inputfield.nativeElement.select();
-      }
-      else if (event.key == 'e') {
-        this.inputfield.nativeElement.focus();
-      }  
-      else if (event.key == 'v') {
-        /*this.selectedPage = '1';
-        this.selectedDataset = this.selectedDataset.replace('-s','-v');
-        this.performTextQuery();*/
-      }
-      else if (event.key == 's') {
-        /*this.selectedPage = '1';
-        this.selectedDataset = this.selectedDataset.replace('-v','-s');
-        this.performTextQuery();*/
-      }
-      else if (event.key == 'x') {
-        //this.resetQuery();
-      }
-      else if (event.key == 'Escape') {
-        this.closeVideoPreview();
+    if (this.queryFieldHasFocus == false && this.answerFieldHasFocus == false) {
+      if (this.queryFieldHasFocus == false) {
+        if (event.key == 'q') {
+          this.inputfield.nativeElement.select();
+        }
+        else if (event.key == 'e') {
+          this.inputfield.nativeElement.focus();
+        }  
+        else if (event.key == 'v') {
+          /*this.selectedPage = '1';
+          this.selectedDataset = this.selectedDataset.replace('-s','-v');
+          this.performTextQuery();*/
+        }
+        else if (event.key == 's') {
+          /*this.selectedPage = '1';
+          this.selectedDataset = this.selectedDataset.replace('-v','-s');
+          this.performTextQuery();*/
+        }
+        else if (event.key == 'x') {
+          //this.resetQuery();
+        }
+        else if (event.key == 'Escape') {
+          this.closeVideoPreview();
+        }
       }
     }
   }
@@ -448,6 +454,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   onQueryInputBlur() {
     this.queryFieldHasFocus = false;
+  }
+
+  onAnswerInputFocus() {
+    this.answerFieldHasFocus = true;
+  }
+
+  onAnswerInputBlur() {
+    this.answerFieldHasFocus = false
   }
 
   selectItemAndShowSummary(idx:number) {
@@ -896,4 +910,29 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
 
+
+
+  sendTopicAnswer() {
+    this.vbsService.submitText(this.topicanswer)
+
+    let queryEvent:QueryEvent = {
+      timestamp: getTimestampInSeconds(),
+      category: QueryEvent.CategoryEnum.OTHER,
+      type: 'submitanswer',
+      value: `result:${this.topicanswer}` 
+    }
+    this.vbsService.queryEvents.push(queryEvent);
+    this.vbsService.submitLog();
+
+    //interaction logging
+    let GUIaction: GUIAction = {
+      timestamp: getTimestampInSeconds(), 
+      actionType: GUIActionType.SUBMITANSWER,
+      info: this.topicanswer
+    }
+    this.vbsService.interactionLog.push(GUIaction);
+
+    //save and reset logs
+    //this.vbsService.saveLogLocallyAndClear();
+  }
 }

@@ -36,7 +36,7 @@
 </div>
   
 <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="queryresult" *ngFor="let item of queryresults; let i = index">
-  <img src="{{keyframeBaseURL}}/{{item}}" width="320" height="180" (click)="selectItemAndShowSummary(i)" [ngClass]="{'blueborder': this.selectedItem == i}">
+  <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="selectItemAndShowSummary(i)" [ngClass]="{'blueborder': this.selectedItem == i}">
   <div class="lefttopcorner">
     <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">f{{this.queryresult_frame[i]}}</span>
   </div>
@@ -107,16 +107,15 @@
   &nbsp; 
   <span>User: {{vbsService.activeUsername}}</span>
   
-  <!--
-  <span class="spacer2">&nbsp;</span>
-  <span class="spacer2">&nbsp;</span>
--->
 
-  <!--
+  <span class="spacer2">&nbsp;</span>
+  <!--<span class="spacer2">&nbsp;</span>-->
+
+
   <span class="whiteColor">Topic Answer:</span> 
   <input type="text" id="topicanswer" name="topicanswer" ngModel #inputfield [(ngModel)]="topicanswer" (keyup.enter)="sendTopicAnswer()" autofocus (focus)="onAnswerInputFocus()" (blur)="onAnswerInputBlur()" />
   <button class="topicanswerbutton" (click)="sendTopicAnswer()">Submit</button>
-  -->
+  
 
   <span class="spacer">&nbsp;</span>
 
