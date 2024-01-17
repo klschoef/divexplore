@@ -121,13 +121,13 @@
 
   <span>
     <select class="grayBackground" [(ngModel)]="this.selectedServerRun" value="0" (change)="selectRun()">
-      <option *ngFor="let r of this.vbsService.serverRuns; let i = index" [ngValue]="i" [selected]="(i === 0 && this.selectedServerRun === undefined) || (i === +this.selectedServerRun!)">{{r}}</option>
+      <option *ngFor="let r of this.vbsService.serverRuns; let i = index" [ngValue]="i" [selected]="(i === 0 && this.selectedServerRun === undefined) || (i === this.selectedServerRun!)">{{r}}</option>
     </select>
   </span>
   &nbsp;
   <span>{{statusTaskInfoText}}</span>
   &nbsp;
-  <span class="remainingTimeInfo">{{statusTaskRemainingTime}}</span>
+  <span class="remainingTimeInfo" *ngIf="this.selectedServerRun !== undefined" >{{getRemainingTaskTime()}}</span>
   
 
 </div>

@@ -5,7 +5,7 @@ import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } from '../global-constants';
 import { mdiConsoleLine } from '@mdi/js';
-import { QueryEvent } from 'openapi/dres';
+import { QueryEvent, QueryEventCategory } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
 
 
@@ -259,7 +259,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
 
     let queryEvent:QueryEvent = {
       timestamp: getTimestampInSeconds(),
-      category: QueryEvent.CategoryEnum.OTHER,
+      category: QueryEventCategory.OTHER,
       type: 'submit',
       value: `videoid:${this.videoid} frame:${this.currentVideoTime}` 
     }
@@ -273,7 +273,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
 
     let queryEvent:QueryEvent = {
       timestamp: getTimestampInSeconds(),
-      category: QueryEvent.CategoryEnum.OTHER,
+      category: QueryEventCategory.OTHER,
       type: 'submit',
       value: `videoid:${this.videoid} freame:${this.framenumbers[index]}` 
     }

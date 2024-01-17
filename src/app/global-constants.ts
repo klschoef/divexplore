@@ -57,8 +57,8 @@ export interface ResultLog {
 
 export class GlobalConstants {
     public static configVBSSERVER = 'https://vbs.videobrowsing.org';
-    public static configUSER = 'divexplore';
-    public static configPASS = 'dHKooTWGP3LY'; //'MRT7jDaRUq';
+    public static configUSER = LocalConfig.config_USER;
+    public static configPASS = LocalConfig.config_PASS;
     
     public static clipServerURL: string = 'ws://' + LocalConfig.config_CLIP_SERVER_HOST + ':' + LocalConfig.config_CLIP_SERVER_PORT;
     public static nodeServerURL: string = 'ws://' + LocalConfig.config_NODE_SERVER_HOST + ':' + LocalConfig.config_NODE_SERVER_PORT;
@@ -114,10 +114,17 @@ export function getTimestampInSeconds () {
 /**
  * EXAMPLE OF LOCAL CONFIG (local-config.ts)
  * 
- export class LocalConfig {
+export class LocalConfig {
     public static config_CLIP_SERVER_HOST = 'extreme00.itec.aau.at'; //localhost
     public static config_CLIP_SERVER_PORT = '8001';
 
+    public static config_NODE_SERVER_HOST = 'extreme00.itec.aau.at'
+    public static config_NODE_SERVER_PORT = '8080';
+    
     public static config_DATA_BASE_URL = 'http://extreme00.itec.aau.at/diveXplore/'; //http://localhost/divexplore/
+    public static config_DATA_BASE_URL_VIDEOS = 'http://divexplore.itec.aau.at/videos/';
+
+    public static config_USER = 'diveXplore1';
+    public static config_PASS = 'Wy?j}7&3';
 }
  */

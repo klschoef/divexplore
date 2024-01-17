@@ -1,21 +1,27 @@
 import { Injectable, OnInit } from '@angular/core';
 
 import {UserService} from '../../openapi/dres/api/user.service';
-import {ClientRunInfoService} from '../../openapi/dres/api/clientRunInfo.service';
+import {EvaluationClientService} from '../../openapi/dres/api/evaluationClient.service';
 import {SubmissionService} from '../../openapi/dres/api/submission.service';
-import {LogService} from '../../openapi/dres/api/log.service';
+//import {LogService} from '../../openapi/dres/api/log.service';
 
 import {
-  ClientRunInfo,
-  ClientRunInfoList,
-  ClientTaskInfo,
-  LoginRequest,
+  ApiClientAnswer,
+  ApiClientAnswerSet,
+  ApiClientSubmission,
+  ApiEvaluationInfo, ApiClientEvaluationInfo, 
+  ApiEvaluationStatus,
+  ApiUser,
+  LoginRequest, LogService, 
   QueryEvent,
   QueryResult,
   QueryResultLog,
   SuccessfulSubmissionsStatus,
   SuccessStatus,
-  UserDetails
+  ApiClientTaskTemplateInfo,
+  ApiTaskTemplateInfo,
+  EvaluationService,
+  ApiEvaluationState
 } from '../../openapi/dres/';
 import { GlobalConstants, WSServerStatus } from './global-constants';
 import { NONE_TYPE } from '@angular/compiler';
@@ -64,6 +70,7 @@ export class VBSServerConnectionService {
 
   serverRuns: Array<string> = [];
   serverRunIDs: Array<string> = [];
+  serverRunsRemainingSecs = new Map();
 
   queryEvents: Array<QueryEvent> = [];
   resultLog: Array<QueryResultLog> = [];
@@ -75,7 +82,8 @@ export class VBSServerConnectionService {
 
   constructor(
     private userService: UserService,
-    private runInfoService: ClientRunInfoService,
+    private evaluationClientService: EvaluationClientService,
+    private evaluationService: EvaluationService, 
     private submissionService: SubmissionService,
     private logService: LogService
   ) {
@@ -90,7 +98,7 @@ export class VBSServerConnectionService {
 
   submitLog() {
     if (this.resultLog.length > 0 && this.queryEvents.length > 0) {
-      this.resultLog[this.resultLog.length-1].events = this.queryEvents;
+      /*this.resultLog[this.resultLog.length-1].events = this.queryEvents;
       this.logService.postApiV1LogResult(this.sessionId!, this.resultLog[this.resultLog.length-1]).pipe(
             tap(o => {
               console.log(`Successfully submitted result log to DRES!`);
@@ -99,6 +107,7 @@ export class VBSServerConnectionService {
               return of(`Failed to submit segment to DRES due to a HTTP error (${err.status}).`)
             })
         ).subscribe();
+        */
       }
   }
 
@@ -119,11 +128,11 @@ export class VBSServerConnectionService {
   connect() {
 
       // === Handshake / Login ===
-      this.userService.postApiV1Login({
+      this.userService.postApiV2Login({
         username: GlobalConstants.configUSER,
         password: GlobalConstants.configPASS
       } as LoginRequest)
-      .subscribe((login: UserDetails) => {
+      .subscribe((login: ApiUser) => {
           this.println('Login successful\n' +
           `user: ${login.username}\n` +
           `role: ${login.role}` +
@@ -137,27 +146,28 @@ export class VBSServerConnectionService {
           cookies. In order to to that, uncomment the "withCredentials"
           in the app.module.ts line to not have to worry about the session.
           */
-          this.sessionId = login.sessionId!;
-          this.println(this.sessionId);
+          this.sessionId = login.sessionId;
+          this.println(this.sessionId!);
       
           // Wait for a second (do other things)
           setTimeout(() => {
               // === Evaluation Run Info ===
-              this.runInfoService.getApiV1ClientRunInfoList(this.sessionId!).subscribe((currentRuns: ClientRunInfoList) => {
-              this.println(`Found ${currentRuns.runs.length} ongoing evaluation runs`);
+              this.evaluationClientService.getApiV2ClientEvaluationList(this.sessionId!).subscribe((evaluations: ApiClientEvaluationInfo[]) => {
+              this.println(`Found ${evaluations.length} ongoing evaluations`);
               this.serverRuns = [];
               this.serverRunIDs = [];
-              currentRuns.runs.forEach((run: ClientRunInfo) => {
-                      this.println(`${run.name} (${run.id}): ${run.status}`);
-                      if (run.description) {
-                        this.println(run.description);
+              evaluations.forEach((evaluation: ApiClientEvaluationInfo) => {
+                this.println(`${evaluation.name} (${evaluation.id}): ${evaluation.status}`);
+                      if (evaluation.templateDescription) {
+                        this.println(evaluation.templateDescription);
                         this.println('');
-                        this.serverRuns.push(run.description);  
+                        this.serverRuns.push(evaluation.templateDescription);
                       } else {
-                        this.serverRuns.push(run.name);
+                        this.serverRuns.push(evaluation.name);
                       }
-                      this.serverRunIDs.push(run.id);
-                  });
+                      this.serverRunIDs.push(evaluation.id);
+                      this.serverRunsRemainingSecs.set('evaluationId', '00:00');
+              });
               });
           });
 
@@ -170,7 +180,7 @@ export class VBSServerConnectionService {
         return;
       }
 
-      this.runInfoService.getApiV1ClientRunInfoCurrenttaskWithRunid(runId, this.sessionId!)
+      this.evaluationClientService.getApiV2ClientEvaluationCurrentTaskByEvaluationId(runId, this.sessionId!)
       .pipe(
         catchError((error: any) => {
           if (error.status == 404) {
@@ -179,17 +189,30 @@ export class VBSServerConnectionService {
           }
           return of(null);  // Return an observable that emits no items to the observer
         })
-      ).subscribe((info: ClientTaskInfo | null) => {
+      ).subscribe((info: ApiTaskTemplateInfo /*ClientTaskInfo*/ | null) => {
         if (info != null) {
-          //console.log(info)
           comm.statusTaskInfoText = info.name; //+ ', ' + info.id + ", " + info.taskGroup;
-          if (info.running) {
-            comm.statusTaskRemainingTime = ' ' + this.createTimestamp(info.remainingTime) + ' ';
-          } else {
-            comm.statusTaskRemainingTime = '';
-          }
         }
       })
+
+
+      this.evaluationService.getApiV2EvaluationStateList()
+      .pipe(
+        catchError((error: any) => {
+          console.log('error occurred when requesting evaluation state list!', error);
+          return of(null);  // Return an observable that emits no items to the observer
+        })
+      ).subscribe((states: Array<ApiEvaluationState> | null) => {
+        states?.forEach((eState) => {
+          //console.log(eState);
+          if (eState.evaluationStatus == 'ACTIVE' && eState.taskStatus == 'RUNNING') {
+            this.serverRunsRemainingSecs.set(eState.evaluationId, this.createTimestamp(eState.timeLeft) + ' ');
+            //console.log(this.serverRunsRemainingSecs.get(eState.evaluationId) + ' - ' + eState.evaluationId);
+          }
+        
+        })
+      })
+
     } catch (error) {
       console.log('issue with task info request');
     }
@@ -209,13 +232,13 @@ export class VBSServerConnectionService {
     return value.toString().padStart(2, '0');
   }
 
-  getRunInfoList() {
-    this.runInfoService.getApiV1ClientRunInfoList(this.sessionId!).subscribe((info: ClientRunInfoList) => {
+  /*getRunInfoList() {
+    this.evaluationClientService.getApiV1ClientRunInfoList(this.sessionId!).subscribe((info: ClientRunInfoList) => {
       for (const r of info.runs) {
         console.log(r)
       }
     })
-  }
+  }*/
 
   handleSubmissionResponse(status: SuccessfulSubmissionsStatus, segment: string) {
     this.println('The submission was successful.');
@@ -294,7 +317,7 @@ export class VBSServerConnectionService {
 
   logout(appComp: AppComponent) {
       // === Graceful logout ===
-      this.userService.getApiV1Logout(this.sessionId!).subscribe((logout: SuccessStatus) => {
+      this.userService.getApiV2Logout(this.sessionId!).subscribe((logout: SuccessStatus) => {
         if (logout.status) {
           this.vbsServerState = WSServerStatus.DISCONNECTED;
           this.println('Successfully logged out');

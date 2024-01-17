@@ -6,7 +6,7 @@ import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { Router,ActivatedRoute } from '@angular/router';
 import { query } from '@angular/animations';
-import { QueryEvent, QueryResult, QueryResultLog } from 'openapi/dres';
+import { QueryEvent, QueryResult, QueryResultLog, QueryEventLog, QueryEventCategory } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
 
 
@@ -45,7 +45,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   summaries: Array<string> = [];
   selectedSummaryIdx = 0;
 
-  selectedServerRun: string | undefined
+  selectedServerRun: number | undefined
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
 
@@ -211,7 +211,13 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
   requestTaskInfo() {
-    this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[0], this);
+    //console.log('selectedServerRun = ' + this.selectedServerRun);
+    if (this.vbsService.serverRunIDs.length > 0 && this.selectedServerRun === undefined) {
+      this.selectedServerRun = 0;
+    }
+    if (this.selectedServerRun !== undefined) {
+      this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[this.selectedServerRun], this);
+    }
   }
   
   
@@ -559,7 +565,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       //query logging
       let queryEvent:QueryEvent = {
         timestamp: getTimestampInSeconds(),
-        category: QueryEvent.CategoryEnum.TEXT,
+        category: QueryEventCategory.TEXT,
         type: 'jointEmbedding',
         value: this.queryinput
       }
@@ -600,7 +606,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
       let queryEvent:QueryEvent = {
         timestamp: getTimestampInSeconds(),
-        category: QueryEvent.CategoryEnum.IMAGE,
+        category: QueryEventCategory.IMAGE,
         type: 'feedbackModel',
         value: `result# ${this.queryresult_resultnumber[serveridx]}` 
       }
@@ -637,7 +643,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
       let queryEvent:QueryEvent = {
         timestamp: getTimestampInSeconds(),
-        category: QueryEvent.CategoryEnum.IMAGE,
+        category: QueryEventCategory.IMAGE,
         type: 'feedbackModel',
         value: `${keyframe}` 
       }
@@ -647,6 +653,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   selectRun() {
 
+  }
+
+  getRemainingTaskTime() {
+    if (this.selectedServerRun !== undefined) {
+      let remainingTime = this.vbsService.serverRunsRemainingSecs.get(this.vbsService.serverRunIDs[this.selectedServerRun]);
+      return remainingTime;
+    }
+    return "";
   }
 
   performHistoryQuery() {
@@ -676,7 +690,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
       let queryEvent:QueryEvent = {
         timestamp: getTimestampInSeconds(),
-        category: QueryEvent.CategoryEnum.OTHER,
+        category: QueryEventCategory.OTHER,
         type: 'queryRepetition',
         value: `${this.selectedHistoryEntry}` 
       }
@@ -899,7 +913,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
     let queryEvent:QueryEvent = {
       timestamp: getTimestampInSeconds(),
-      category: QueryEvent.CategoryEnum.OTHER,
+      category: QueryEventCategory.OTHER,
       type: 'submit',
       value: `result:${index}` 
     }
@@ -917,7 +931,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
     let queryEvent:QueryEvent = {
       timestamp: getTimestampInSeconds(),
-      category: QueryEvent.CategoryEnum.OTHER,
+      category: QueryEventCategory.OTHER,
       type: 'submitanswer',
       value: `result:${this.topicanswer}` 
     }
