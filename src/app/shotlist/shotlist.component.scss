@@ -48,6 +48,9 @@
     padding-bottom: 100px;
 }
 
+.minispacer {
+    margin-right: 5%;
+}
 
 .spacer {
     margin-right: 40px;
@@ -72,10 +75,21 @@
     color: white;
 }
 
+.submissionresponse {
+    width: 50px;
+}
+
 .topicanswerbutton {
     background-color: rgba(0,110,0,0.8);
     color: white;
     padding: 2px;
-    width: 100px;
+    width: 60px;
+}
+
+#topicanswer {
+    font-size: 20px;
+    height: 26px;
+    width: 25%;
+    background-color: rgb(220,220,220);
 }
 

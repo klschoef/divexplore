@@ -48,6 +48,9 @@ input[type="text"] {
     background-color: lightgray;
 }
 
+.minispacer {
+    margin-right: 5%;
+}
 
 .spacer {
     margin-right: 40px;
@@ -72,11 +75,15 @@ input[type="text"] {
     color: white;
 }
 
+.submissionresponse {
+    width: 50px;
+}
+
 .topicanswerbutton {
     background-color: rgba(0,110,0,0.8);
     color: white;
     padding: 2px;
-    width: 100px;
+    width: 60px;
 }
 
 #topicanswer {

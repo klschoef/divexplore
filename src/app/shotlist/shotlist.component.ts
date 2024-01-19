@@ -1,6 +1,6 @@
 import { ViewChild,ElementRef,AfterViewInit, Component } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { VBSServerConnectionService, VbsServiceCommunication } from '../vbsserver-connection.service';
+import { VBSServerConnectionService, GUIAction, GUIActionType, VbsServiceCommunication } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } from '../global-constants';
@@ -27,7 +27,6 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
   timelabels: Array<string> = [];
   framenumbers: Array<string> = [];
 
-  selectedServerRun: string | undefined;
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
 
@@ -44,6 +43,9 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
   vcategories = [];
   vtexts =[]; 
   vspeech: any | undefined;
+
+  topicanswer: string = '';
+  answerFieldHasFocus = false;
 
   showButtons = -1;
 
@@ -105,11 +107,24 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
   }
 
   requestTaskInfo() {
-    this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[0], this);
+    if (this.vbsService.serverRunIDs.length > 0 && this.vbsService.selectedServerRun === undefined) {
+      this.vbsService.selectedServerRun = 0;
+    }
+    if (this.vbsService.selectedServerRun !== undefined) {
+      this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[this.vbsService.selectedServerRun], this);
+    }
   }
 
   selectRun() {
 
+  }
+
+  getRemainingTaskTime() {
+    if (this.vbsService.selectedServerRun !== undefined) {
+      let remainingTime = this.vbsService.serverRunsRemainingSecs.get(this.vbsService.serverRunIDs[this.vbsService.selectedServerRun]);
+      return remainingTime;
+    }
+    return "";
   }
 
   performFileSimilarityQuery(keyframe:string) {
@@ -247,6 +262,14 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     this.videoplayer.nativeElement.currentTime = frame / this.fps;
   }
 
+  onAnswerInputFocus() {
+    this.answerFieldHasFocus = true;
+  }
+
+  onAnswerInputBlur() {
+    this.answerFieldHasFocus = false
+  }
+
 
 
 
@@ -255,7 +278,8 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
    ****************************************************************************/
 
   submitCurrentTime() {
-    this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime));
+    console.log('submitting time: ' + this.currentVideoTime + ' for video ' + this.videoid!);
+    this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime), 1);
 
     let queryEvent:QueryEvent = {
       timestamp: getTimestampInSeconds(),
@@ -264,12 +288,14 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
       value: `videoid:${this.videoid} frame:${this.currentVideoTime}` 
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitLog();
+    this.vbsService.submitQueryLog();
     this.vbsService.saveLogLocally();
   }
 
   submitResult(index: number) {
-    this.vbsService.submitFrame(this.videoid!, parseInt(this.framenumbers[index]));
+    console.log('selected rund: ' + this.vbsService.selectedServerRun);
+    console.log('submitting frame: ' + this.framenumbers[index] + ' for video ' + this.videoid! + ' with fps=' + this.fps);
+    this.vbsService.submitFrame(this.videoid!, parseInt(this.framenumbers[index]), this.fps);
 
     let queryEvent:QueryEvent = {
       timestamp: getTimestampInSeconds(),
@@ -278,8 +304,32 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
       value: `videoid:${this.videoid} freame:${this.framenumbers[index]}` 
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitLog();
+    this.vbsService.submitQueryLog();
     this.vbsService.saveLogLocally();
+  }
+
+  sendTopicAnswer() {
+    this.vbsService.submitText(this.topicanswer)
+
+    let queryEvent:QueryEvent = {
+      timestamp: getTimestampInSeconds(),
+      category: QueryEventCategory.OTHER,
+      type: 'submitanswer',
+      value: `result:${this.topicanswer}` 
+    }
+    this.vbsService.queryEvents.push(queryEvent);
+    this.vbsService.submitQueryLog();
+
+    //interaction logging
+    let GUIaction: GUIAction = {
+      timestamp: getTimestampInSeconds(), 
+      actionType: GUIActionType.SUBMITANSWER,
+      info: this.topicanswer
+    }
+    this.vbsService.interactionLog.push(GUIaction);
+
+    //save and reset logs
+    //this.vbsService.saveLogLocallyAndClear();
   }
 
 }

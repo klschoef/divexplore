@@ -167,7 +167,7 @@ export class ExplorationComponent implements VbsServiceCommunication {
   }
 
   requestTaskInfo() {
-    this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[0], this);
+    this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[this.vbsService.selectedServerRun!], this);
   }
 
   queryAllClusters() {

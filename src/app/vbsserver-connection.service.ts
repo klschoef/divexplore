@@ -5,6 +5,8 @@ import {EvaluationClientService} from '../../openapi/dres/api/evaluationClient.s
 import {SubmissionService} from '../../openapi/dres/api/submission.service';
 //import {LogService} from '../../openapi/dres/api/log.service';
 
+//import * as videoDataFPS from '../assets/v3c_video_fps.json';
+
 import {
   ApiClientAnswer,
   ApiClientAnswerSet,
@@ -21,7 +23,8 @@ import {
   ApiClientTaskTemplateInfo,
   ApiTaskTemplateInfo,
   EvaluationService,
-  ApiEvaluationState
+  ApiEvaluationState,
+  QueryEventLog
 } from '../../openapi/dres/';
 import { GlobalConstants, WSServerStatus } from './global-constants';
 import { NONE_TYPE } from '@angular/compiler';
@@ -70,7 +73,9 @@ export class VBSServerConnectionService {
 
   serverRuns: Array<string> = [];
   serverRunIDs: Array<string> = [];
+  serverRunStates = new Map();
   serverRunsRemainingSecs = new Map();
+  selectedServerRun: number | undefined;
 
   queryEvents: Array<QueryEvent> = [];
   resultLog: Array<QueryResultLog> = [];
@@ -79,6 +84,7 @@ export class VBSServerConnectionService {
   lastRunInfoRequestReturned404 = false;
 
   activeUsername: string = '';
+  submissionResponse: string = '';
 
   constructor(
     private userService: UserService,
@@ -96,18 +102,24 @@ export class VBSServerConnectionService {
     this.connect();
   }
 
-  submitLog() {
+  submitQueryLog() {
     if (this.resultLog.length > 0 && this.queryEvents.length > 0) {
-      /*this.resultLog[this.resultLog.length-1].events = this.queryEvents;
-      this.logService.postApiV1LogResult(this.sessionId!, this.resultLog[this.resultLog.length-1]).pipe(
-            tap(o => {
-              console.log(`Successfully submitted result log to DRES!`);
-            }),
-            catchError((err) => {
-              return of(`Failed to submit segment to DRES due to a HTTP error (${err.status}).`)
-            })
-        ).subscribe();
-        */
+        if (this.resultLog.length > 0) {
+          this.logService.postApiV2LogQuery(this.sessionId!, {
+            timestamp: Date.now(),
+            events: this.queryEvents
+          } as QueryEventLog)
+          .subscribe(
+            (response) => {
+              console.log('QueryLog successfully received:', response);
+            },
+            (error) => {
+              console.error('QueryLog receive error:', error);
+            }
+          );
+        } else {
+          this.println('could not send result log in handleSubmissionResponse, because it is empty!');
+        }
       }
   }
 
@@ -165,6 +177,7 @@ export class VBSServerConnectionService {
                       } else {
                         this.serverRuns.push(evaluation.name);
                       }
+                      this.serverRunStates.set(evaluation.id, evaluation.status);
                       this.serverRunIDs.push(evaluation.id);
                       this.serverRunsRemainingSecs.set('evaluationId', '00:00');
               });
@@ -180,39 +193,44 @@ export class VBSServerConnectionService {
         return;
       }
 
-      this.evaluationClientService.getApiV2ClientEvaluationCurrentTaskByEvaluationId(runId, this.sessionId!)
-      .pipe(
-        catchError((error: any) => {
-          if (error.status == 404) {
-            console.log('A 404 error occurred when requesting run-info!', error);
-            this.lastRunInfoRequestReturned404 = true;
+      if (this.serverRunStates.get(runId) == 'ACTIVE') {
+        //console.log('requesting info for ' + runId + ' and session ' + this.sessionId!);
+
+        this.evaluationClientService.getApiV2ClientEvaluationCurrentTaskByEvaluationId(runId, this.sessionId!)
+        .pipe(
+          catchError((error: any) => {
+            if (error.status == 404) {
+              console.log('A 404 error occurred when requesting run-info!', error);
+              this.lastRunInfoRequestReturned404 = true;
+            }
+            return of(null);  // Return an observable that emits no items to the observer
+          })
+        ).subscribe((info: ApiTaskTemplateInfo /*ClientTaskInfo*/ | null) => {
+          if (info != null) {
+            comm.statusTaskInfoText = info.name; //+ ', ' + info.id + ", " + info.taskGroup;
           }
-          return of(null);  // Return an observable that emits no items to the observer
         })
-      ).subscribe((info: ApiTaskTemplateInfo /*ClientTaskInfo*/ | null) => {
-        if (info != null) {
-          comm.statusTaskInfoText = info.name; //+ ', ' + info.id + ", " + info.taskGroup;
-        }
-      })
 
 
-      this.evaluationService.getApiV2EvaluationStateList()
-      .pipe(
-        catchError((error: any) => {
-          console.log('error occurred when requesting evaluation state list!', error);
-          return of(null);  // Return an observable that emits no items to the observer
+        this.evaluationService.getApiV2EvaluationStateList()
+        .pipe(
+          catchError((error: any) => {
+            console.log('error occurred when requesting evaluation state list!', error);
+            return of(null);  // Return an observable that emits no items to the observer
+          })
+        ).subscribe((states: Array<ApiEvaluationState> | null) => {
+          states?.forEach((eState) => {
+            //console.log(eState);
+            if (eState.evaluationStatus == 'ACTIVE' && eState.taskStatus == 'RUNNING') {
+              this.serverRunsRemainingSecs.set(eState.evaluationId, this.createTimestamp(eState.timeLeft) + ' ');
+              //console.log(this.serverRunsRemainingSecs.get(eState.evaluationId) + ' - ' + eState.evaluationId);
+            }
+          
+          })
         })
-      ).subscribe((states: Array<ApiEvaluationState> | null) => {
-        states?.forEach((eState) => {
-          //console.log(eState);
-          if (eState.evaluationStatus == 'ACTIVE' && eState.taskStatus == 'RUNNING') {
-            this.serverRunsRemainingSecs.set(eState.evaluationId, this.createTimestamp(eState.timeLeft) + ' ');
-            //console.log(this.serverRunsRemainingSecs.get(eState.evaluationId) + ' - ' + eState.evaluationId);
-          }
-        
-        })
-      })
-
+      } else {
+        comm.statusTaskInfoText = 'no task active';
+      }
     } catch (error) {
       console.log('issue with task info request');
     }
@@ -240,23 +258,31 @@ export class VBSServerConnectionService {
     })
   }*/
 
-  handleSubmissionResponse(status: SuccessfulSubmissionsStatus, segment: string) {
+  handleSubmissionResponseAndSendResultLog(status: SuccessfulSubmissionsStatus, info: string) {
     this.println('The submission was successful.');
 
+    this.submissionResponse = 'Submission successfull!'
+
     // === Example 3: Log ===
-    /*
-    this.logService.postApiV1LogResult(this.sessionId!, {
-      timestamp: Date.now(),
-      sortType: 'list',
-      results: [
-        {item: 'some_item_name', segment: 3, score: 0.9, rank: 1} as QueryResult,
-        {item: 'some_item_name', segment: 5, score: 0.85, rank: 2} as QueryResult,
-        {item: 'some_other_item_name', segment: 12, score: 0.76, rank: 3} as QueryResult
-      ],
-      events: [],
-      resultSetAvailability: ''
-    } as QueryResultLog);
-    */
+    if (this.resultLog.length > 0) {
+      this.logService.postApiV2LogResult(this.sessionId!, {
+        timestamp: Date.now(),
+        sortType: 'list',
+        results: this.resultLog[this.resultLog.length-1].results,
+        events: [],
+        resultSetAvailability: ''
+      } as QueryResultLog)
+      .subscribe(
+        (response) => {
+          console.log('QueryResultLog successfully received:', response);
+        },
+        (error) => {
+          console.error('QueryResultLog receive error:', error);
+        }
+      );
+    } else {
+      this.println('could not send result log in handleSubmissionResponse, because it is empty!');
+    }
   }
 
   private handleSubmissionError(err:any) {
@@ -270,8 +296,31 @@ export class VBSServerConnectionService {
     return of(null);
   }
 
-  submitFrame(videoid: string, frame: number) {
+  submitFrame(videoid: string, frame: number, fps: number) {
     // === Submission ===
+    this.println('submit video=' + videoid + ' frame=' + frame + ' (fps=' + fps + ')');
+
+    this.submissionService.postApiV2SubmitByEvaluationId(this.serverRunIDs[this.selectedServerRun!], {answerSets: [
+      {answers: [
+        {
+          text: undefined, //text - in case the task is not targeting a particular content object but plaintext
+          mediaItemName: videoid, //'00001', // item -  item which is to be submitted
+          mediaItemCollectionName: undefined, // collection - does not usually need to be set
+          start: frame * fps, // 10_000, //start time in milliseconds
+          end: frame * fps//end time in milliseconds, in case an explicit time interval is to be specified
+        } as ApiClientAnswer
+      ]} as ApiClientAnswerSet
+    ]} as ApiClientSubmission,
+    
+    this.sessionId!).subscribe((submissionResponse: SuccessfulSubmissionsStatus) => {
+      // Check if submission as successful
+      this.handleSubmissionResponseAndSendResultLog(submissionResponse, 'f:' + frame);
+    }
+    , error => {
+      this.handleSubmissionError(error);
+    });
+
+    /*
     //'00:00:10:00', // timecode - in this case, we use the timestamp in the form HH:MM:SS:FF
     this.submissionService.getApiV1Submit(
       undefined, // collection - does not usually need to be set
@@ -289,13 +338,35 @@ export class VBSServerConnectionService {
         return this.handleSubmissionError(err);
       })
     ).subscribe()
-    
+    */
   }
 
 
   submitText(text: string) {
     // === Submission ===
     //'00:00:10:00', // timecode - in this case, we use the timestamp in the form HH:MM:SS:FF
+
+    this.submissionService.postApiV2SubmitByEvaluationId(this.serverRunIDs[this.selectedServerRun!], {answerSets: [
+      {answers: [
+        {
+          text: text, //text - in case the task is not targeting a particular content object but plaintext
+          mediaItemName: undefined, //'00001', // item -  item which is to be submitted
+          mediaItemCollectionName: undefined, // collection - does not usually need to be set
+          start: undefined, // 10_000, //start time in milliseconds
+          end: undefined //end time in milliseconds, in case an explicit time interval is to be specified
+        } as ApiClientAnswer
+      ]} as ApiClientAnswerSet
+    ]} as ApiClientSubmission,
+    
+    this.sessionId!).subscribe((submissionResponse: SuccessfulSubmissionsStatus) => {
+      // Check if submission as successful
+      this.handleSubmissionResponseAndSendResultLog(submissionResponse, 't:'+text);
+    }
+    , error => {
+      this.handleSubmissionError(error);
+    });
+
+    /*
     this.submissionService.getApiV1Submit(
       undefined, // collection - does not usually need to be set
       undefined, // item -  item which is to be submitted
@@ -312,7 +383,7 @@ export class VBSServerConnectionService {
         return this.handleSubmissionError(err);
       })
     ).subscribe()
-    
+    */
   }
 
   logout(appComp: AppComponent) {

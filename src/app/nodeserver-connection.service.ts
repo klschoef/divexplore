@@ -61,7 +61,17 @@ export class NodeServerConnectionService {
           }
           ws.onmessage = (msg) => {
             console.log('message from node-server');
-            obs.next(msg);
+            let d = JSON.parse(msg.data);
+            if (d.type == 'videofps') {
+              const requestSubject = this.pendingRequests.get(d.correlationId);
+              if (requestSubject) {
+                  requestSubject.next(d);
+                  requestSubject.complete();
+                  this.pendingRequests.delete(d.correlationId);
+              }
+            } else {
+              obs.next(msg);
+            }
           };
           ws.onerror = (e) => {
             console.log('Error with node-server');
@@ -86,5 +96,24 @@ export class NodeServerConnectionService {
           }
       };
       return new AnonymousSubject<MessageEvent>(observer, observable);
+  }
+
+  private pendingRequests: Map<string, Subject<Object>> = new Map();
+  
+
+  public sendMessageAndWait(message: any): Observable<Object> {
+      const responseObservable = new Subject<Object>();
+      const correlationId = this.generateCorrelationId();
+      message.correlationId = correlationId;
+      this.pendingRequests.set(correlationId, responseObservable);
+
+      this.messages.next(message);
+
+      return responseObservable.asObservable();
+  }
+
+  private generateCorrelationId(): string {
+      // Generate a unique ID
+      return Math.random().toString(36).substring(2, 15);
   }
 }

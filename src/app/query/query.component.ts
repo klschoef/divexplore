@@ -9,6 +9,8 @@ import { query } from '@angular/animations';
 import { QueryEvent, QueryResult, QueryResultLog, QueryEventLog, QueryEventCategory } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
 
+ 
+
 
 @Component({
   selector: 'app-query',
@@ -45,7 +47,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   summaries: Array<string> = [];
   selectedSummaryIdx = 0;
 
-  selectedServerRun: number | undefined
+  
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
 
@@ -152,7 +154,6 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
           this.handleQueryResponseMessage(msg); 
         } else {
           if ("type" in msg) {
-            
             if (m.type == 'metadata') {
               this.metadata = m.results[0];
               //this.pages = ['1'];
@@ -211,12 +212,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
   requestTaskInfo() {
-    //console.log('selectedServerRun = ' + this.selectedServerRun);
-    if (this.vbsService.serverRunIDs.length > 0 && this.selectedServerRun === undefined) {
-      this.selectedServerRun = 0;
+    if (this.vbsService.serverRunIDs.length > 0 && this.vbsService.selectedServerRun === undefined) {
+      this.vbsService.selectedServerRun = 0;
     }
-    if (this.selectedServerRun !== undefined) {
-      this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[this.selectedServerRun], this);
+    if (this.vbsService.selectedServerRun !== undefined) {
+      this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[this.vbsService.selectedServerRun], this);
     }
   }
   
@@ -316,7 +316,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) { 
-    if (this.queryFieldHasFocus == false) {
+    if (this.queryFieldHasFocus == false && this.answerFieldHasFocus == false) {
       if (event.key == 'ArrowRight' || event.key == 'Tab') {
         if (this.showPreview) {
           if (this.selectedItem < this.queryresult_videoid.length-1) {
@@ -656,8 +656,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
   getRemainingTaskTime() {
-    if (this.selectedServerRun !== undefined) {
-      let remainingTime = this.vbsService.serverRunsRemainingSecs.get(this.vbsService.serverRunIDs[this.selectedServerRun]);
+    if (this.vbsService.selectedServerRun !== undefined) {
+      let remainingTime = this.vbsService.serverRunsRemainingSecs.get(this.vbsService.serverRunIDs[this.vbsService.selectedServerRun]);
       return remainingTime;
     }
     return "";
@@ -760,7 +760,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
   resetQuery() {
-    this.vbsService.submitLog();
+    this.vbsService.submitQueryLog();
     this.vbsService.saveLogLocally();
     this.queryinput = '';
     this.inputfield.nativeElement.focus();
@@ -909,22 +909,34 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     let comps = keyframe.split('_');
     let frameNumber = comps[comps.length-1].split('.')[0]
     console.log(`${videoid} - ${keyframe} - ${frameNumber}`);
-    this.vbsService.submitFrame(videoid, parseInt(frameNumber));
 
-    let queryEvent:QueryEvent = {
-      timestamp: getTimestampInSeconds(),
-      category: QueryEventCategory.OTHER,
-      type: 'submit',
-      value: `result:${index}` 
-    }
-    this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitLog();
-    this.vbsService.saveLogLocally();
+    let msg = { 
+      type: "videofps", 
+      videoid: videoid
+    };
+    let message = {
+      source: 'appcomponent',
+      content: msg
+    };
+    this.nodeService.sendMessageAndWait(message).subscribe(response => {
+      console.log('Received fps info:', response);
+
+      this.vbsService.submitFrame(videoid, parseInt(frameNumber), 25);
+
+      let queryEvent:QueryEvent = {
+        timestamp: getTimestampInSeconds(),
+        category: QueryEventCategory.OTHER,
+        type: 'submit',
+        value: `result:${index}` 
+      }
+      this.vbsService.queryEvents.push(queryEvent);
+      this.vbsService.submitQueryLog();
+      this.vbsService.saveLogLocally();
+    });
+
+    
 
   }
-
-
-
 
   sendTopicAnswer() {
     this.vbsService.submitText(this.topicanswer)
@@ -936,7 +948,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       value: `result:${this.topicanswer}` 
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitLog();
+    this.vbsService.submitQueryLog();
 
     //interaction logging
     let GUIaction: GUIAction = {

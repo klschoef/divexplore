@@ -73,7 +73,7 @@ export class GlobalConstants {
     public static keyframeBaseURLV3C_Shots: string = this.dataHost + 'thumbsXL/';
     public static keyframeBaseURLV3C: string = this.dataHost + 'keyframes/';
 
-    public static videoURLV3C = this.dataHostVideos + 'v3cvideos/';
+    public static videoURLV3C = this.dataHostVideos + 'videos/';
     public static videoURLMarine = this.dataHostVideos + 'marinevideos/';
 
     public static replacePNG2 = '.jpg'; //display
@@ -122,7 +122,7 @@ export class LocalConfig {
     public static config_NODE_SERVER_PORT = '8080';
     
     public static config_DATA_BASE_URL = 'http://extreme00.itec.aau.at/diveXplore/'; //http://localhost/divexplore/
-    public static config_DATA_BASE_URL_VIDEOS = 'http://divexplore.itec.aau.at/videos/';
+    public static config_DATA_BASE_URL_VIDEOS = 'http://videobrowsing.org/v3c/';
 
     public static config_USER = 'diveXplore1';
     public static config_PASS = 'Wy?j}7&3';
