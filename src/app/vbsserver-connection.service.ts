@@ -306,8 +306,8 @@ export class VBSServerConnectionService {
           text: undefined, //text - in case the task is not targeting a particular content object but plaintext
           mediaItemName: videoid, //'00001', // item -  item which is to be submitted
           mediaItemCollectionName: undefined, // collection - does not usually need to be set
-          start: frame * fps, // 10_000, //start time in milliseconds
-          end: frame * fps//end time in milliseconds, in case an explicit time interval is to be specified
+          start: frame / fps * 1000, // 10_000, //start time in milliseconds
+          end: frame / fps * 1000//end time in milliseconds, in case an explicit time interval is to be specified
         } as ApiClientAnswer
       ]} as ApiClientAnswerSet
     ]} as ApiClientSubmission,

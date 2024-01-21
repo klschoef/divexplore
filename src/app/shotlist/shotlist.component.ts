@@ -279,7 +279,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
 
   submitCurrentTime() {
     console.log('submitting time: ' + this.currentVideoTime + ' for video ' + this.videoid!);
-    this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime), 1);
+    this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime), this.fps);
 
     let queryEvent:QueryEvent = {
       timestamp: getTimestampInSeconds(),
