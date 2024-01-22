@@ -7,7 +7,8 @@ import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } 
 import { mdiConsoleLine } from '@mdi/js';
 import { QueryEvent, QueryEventCategory } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
-
+import { MessageBarComponent } from '../message-bar/message-bar.component';
+import { Subscription } from 'rxjs';
 
 
 const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
@@ -26,6 +27,9 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
   keyframes: Array<string> = [];
   timelabels: Array<string> = [];
   framenumbers: Array<string> = [];
+
+  private dresErrorMessageSubscription!: Subscription;
+  private dresSuccessMessageSubscription!: Subscription;
 
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
@@ -51,6 +55,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
 
   currentVideoTime: number = 0;
   @ViewChild('videoplayer') videoplayer!: ElementRef<HTMLVideoElement>;
+  @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
 
   constructor(
     public vbsService: VBSServerConnectionService,
@@ -63,6 +68,20 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
   
   ngOnInit() {
     console.log('shotlist component (slc) initiated');
+
+    this.dresErrorMessageSubscription = this.vbsService.errorMessageEmitter.subscribe(msg => {
+      this.messageBar.showErrorMessage(msg);
+    })
+    this.dresSuccessMessageSubscription = this.vbsService.successMessageEmitter.subscribe(msg => {
+      this.messageBar.showSuccessMessage(msg);
+    })
+
+    let selectedEvaluation = localStorage.getItem('selectedEvaluation');
+    if (selectedEvaluation) {
+      console.log('selected evaluation is ' + selectedEvaluation);
+      this.vbsService.selectedServerRun = parseInt(selectedEvaluation);
+    }
+
     this.route.paramMap.subscribe(paraMap => {
       this.videoid = paraMap.get('id')?.toString();
       this.framenumber = paraMap.get('id2')?.toString();

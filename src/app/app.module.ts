@@ -23,6 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MessageBarComponent } from './message-bar/message-bar.component';
 
 
 
@@ -33,7 +34,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     ShotlistComponent,
     QueryComponent,
     ExplorationComponent,
-    SafePipe
+    SafePipe,
+    MessageBarComponent
   ],
   imports: [
     BrowserModule,

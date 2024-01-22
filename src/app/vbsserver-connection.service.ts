@@ -1,4 +1,4 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable, EventEmitter, OnInit } from '@angular/core';
 
 import {UserService} from '../../openapi/dres/api/user.service';
 import {EvaluationClientService} from '../../openapi/dres/api/evaluationClient.service';
@@ -68,6 +68,9 @@ export interface VbsServiceCommunication {
 })
 export class VBSServerConnectionService {
 
+  errorMessageEmitter = new EventEmitter<string>();
+  successMessageEmitter = new EventEmitter<string>();
+
   sessionId: string | undefined; 
   vbsServerState: WSServerStatus = WSServerStatus.UNSET;
 
@@ -75,6 +78,7 @@ export class VBSServerConnectionService {
   serverRunIDs: Array<string> = [];
   serverRunStates = new Map();
   serverRunsRemainingSecs = new Map();
+  currentTaskIsAVS = false;
   selectedServerRun: number | undefined;
 
   queryEvents: Array<QueryEvent> = [];
@@ -169,17 +173,16 @@ export class VBSServerConnectionService {
               this.serverRuns = [];
               this.serverRunIDs = [];
               evaluations.forEach((evaluation: ApiClientEvaluationInfo) => {
-                this.println(`${evaluation.name} (${evaluation.id}): ${evaluation.status}`);
-                      if (evaluation.templateDescription) {
-                        this.println(evaluation.templateDescription);
-                        this.println('');
-                        this.serverRuns.push(evaluation.templateDescription);
-                      } else {
-                        this.serverRuns.push(evaluation.name);
-                      }
-                      this.serverRunStates.set(evaluation.id, evaluation.status);
-                      this.serverRunIDs.push(evaluation.id);
-                      this.serverRunsRemainingSecs.set('evaluationId', '00:00');
+                this.println(`${evaluation.id} ${evaluation.name} ${evaluation.type} ${evaluation.status}`);
+                  this.serverRuns.push(evaluation.name);
+                  //if (evaluation.templateDescription) {
+                  //  this.serverRuns.push(evaluation.templateDescription);
+                  //} else {
+                  //  this.serverRuns.push(evaluation.name);
+                  //}
+                  this.serverRunStates.set(evaluation.id, evaluation.status);
+                  this.serverRunIDs.push(evaluation.id);
+                  this.serverRunsRemainingSecs.set('evaluationId', '00:00');
               });
               });
           });
@@ -199,20 +202,26 @@ export class VBSServerConnectionService {
         this.evaluationClientService.getApiV2ClientEvaluationCurrentTaskByEvaluationId(runId, this.sessionId!)
         .pipe(
           catchError((error: any) => {
+            console.log('Error ' + error.status + ' when requesting evaluations!', error);
             if (error.status == 404) {
-              console.log('A 404 error occurred when requesting run-info!', error);
               this.lastRunInfoRequestReturned404 = true;
             }
             return of(null);  // Return an observable that emits no items to the observer
           })
         ).subscribe((info: ApiTaskTemplateInfo /*ClientTaskInfo*/ | null) => {
           if (info != null) {
+            if (info.taskGroup.includes('AVS')) {
+              this.currentTaskIsAVS = true;
+            } else {
+              this.currentTaskIsAVS = false;
+            }
+            //console.log(`task: ${info.taskGroup} ${info.taskType} ${info.duration}`);
             comm.statusTaskInfoText = info.name; //+ ', ' + info.id + ", " + info.taskGroup;
           }
         })
+        
 
-
-        this.evaluationService.getApiV2EvaluationStateList()
+        /*this.evaluationService.getApiV2EvaluationStateList()
         .pipe(
           catchError((error: any) => {
             console.log('error occurred when requesting evaluation state list!', error);
@@ -227,7 +236,7 @@ export class VBSServerConnectionService {
             }
           
           })
-        })
+        })*/
       } else {
         comm.statusTaskInfoText = 'no task active';
       }
@@ -262,6 +271,7 @@ export class VBSServerConnectionService {
     this.println('The submission was successful.');
 
     this.submissionResponse = 'Submission successfull!'
+    this.successMessageEmitter.emit(this.submissionResponse);
 
     // === Example 3: Log ===
     if (this.resultLog.length > 0) {
@@ -274,10 +284,13 @@ export class VBSServerConnectionService {
       } as QueryResultLog)
       .subscribe(
         (response) => {
-          console.log('QueryResultLog successfully received:', response);
+          let info = 'QueryResultLog successfully received:' + response;
+          console.log(info);
+          this.successMessageEmitter.emit(info);
         },
         (error) => {
           console.error('QueryResultLog receive error:', error);
+          this.errorMessageEmitter.emit(error.error.description);
         }
       );
     } else {
@@ -286,29 +299,43 @@ export class VBSServerConnectionService {
   }
 
   private handleSubmissionError(err:any) {
+    let errorMsg = '';
     if (err.status === 401) {
-      console.error('There was an authentication error during the submission. Check the session id.');
+      errorMsg = 'There was an authentication error during the submission. Check the session id.';
+      console.error(errorMsg);
+      this.errorMessageEmitter.emit(errorMsg);
     } else if (err.status === 404) {
-      console.error('There is currently no active task which would accept submissions.');
+      errorMsg = 'There is currently no active task which would accept submissions.';
+      console.error(errorMsg);
     } else {
-      console.error(`Something unexpected went wrong during the submission: : ${JSON.stringify(err)}`);
+      console.log(`Something unexpected went wrong during the submission: : ${JSON.stringify(err)}`);
+      this.errorMessageEmitter.emit(err.error.description);
     }
     return of(null);
   }
 
   submitFrame(videoid: string, frame: number, fps: number) {
+
+    let mySubmission = {
+      text: undefined, //text - in case the task is not targeting a particular content object but plaintext
+      mediaItemName: videoid, //'00001', // item -  item which is to be submitted
+      mediaItemCollectionName: undefined, // collection - does not usually need to be set
+      start: frame / fps * 1000, // 10_000, //start time in milliseconds
+      end: undefined //end time in milliseconds, in case an explicit time interval is to be specified
+    } as ApiClientAnswer
+
+    //set start and end, if current task is AVS
+    if (this.currentTaskIsAVS) {
+      mySubmission.start = (frame - fps) / fps * 1000;
+      mySubmission.end = (frame + fps) / fps * 1000;
+    }
+
     // === Submission ===
-    this.println('submit video=' + videoid + ' frame=' + frame + ' (fps=' + fps + ')');
+    this.println('submit video=' + videoid + ' frame=' + frame + ' (fps=' + fps + '): ' + JSON.stringify(mySubmission));
 
     this.submissionService.postApiV2SubmitByEvaluationId(this.serverRunIDs[this.selectedServerRun!], {answerSets: [
       {answers: [
-        {
-          text: undefined, //text - in case the task is not targeting a particular content object but plaintext
-          mediaItemName: videoid, //'00001', // item -  item which is to be submitted
-          mediaItemCollectionName: undefined, // collection - does not usually need to be set
-          start: frame / fps * 1000, // 10_000, //start time in milliseconds
-          end: frame / fps * 1000//end time in milliseconds, in case an explicit time interval is to be specified
-        } as ApiClientAnswer
+        mySubmission
       ]} as ApiClientAnswerSet
     ]} as ApiClientSubmission,
     

@@ -1,0 +1,24 @@
+.message-bar-error {
+    position: fixed;
+    bottom: 50px;  /* 30 pixels above the bottom of the window */
+    left: 0;       /* Aligns to the left edge of the window */
+    width: 50%;    /* 50% of the window's width */
+    color: white;
+    text-align: center;
+    padding: 10px;
+    background-color: #c23737;
+    box-sizing: border-box; /* Ensures padding is included in the height */
+}
+
+.message-bar-success {
+    position: fixed;
+    bottom: 50px;      /* 30 pixels above the bottom of the window */
+    right: 0;          /* Aligns to the right edge of the window */
+    left: 50%;         /* Starts from the middle of the window */
+    width: 50%;        /* 50% of the window's width */
+    color: white;
+    text-align: center;
+    padding: 10px;
+    background-color: #2b7b3b;
+    box-sizing: border-box; /* Ensures padding is included in the height */
+}

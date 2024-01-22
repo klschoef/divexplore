@@ -8,7 +8,8 @@ import { Router,ActivatedRoute } from '@angular/router';
 import { query } from '@angular/animations';
 import { QueryEvent, QueryResult, QueryResultLog, QueryEventLog, QueryEventCategory } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
-
+import { MessageBarComponent } from '../message-bar/message-bar.component';
+import { Subscription } from 'rxjs';
  
 
 
@@ -22,6 +23,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   @ViewChild('inputfield') inputfield!: ElementRef<HTMLInputElement>;
   @ViewChild('historyDiv') historyDiv!: ElementRef<HTMLDivElement>;
   @ViewChild('videopreview') videopreview!: ElementRef<HTMLDivElement>;
+  @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
+
+  private dresErrorMessageSubscription!: Subscription;
+  private dresSuccessMessageSubscription!: Subscription;
   
   file_sim_keyframe: string | undefined
   file_sim_pathPrefix: string | undefined
@@ -101,6 +106,19 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   
   ngOnInit() {
     console.log('query component (qc) initated');
+
+    this.dresErrorMessageSubscription = this.vbsService.errorMessageEmitter.subscribe(msg => {
+      this.messageBar.showErrorMessage(msg);
+    })
+    this.dresSuccessMessageSubscription = this.vbsService.successMessageEmitter.subscribe(msg => {
+      this.messageBar.showSuccessMessage(msg);
+    })
+
+    let selectedEvaluation = localStorage.getItem('selectedEvaluation');
+    if (selectedEvaluation) {
+      console.log('selected evaluation is ' + selectedEvaluation);
+      this.vbsService.selectedServerRun = parseInt(selectedEvaluation);
+    }
 
     this.route.paramMap.subscribe(paraMap => {
       this.file_sim_keyframe = paraMap.get('id')?.toString();
@@ -193,6 +211,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }, 1000);
   }
 
+  ngOnDestroy() {
+    this.dresErrorMessageSubscription.unsubscribe();
+    this.dresSuccessMessageSubscription.unsubscribe();
+  }
   
   ngAfterViewInit(): void {
     this.historyDiv.nativeElement.hidden = true;
@@ -652,7 +674,9 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
   selectRun() {
-
+    if (this.vbsService.selectedServerRun !== undefined) {
+      localStorage.setItem('selectedEvaluation', '' + this.vbsService.selectedServerRun!);
+    }
   }
 
   getRemainingTaskTime() {
