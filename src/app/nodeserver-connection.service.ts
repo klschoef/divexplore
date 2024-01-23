@@ -14,6 +14,13 @@ export interface Message {
     content: any;
 }
 
+export interface FPSResponse {
+  type: string;
+  fps: number;
+  duration: number;
+  correlationId: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -98,11 +105,11 @@ export class NodeServerConnectionService {
       return new AnonymousSubject<MessageEvent>(observer, observable);
   }
 
-  private pendingRequests: Map<string, Subject<Object>> = new Map();
+  private pendingRequests: Map<string, Subject<FPSResponse>> = new Map();
   
 
-  public sendMessageAndWait(message: any): Observable<Object> {
-      const responseObservable = new Subject<Object>();
+  public sendMessageAndWait(message: any): Observable<FPSResponse> {
+      const responseObservable = new Subject<FPSResponse>();
       const correlationId = this.generateCorrelationId();
       message.correlationId = correlationId;
       this.pendingRequests.set(correlationId, responseObservable);

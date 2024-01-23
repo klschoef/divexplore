@@ -321,7 +321,7 @@ export class VBSServerConnectionService {
       mediaItemName: videoid, //'00001', // item -  item which is to be submitted
       mediaItemCollectionName: undefined, // collection - does not usually need to be set
       start: frame / fps * 1000, // 10_000, //start time in milliseconds
-      end: undefined //end time in milliseconds, in case an explicit time interval is to be specified
+      end: frame / fps * 1000 //end time in milliseconds, in case an explicit time interval is to be specified
     } as ApiClientAnswer
 
     //set start and end, if current task is AVS

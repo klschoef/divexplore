@@ -927,6 +927,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
    * Submission to VBS Server
    ****************************************************************************/
 
+
   submitResult(index: number) {
     let videoid = this.queryresult_videoid[index];
     let keyframe = this.queryresults[index];
@@ -942,10 +943,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       source: 'appcomponent',
       content: msg
     };
-    this.nodeService.sendMessageAndWait(message).subscribe(response => {
-      console.log('Received fps info:', response);
+    
+    this.nodeService.sendMessageAndWait(message).subscribe((response) => {
+      console.log('Received fps info:', response.fps);
 
-      this.vbsService.submitFrame(videoid, parseInt(frameNumber), 25);
+      this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps);
 
       let queryEvent:QueryEvent = {
         timestamp: getTimestampInSeconds(),
