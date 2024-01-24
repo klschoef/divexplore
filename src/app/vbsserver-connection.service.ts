@@ -16,7 +16,6 @@ import {
   ApiUser,
   LoginRequest, LogService, 
   QueryEvent,
-  QueryResult,
   QueryResultLog,
   SuccessfulSubmissionsStatus,
   SuccessStatus,
@@ -24,7 +23,9 @@ import {
   ApiTaskTemplateInfo,
   EvaluationService,
   ApiEvaluationState,
-  QueryEventLog
+  QueryEventLog,
+  RankedAnswer,
+  QueryEventCategory
 } from '../../openapi/dres/';
 import { GlobalConstants, WSServerStatus } from './global-constants';
 import { NONE_TYPE } from '@angular/compiler';
@@ -32,6 +33,7 @@ import { UrlSegment } from '@angular/router';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { AppComponent } from './app.component';
 import { QueryComponent } from './query/query.component';
+import { QueryResult } from 'openapi/dres/model/queryResult';
 
 export enum GUIActionType {
   TEXTQUERY = 'TEXTQUERY',
@@ -82,7 +84,7 @@ export class VBSServerConnectionService {
   selectedServerRun: number | undefined;
 
   queryEvents: Array<QueryEvent> = [];
-  resultLog: Array<QueryResultLog> = [];
+  queryResultLog: Array<QueryResultLog> = [];
   interactionLog: Array<GUIAction> = [];
 
   lastRunInfoRequestReturned404 = false;
@@ -106,10 +108,31 @@ export class VBSServerConnectionService {
     this.connect();
   }
 
+  addQueryEvent(category: QueryEventCategory, type: string, value: string) {
+    let qe: QueryEvent = {
+      timestamp: Date.now(),
+      category: category, 
+      type: type,
+      value: value
+    }
+    this.queryEvents.push(qe);
+  }
+
+  addQueryResult(sortType: string, resultSetAvailability: string, results: [RankedAnswer]) {
+    let qrl: QueryResultLog = {
+      timestamp: Date.now(), 
+      sortType: sortType, 
+      resultSetAvailability: resultSetAvailability, 
+      results: results,
+      events: []
+    }
+    this.queryResultLog.push(qrl);
+  }
+
   submitQueryLog() {
-    if (this.resultLog.length > 0 && this.queryEvents.length > 0) {
-        if (this.resultLog.length > 0) {
-          this.logService.postApiV2LogQuery(this.sessionId!, {
+    if (this.queryResultLog.length > 0 && this.queryEvents.length > 0) {
+        if (this.queryResultLog.length > 0) {
+          this.logService.postApiV2LogQueryByEvaluationId(this.serverRunIDs[this.selectedServerRun!], this.sessionId!, {
             timestamp: Date.now(),
             events: this.queryEvents
           } as QueryEventLog)
@@ -128,15 +151,15 @@ export class VBSServerConnectionService {
   }
 
   saveLogLocally() {
-    if (this.resultLog) {
-      let log = localStorage.getItem('VBSQueryLog');
+    if (this.queryResultLog) {
+      let log = localStorage.getItem('VBSQueryResultLog');
       if (log) {
         let loga = JSON.parse(log);
-        loga.push(this.resultLog)
-        localStorage.setItem('VBSQueryLog',JSON.stringify(loga));
+        loga.push(this.queryResultLog)
+        localStorage.setItem('VBSQueryResultLog',JSON.stringify(loga));
       } else {
-        let loga  = [this.resultLog];
-        localStorage.setItem('VBSQueryLog',JSON.stringify(loga));
+        let loga  = [this.queryResultLog];
+        localStorage.setItem('VBSQueryResultLog',JSON.stringify(loga));
       }
     }
   }
@@ -208,7 +231,7 @@ export class VBSServerConnectionService {
             }
             return of(null);  // Return an observable that emits no items to the observer
           })
-        ).subscribe((info: ApiTaskTemplateInfo /*ClientTaskInfo*/ | null) => {
+        ).subscribe((info: ApiClientTaskTemplateInfo | null) => {
           if (info != null) {
             if (info.taskGroup.includes('AVS')) {
               this.currentTaskIsAVS = true;
@@ -274,11 +297,11 @@ export class VBSServerConnectionService {
     this.successMessageEmitter.emit(this.submissionResponse);
 
     // === Example 3: Log ===
-    if (this.resultLog.length > 0) {
-      this.logService.postApiV2LogResult(this.sessionId!, {
+    if (this.queryResultLog.length > 0) {
+      this.logService.postApiV2LogResultByEvaluationId(this.serverRunIDs[this.selectedServerRun!], this.sessionId!, {
         timestamp: Date.now(),
         sortType: 'list',
-        results: this.resultLog[this.resultLog.length-1].results,
+        results: this.queryResultLog[this.queryResultLog.length-1].results,
         events: [],
         resultSetAvailability: ''
       } as QueryResultLog)

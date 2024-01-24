@@ -6,7 +6,7 @@ import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { Router,ActivatedRoute } from '@angular/router';
 import { query } from '@angular/animations';
-import { QueryEvent, QueryResult, QueryResultLog, QueryEventLog, QueryEventCategory } from 'openapi/dres';
+import { QueryEvent, QueryResultLog, QueryEventLog, QueryEventCategory, RankedAnswer, ApiClientAnswer } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
 import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
@@ -76,22 +76,25 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   showHelpActive = false;
   
   thumbSize = 'small';
-  selectedDataset =  'v3c'; //'v3c-s';
   selectedHistoryEntry: string | undefined
   queryFieldHasFocus = false;
   answerFieldHasFocus = false;
   showButtons = -1;
+
+  selectedDataset =  'v3c'; //'v3c-s';
   datasets = [
-    {id: 'v3c', name: 'Free-Text'},
-    {id: 'v3ct', name: 'OCR-Text'},
-    {id: 'v3cm', name: 'Metadata'}, 
-    {id: 'v3cs', name: 'Speech'},
-    {id: 'v3cv', name: 'VideoId'}
-    /*{id: 'v3c-s', name: 'Shots: V3C'},
-    {id: 'v3c-v', name: 'Videos: V3C'},
-    {id: 'marine-s', name: 'Shots: Marine'},
-    {id: 'marine-v', name: 'Videos: Marine'} 
-    */
+    {id: 'v3c', name: 'V3C'},
+    {id: 'mkv', name: 'MKV'},
+    {id: 'lhe', name: 'LHE'}
+  ];
+
+  selectedQueryType = 'textquery';
+  queryTypes = [
+    {id: 'textquery', name: 'Free-Text'},
+    {id: 'ocr-text', name: 'OCR-Text'},
+    {id: 'metadata', name: 'Metadata'}, 
+    {id: 'speech', name: 'Speech'},
+    {id: 'videoid', name: 'VideoId'}
   ];
     
   constructor(
@@ -508,6 +511,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
    ****************************************************************************/
 
 
+  performNewTextQuery() {
+    this.selectedPage = '1';
+    this.previousQuery = undefined;
+    this.file_sim_keyframe = undefined;
+    this.file_sim_pathPrefix = undefined;
+    this.performQuery();
+  }
+
   performQuery() {
     //called from the paging buttons
     if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
@@ -520,14 +531,6 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }
   }
 
-  performNewTextQuery() {
-    this.selectedPage = '1';
-    this.previousQuery = undefined;
-    this.file_sim_keyframe = undefined;
-    this.file_sim_pathPrefix = undefined;
-    this.performQuery();
-  }
-  
   performTextQuery() {
 
     if (this.queryinput.trim() === '')
@@ -555,19 +558,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       };
       this.previousQuery = msg;
 
-      if (this.selectedDataset === 'v3ct') {
-        msg.dataset = 'v3c';
-        msg.type = 'ocr-text';
-      } else if (this.selectedDataset === 'v3cm') {
-        msg.dataset = 'v3c';
-        msg.type = 'metadata';
-      } else if (this.selectedDataset === 'v3cs') {
-        msg.dataset = 'v3c';
-        msg.type = 'speech';
-      } else if (this.selectedDataset === 'v3cv') {
-        msg.dataset = 'v3c';
-        msg.type = 'videoid';
-      }
+      msg.dataset = this.selectedDataset;
+      msg.type = this.selectedQueryType;
 
       //this.sendToCLIPServer(msg);
 
@@ -878,7 +870,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.querydataset = qresults.dataset;
     this.keyframeBaseURL = this.getBaseURLFromKey(qresults.dataset);
     
-    let logResults:Array<QueryResult> = [];
+    let logResults:Array<RankedAnswer> = [];
     //for (var e of qresults.results) {
     for (let i = 0; i < qresults.results.length; i++) {
       let e = qresults.results[i].replace('.png',GlobalConstants.replacePNG2);
@@ -891,10 +883,16 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.queryresult_frame.push(framenumber);
       this.queryresult_resultnumber.push(resultnum.toString());
       this.queryresult_videopreview.push('');
-      let logResult:QueryResult = {
-        item: videoid,
-        frame: framenumber,
-        score: qresults.scores[i],
+
+      let logAnswer:ApiClientAnswer = {
+        text: undefined,
+        mediaItemName: videoid,
+        mediaItemCollectionName: "v3c", //TODO: change to used dataset
+        start: framenumber, 
+        end: undefined
+      }
+      let logResult:RankedAnswer = {
+        answer: logAnswer,
         rank: resultnum
       }
       logResults.push(logResult)
@@ -906,12 +904,12 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     //create and send log
     let log : QueryResultLog = {
       timestamp: this.queryTimestamp,
-      sortType: 'rankingModel',
+      sortType: 'rankingModel', //TODO
       resultSetAvailability: this.resultsPerPage.toString(), //top-k, for me: all return items 
       results: logResults,
       events: this.vbsService.queryEvents
     }
-    this.vbsService.resultLog.push(log);
+    this.vbsService.queryResultLog.push(log);
 
     this.nodeServerInfo = undefined;
 

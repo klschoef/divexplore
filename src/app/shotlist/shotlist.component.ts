@@ -87,15 +87,15 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
       this.framenumber = paraMap.get('id2')?.toString();
       this.titleService.setTitle('v' + this.videoid);
       console.log(`slc: ${this.videoid} ${this.framenumber}`);
-      if (regExpBase.test(this.videoid!) == true) {
+      //if (regExpBase.test(this.videoid!) == true) {
         this.keyframeBaseURL = GlobalConstants.keyframeBaseURLV3C_Shots;
         this.videoBaseURL = GlobalConstants.videoURLV3C;
         this.datasetBase = 'keyframes'; //'thumbsXL';
-      } else {
-        this.keyframeBaseURL = GlobalConstants.keyframeBaseURLMarine_Shots;
-        this.videoBaseURL = GlobalConstants.videoURLMarine;
-        this.datasetBase = 'keyframes'; //'thumbsmXL';
-      }
+      //} else {
+      //  this.keyframeBaseURL = GlobalConstants.keyframeBaseURLMarine_Shots;
+      //  this.videoBaseURL = GlobalConstants.videoURLMarine;
+      //  this.datasetBase = 'keyframes'; //'thumbsmXL';
+      //}
 
     });
 
