@@ -25,7 +25,8 @@ import {
   ApiEvaluationState,
   QueryEventLog,
   RankedAnswer,
-  QueryEventCategory
+  QueryEventCategory,
+  StatusService
 } from '../../openapi/dres/';
 import { GlobalConstants, WSServerStatus } from './global-constants';
 import { NONE_TYPE } from '@angular/compiler';
@@ -33,7 +34,7 @@ import { UrlSegment } from '@angular/router';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { AppComponent } from './app.component';
 import { QueryComponent } from './query/query.component';
-import { QueryResult } from 'openapi/dres/model/queryResult';
+//import { QueryResultLog } from 'openapi/dres/model/queryResultLog';
 
 export enum GUIActionType {
   TEXTQUERY = 'TEXTQUERY',
@@ -65,6 +66,12 @@ export interface VbsServiceCommunication {
   statusTaskInfoText: string;
 }
 
+interface ExtendedQueryResultLog extends QueryResultLog {
+  serverTime: number;
+  serverTimeDiff: number;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -83,9 +90,12 @@ export class VBSServerConnectionService {
   currentTaskIsAVS = false;
   selectedServerRun: number | undefined;
 
+  serverTimestamp = 0;
+  serverTimeDiff = 0;
+
   queryEvents: Array<QueryEvent> = [];
-  queryResultLog: Array<QueryResultLog> = [];
-  interactionLog: Array<GUIAction> = [];
+  queryResults: Array<RankedAnswer> = [];
+  //queryResultLog: Array<QueryResultLog> = [];
 
   lastRunInfoRequestReturned404 = false;
 
@@ -97,7 +107,8 @@ export class VBSServerConnectionService {
     private evaluationClientService: EvaluationClientService,
     private evaluationService: EvaluationService, 
     private submissionService: SubmissionService,
-    private logService: LogService
+    private logService: LogService,
+    private statusService: StatusService
   ) {
     this.println(`VBSServerConnectionService created`);
     if (localStorage.getItem("LSCusername")) {
@@ -108,62 +119,7 @@ export class VBSServerConnectionService {
     this.connect();
   }
 
-  addQueryEvent(category: QueryEventCategory, type: string, value: string) {
-    let qe: QueryEvent = {
-      timestamp: Date.now(),
-      category: category, 
-      type: type,
-      value: value
-    }
-    this.queryEvents.push(qe);
-  }
-
-  addQueryResult(sortType: string, resultSetAvailability: string, results: [RankedAnswer]) {
-    let qrl: QueryResultLog = {
-      timestamp: Date.now(), 
-      sortType: sortType, 
-      resultSetAvailability: resultSetAvailability, 
-      results: results,
-      events: []
-    }
-    this.queryResultLog.push(qrl);
-  }
-
-  submitQueryLog() {
-    if (this.queryResultLog.length > 0 && this.queryEvents.length > 0) {
-        if (this.queryResultLog.length > 0) {
-          this.logService.postApiV2LogQueryByEvaluationId(this.serverRunIDs[this.selectedServerRun!], this.sessionId!, {
-            timestamp: Date.now(),
-            events: this.queryEvents
-          } as QueryEventLog)
-          .subscribe(
-            (response) => {
-              console.log('QueryLog successfully received:', response);
-            },
-            (error) => {
-              console.error('QueryLog receive error:', error);
-            }
-          );
-        } else {
-          this.println('could not send result log in handleSubmissionResponse, because it is empty!');
-        }
-      }
-  }
-
-  saveLogLocally() {
-    if (this.queryResultLog) {
-      let log = localStorage.getItem('VBSQueryResultLog');
-      if (log) {
-        let loga = JSON.parse(log);
-        loga.push(this.queryResultLog)
-        localStorage.setItem('VBSQueryResultLog',JSON.stringify(loga));
-      } else {
-        let loga  = [this.queryResultLog];
-        localStorage.setItem('VBSQueryResultLog',JSON.stringify(loga));
-      }
-    }
-  }
-
+  
   connect() {
 
       // === Handshake / Login ===
@@ -173,8 +129,8 @@ export class VBSServerConnectionService {
       } as LoginRequest)
       .subscribe((login: ApiUser) => {
           this.println('Login successful\n' +
-          `user: ${login.username}\n` +
-          `role: ${login.role}` +
+          `user: ${login.username}, ` +
+          `role: ${login.role}, ` +
           `session: ${login.sessionId}`);
 
           // Successful login
@@ -186,7 +142,7 @@ export class VBSServerConnectionService {
           in the app.module.ts line to not have to worry about the session.
           */
           this.sessionId = login.sessionId;
-          this.println(this.sessionId!);
+          //this.println(this.sessionId!);
       
           // Wait for a second (do other things)
           setTimeout(() => {
@@ -209,6 +165,11 @@ export class VBSServerConnectionService {
               });
               });
           });
+
+          this.getServerTime();
+          setInterval(() => {
+            this.getServerTime();
+          }, 10000);
 
       });
   }
@@ -290,54 +251,33 @@ export class VBSServerConnectionService {
     })
   }*/
 
-  handleSubmissionResponseAndSendResultLog(status: SuccessfulSubmissionsStatus, info: string) {
+  handleSubmissionSuccess(status: SuccessfulSubmissionsStatus, info: string) {
     this.println('The submission was successful.');
 
     this.submissionResponse = 'Submission successfull!'
     this.successMessageEmitter.emit(this.submissionResponse);
-
-    // === Example 3: Log ===
-    if (this.queryResultLog.length > 0) {
-      this.logService.postApiV2LogResultByEvaluationId(this.serverRunIDs[this.selectedServerRun!], this.sessionId!, {
-        timestamp: Date.now(),
-        sortType: 'list',
-        results: this.queryResultLog[this.queryResultLog.length-1].results,
-        events: [],
-        resultSetAvailability: ''
-      } as QueryResultLog)
-      .subscribe(
-        (response) => {
-          let info = 'QueryResultLog successfully received:' + response;
-          console.log(info);
-          this.successMessageEmitter.emit(info);
-        },
-        (error) => {
-          console.error('QueryResultLog receive error:', error);
-          this.errorMessageEmitter.emit(error.error.description);
-        }
-      );
-    } else {
-      this.println('could not send result log in handleSubmissionResponse, because it is empty!');
-    }
   }
 
   private handleSubmissionError(err:any) {
     let errorMsg = '';
     if (err.status === 401) {
       errorMsg = 'There was an authentication error during the submission. Check the session id.';
+      console.log(errorMsg);
       console.error(errorMsg);
       this.errorMessageEmitter.emit(errorMsg);
     } else if (err.status === 404) {
       errorMsg = 'There is currently no active task which would accept submissions.';
+      console.log(errorMsg);
       console.error(errorMsg);
+      this.errorMessageEmitter.emit(errorMsg);
     } else {
-      console.log(`Something unexpected went wrong during the submission: : ${JSON.stringify(err)}`);
+      //console.log(`Something unexpected went wrong during the submission: : ${JSON.stringify(err)}`);
       this.errorMessageEmitter.emit(err.error.description);
     }
     return of(null);
   }
 
-  submitFrame(videoid: string, frame: number, fps: number) {
+  submitFrame(videoid: string, frame: number, fps: number, durationS: number) {
 
     let mySubmission = {
       text: undefined, //text - in case the task is not targeting a particular content object but plaintext
@@ -349,12 +289,15 @@ export class VBSServerConnectionService {
 
     //set start and end, if current task is AVS
     if (this.currentTaskIsAVS) {
-      mySubmission.start = (frame - fps) / fps * 1000;
-      mySubmission.end = (frame + fps) / fps * 1000;
+      let startS = (frame - fps) / fps;
+      let endS = (frame + fps) / fps;
+      if (startS < 0) startS = 0;
+      if (endS > durationS) endS = durationS;
+      mySubmission.start = startS * 1000;
+      mySubmission.end = endS * 1000;
     }
 
-    // === Submission ===
-    this.println('submit video=' + videoid + ' frame=' + frame + ' (fps=' + fps + '): ' + JSON.stringify(mySubmission));
+    this.println('submit video=' + videoid + ' frame=' + frame + ' (fps=' + fps + '): ');
 
     this.submissionService.postApiV2SubmitByEvaluationId(this.serverRunIDs[this.selectedServerRun!], {answerSets: [
       {answers: [
@@ -363,39 +306,15 @@ export class VBSServerConnectionService {
     ]} as ApiClientSubmission,
     
     this.sessionId!).subscribe((submissionResponse: SuccessfulSubmissionsStatus) => {
-      // Check if submission as successful
-      this.handleSubmissionResponseAndSendResultLog(submissionResponse, 'f:' + frame);
+      this.handleSubmissionSuccess(submissionResponse, 'f:' + frame);
     }
     , error => {
       this.handleSubmissionError(error);
     });
-
-    /*
-    //'00:00:10:00', // timecode - in this case, we use the timestamp in the form HH:MM:SS:FF
-    this.submissionService.getApiV1Submit(
-      undefined, // collection - does not usually need to be set
-      videoid, // item -  item which is to be submitted
-      undefined, //text - in case the task is not targeting a particular content object but plaintext
-      frame, // frame - for items with temporal components, such as video
-      undefined, // shot - only one of the time fields needs to be set.
-      undefined, // timecode - in this case, we use the timestamp in the form HH:MM:SS:FF
-      this.sessionId! // the sessionId, as always
-    ).pipe(
-      tap((status: SuccessfulSubmissionsStatus) => {
-        this.handleSubmissionResponse(status, ''+videoid + '-' + frame);
-      }), 
-      catchError(err => {
-        return this.handleSubmissionError(err);
-      })
-    ).subscribe()
-    */
   }
 
 
   submitText(text: string) {
-    // === Submission ===
-    //'00:00:10:00', // timecode - in this case, we use the timestamp in the form HH:MM:SS:FF
-
     this.submissionService.postApiV2SubmitByEvaluationId(this.serverRunIDs[this.selectedServerRun!], {answerSets: [
       {answers: [
         {
@@ -410,30 +329,59 @@ export class VBSServerConnectionService {
     
     this.sessionId!).subscribe((submissionResponse: SuccessfulSubmissionsStatus) => {
       // Check if submission as successful
-      this.handleSubmissionResponseAndSendResultLog(submissionResponse, 't:'+text);
+      this.handleSubmissionSuccess(submissionResponse, 't:'+text);
     }
     , error => {
       this.handleSubmissionError(error);
     });
+  }
 
-    /*
-    this.submissionService.getApiV1Submit(
-      undefined, // collection - does not usually need to be set
-      undefined, // item -  item which is to be submitted
-      text, //text - in case the task is not targeting a particular content object but plaintext
-      undefined, // frame - for items with temporal components, such as video
-      undefined, // shot - only one of the time fields needs to be set.
-      undefined, // timecode - in this case, we use the timestamp in the form HH:MM:SS:FF
-      this.sessionId! // the sessionId, as always
-    ).pipe(
-      tap((status: SuccessfulSubmissionsStatus) => {
-        this.handleSubmissionResponse(status, 'text:'+text);
-      }), 
-      catchError(err => {
-        return this.handleSubmissionError(err);
-      })
-    ).subscribe()
-    */
+  submitQueryResultLog(sortType: string, page: string = '') {
+    let qrl = {
+      timestamp: Date.now(),
+      sortType: sortType,
+      resultSetAvailability: 'page ' + page,
+      results: this.queryResults,
+      events: this.queryEvents
+    } as QueryResultLog;
+    if (page === '') {
+      qrl.resultSetAvailability = 'video';
+    }
+
+    this.saveLogLocally(qrl);
+    
+    this.logService.postApiV2LogResultByEvaluationId(this.serverRunIDs[this.selectedServerRun!], this.sessionId!, qrl)
+    .subscribe(
+      (response) => {
+        let info = 'QueryResultLog: ' + JSON.stringify(response);
+        console.log(info);
+        //this.successMessageEmitter.emit(response.description);
+        this.queryResults = []; //clear all results
+        this.queryEvents = []; //clear all events
+      },
+      (error) => {
+        console.error('QueryResultLog error: ', JSON.stringify(error));
+        this.errorMessageEmitter.emit(error.error.description);
+      }
+    );
+  }
+
+
+  saveLogLocally(qr: QueryResultLog) {
+    let qrl: ExtendedQueryResultLog = qr as unknown as ExtendedQueryResultLog;
+    qrl.serverTime = this.serverTimestamp;
+    qrl.serverTimeDiff = this.serverTimeDiff;
+
+    let LSname = 'VBS2024QueryResultLog';
+    let log = localStorage.getItem(LSname);
+    if (log) {
+      let loga = JSON.parse(log);
+      loga.push(qrl)
+      localStorage.setItem(LSname, JSON.stringify(loga));
+    } else {
+      let loga = [qrl];
+      localStorage.setItem(LSname, JSON.stringify(loga));
+    }
   }
 
   logout(appComp: AppComponent) {
@@ -446,6 +394,15 @@ export class VBSServerConnectionService {
           this.println('Error during logout: ' + logout.description);
         }
       });
+  }
+
+  getServerTime() {
+    let myTime = Date.now();
+    this.statusService.getApiV2StatusTime().subscribe((status) => {
+      this.serverTimeDiff = status.timeStamp - myTime;
+      this.serverTimestamp = status.timeStamp;
+      //console.log("got server time: " + status.timeStamp + " diff=" + this.serverTimeDiff);
+    });
   }
 
   private println(msg: string): void {

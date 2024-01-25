@@ -1,11 +1,11 @@
 import { ViewChild,ElementRef,AfterViewInit, Component } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { VBSServerConnectionService, GUIAction, GUIActionType, VbsServiceCommunication } from '../vbsserver-connection.service';
+import { VBSServerConnectionService, VbsServiceCommunication } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } from '../global-constants';
 import { mdiConsoleLine } from '@mdi/js';
-import { QueryEvent, QueryEventCategory } from 'openapi/dres';
+import { ApiClientAnswer, QueryEvent, QueryEventCategory, RankedAnswer } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
 import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
@@ -198,7 +198,6 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
         type: "videoinfo", 
         videoid: videoid
       };
-      //this.nodeSocketWorker.postMessage({ event: WebSocketEvent.MESSAGE, content: msg });
       this.sendToNodeServer(msg);
     } else {
       alert(`Node.js connection down: ${this.nodeService.connectionState}. Try reconnecting by pressing the red button!`);
@@ -222,6 +221,8 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     this.keyframes = [];
     this.framenumbers = [];
     this.timelabels = [];
+
+    let logResults: Array<RankedAnswer> = [];
     for (let i=0; i < videoinfo['shots'].length; i++) {
       let shotinfo = videoinfo['shots'][i];
       let kf = shotinfo['keyframe'];
@@ -231,7 +232,23 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
       let fnumber = comps[comps.length-1];
       this.framenumbers.push(fnumber);
       this.timelabels.push(formatAsTime(fnumber,this.fps));
+
+      let logAnswer:ApiClientAnswer = {
+        text: undefined,
+        mediaItemName: this.videoid,
+        mediaItemCollectionName: '',
+        start: fnumber, // / this.fps * 1000, 
+        end: fnumber, // / this.fps * 1000
+      }
+      let logResult:RankedAnswer = {
+        answer: logAnswer,
+        rank: (i+1)
+      }
+      logResults.push(logResult)
     }
+
+    this.vbsService.queryResults = logResults;
+    this.vbsService.submitQueryResultLog('shotlist');
   }
 
 
@@ -298,57 +315,47 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
 
   submitCurrentTime() {
     console.log('submitting time: ' + this.currentVideoTime + ' for video ' + this.videoid! + ' with fps=' + this.fps);
-    this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime), this.fps);
+    this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime), this.fps, this.vduration);
 
+    //query event logging
     let queryEvent:QueryEvent = {
-      timestamp: getTimestampInSeconds(),
+      timestamp: Date.now(),
       category: QueryEventCategory.OTHER,
-      type: 'submit',
-      value: `videoid:${this.videoid} frame:${this.currentVideoTime}` 
+      type: 'submitTime',
+      value: this.videoid! + ',' + this.currentVideoTime
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryLog();
-    this.vbsService.saveLogLocally();
+    this.vbsService.submitQueryResultLog('interaction');
   }
 
   submitResult(index: number) {
-    console.log('selected rund: ' + this.vbsService.selectedServerRun);
     console.log('submitting frame: ' + this.framenumbers[index] + ' for video ' + this.videoid! + ' with fps=' + this.fps);
-    this.vbsService.submitFrame(this.videoid!, parseInt(this.framenumbers[index]), this.fps);
+    this.vbsService.submitFrame(this.videoid!, parseInt(this.framenumbers[index]), this.fps, this.vduration);
 
+    //query event logging
     let queryEvent:QueryEvent = {
-      timestamp: getTimestampInSeconds(),
+      timestamp: Date.now(),
       category: QueryEventCategory.OTHER,
-      type: 'submit',
-      value: `videoid:${this.videoid} freame:${this.framenumbers[index]}` 
+      type: 'submitShot',
+      value: this.videoid! + ',' + index + ',' + this.framenumbers[index]
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryLog();
-    this.vbsService.saveLogLocally();
+    this.vbsService.submitQueryResultLog('interaction');
   }
 
   sendTopicAnswer() {
+    console.log('submitting text: ' + this.topicanswer);
     this.vbsService.submitText(this.topicanswer)
 
+    //query event logging
     let queryEvent:QueryEvent = {
-      timestamp: getTimestampInSeconds(),
+      timestamp: Date.now(),
       category: QueryEventCategory.OTHER,
-      type: 'submitanswer',
-      value: `result:${this.topicanswer}` 
+      type: "submitAnswer2",
+      value: this.topicanswer
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryLog();
-
-    //interaction logging
-    let GUIaction: GUIAction = {
-      timestamp: getTimestampInSeconds(), 
-      actionType: GUIActionType.SUBMITANSWER,
-      info: this.topicanswer
-    }
-    this.vbsService.interactionLog.push(GUIaction);
-
-    //save and reset logs
-    //this.vbsService.saveLogLocallyAndClear();
+    this.vbsService.submitQueryResultLog('interaction');
   }
 
 }

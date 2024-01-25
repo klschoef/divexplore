@@ -84,7 +84,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   selectedDataset =  'v3c'; //'v3c-s';
   datasets = [
     {id: 'v3c', name: 'V3C'},
-    {id: 'mkv', name: 'MKV'},
+    {id: 'mvk', name: 'MVK'},
     {id: 'lhe', name: 'LHE'}
   ];
 
@@ -504,6 +504,16 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   showVideoPreview() {
     this.requestVideoSummaries(this.queryresult_videoid[this.selectedItem]);
     window.scrollTo(0, 0);
+
+    //query event logging
+    let queryEvent:QueryEvent = {
+      timestamp: Date.now(),
+      category: QueryEventCategory.BROWSING,
+      type: "videosummary",
+      value: this.queryresult_videoid[this.selectedItem]
+    }
+    this.vbsService.queryEvents.push(queryEvent);
+    this.vbsService.submitQueryResultLog('interaction');
   }
 
    /****************************************************************************
@@ -575,24 +585,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
       this.saveToHistory(msg);
 
-
-      //query logging
+      //query event logging
       let queryEvent:QueryEvent = {
-        timestamp: getTimestampInSeconds(),
+        timestamp: Date.now(),
         category: QueryEventCategory.TEXT,
-        type: 'jointEmbedding',
+        type: this.selectedQueryType,
         value: this.queryinput
       }
       this.vbsService.queryEvents.push(queryEvent);
-
-      //interaction logging
-      let GUIaction: GUIAction = {
-        timestamp: getTimestampInSeconds(), 
-        actionType: GUIActionType.TEXTQUERY,
-        info: this.queryinput, 
-        page: this.selectedPage
-      }
-      this.vbsService.interactionLog.push(GUIaction);
 
       
     } else {
@@ -618,13 +618,15 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.sendToNodeServer(msg);
       this.saveToHistory(msg);
 
+      //query event logging
       let queryEvent:QueryEvent = {
-        timestamp: getTimestampInSeconds(),
+        timestamp: Date.now(),
         category: QueryEventCategory.IMAGE,
-        type: 'feedbackModel',
-        value: `result# ${this.queryresult_resultnumber[serveridx]}` 
+        type: "similarityquery",
+        value: `result# ${this.queryresult_resultnumber[serveridx]}`
       }
       this.vbsService.queryEvents.push(queryEvent);
+
     }
   }
 
@@ -655,10 +657,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.sendToNodeServer(msg);
       this.saveToHistory(msg);
 
+      //query event logging
       let queryEvent:QueryEvent = {
-        timestamp: getTimestampInSeconds(),
-        category: QueryEventCategory.IMAGE,
-        type: 'feedbackModel',
+        timestamp: Date.now(),
+        category: QueryEventCategory.BROWSING,
+        type: "filesimilarityquery",
         value: `${keyframe}` 
       }
       this.vbsService.queryEvents.push(queryEvent);
@@ -704,13 +707,15 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.selectedHistoryEntry = "-1";
       this.historyDiv.nativeElement.hidden = true;
 
+      //query event logging
       let queryEvent:QueryEvent = {
-        timestamp: getTimestampInSeconds(),
+        timestamp: Date.now(),
         category: QueryEventCategory.OTHER,
-        type: 'queryRepetition',
-        value: `${this.selectedHistoryEntry}` 
+        type: "historyquery",
+        value: msg.query
       }
       this.vbsService.queryEvents.push(queryEvent);
+
     }
   }
 
@@ -726,6 +731,15 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       }
 
       this.sendToCLIPServer(msg);
+
+      //query event logging
+      let queryEvent:QueryEvent = {
+        timestamp: Date.now(),
+        category: QueryEventCategory.OTHER,
+        type: "historylastquery",
+        value: msg.query
+      }
+      this.vbsService.queryEvents.push(queryEvent);
     }
   }
 
@@ -776,8 +790,6 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
   resetQuery() {
-    this.vbsService.submitQueryLog();
-    this.vbsService.saveLogLocally();
     this.queryinput = '';
     this.inputfield.nativeElement.focus();
     this.inputfield.nativeElement.select();
@@ -802,7 +814,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.queryresult_videopreview = [];
     this.queryTimestamp = 0;
     this.vbsService.queryEvents = []
-    //this.vbsService.resultLog = []
+    this.vbsService.queryResults = []
   }
 
   /****************************************************************************
@@ -871,12 +883,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.keyframeBaseURL = this.getBaseURLFromKey(qresults.dataset);
     
     let logResults:Array<RankedAnswer> = [];
-    //for (var e of qresults.results) {
     for (let i = 0; i < qresults.results.length; i++) {
       let e = qresults.results[i].replace('.png',GlobalConstants.replacePNG2);
       let filename = e.split('/');
       let videoid = filename[0];
-      let framenumber = filename[1].split('_')[1].split('.')[0];
+      // Split the second part of the filename by underscore and take the last element
+      let parts = filename[1].split('_');
+      let framenumber = parts[parts.length - 1].split('.')[0];
+      //let framenumber = filename[1].split('_')[1].split('.')[0];
       this.queryresults.push(e);
       //this.queryresult_serveridx.push(qresults.resultsidx[i]);
       this.queryresult_videoid.push(videoid);
@@ -887,9 +901,9 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       let logAnswer:ApiClientAnswer = {
         text: undefined,
         mediaItemName: videoid,
-        mediaItemCollectionName: "v3c", //TODO: change to used dataset
+        mediaItemCollectionName: this.selectedDataset,
         start: framenumber, 
-        end: undefined
+        end: framenumber
       }
       let logResult:RankedAnswer = {
         answer: logAnswer,
@@ -900,19 +914,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }
 
     this.inputfield.nativeElement.blur();
-
-    //create and send log
-    let log : QueryResultLog = {
-      timestamp: this.queryTimestamp,
-      sortType: 'rankingModel', //TODO
-      resultSetAvailability: this.resultsPerPage.toString(), //top-k, for me: all return items 
-      results: logResults,
-      events: this.vbsService.queryEvents
-    }
-    this.vbsService.queryResultLog.push(log);
-
     this.nodeServerInfo = undefined;
 
+    this.vbsService.queryResults = logResults;
+    this.vbsService.submitQueryResultLog('feedbackModel', this.selectedPage);
   }
 
   closeWebSocketCLIP() {
@@ -943,19 +948,19 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     };
     
     this.nodeService.sendMessageAndWait(message).subscribe((response) => {
-      console.log('Received fps info:', response.fps);
+      console.log('Received video info: fps=' + response.fps + " duration=" + response.duration);
 
-      this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps);
+      this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps, response.duration);
 
+      //query event logging
       let queryEvent:QueryEvent = {
-        timestamp: getTimestampInSeconds(),
+        timestamp: Date.now(),
         category: QueryEventCategory.OTHER,
-        type: 'submit',
-        value: `result:${index}` 
+        type: "submitFrame",
+        value: videoid + ',' + frameNumber
       }
       this.vbsService.queryEvents.push(queryEvent);
-      this.vbsService.submitQueryLog();
-      this.vbsService.saveLogLocally();
+      this.vbsService.submitQueryResultLog('interaction');
     });
 
     
@@ -966,23 +971,12 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.vbsService.submitText(this.topicanswer)
 
     let queryEvent:QueryEvent = {
-      timestamp: getTimestampInSeconds(),
+      timestamp: Date.now(),
       category: QueryEventCategory.OTHER,
-      type: 'submitanswer',
-      value: `result:${this.topicanswer}` 
+      type: 'submitAnswer1',
+      value: this.topicanswer
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryLog();
-
-    //interaction logging
-    let GUIaction: GUIAction = {
-      timestamp: getTimestampInSeconds(), 
-      actionType: GUIActionType.SUBMITANSWER,
-      info: this.topicanswer
-    }
-    this.vbsService.interactionLog.push(GUIaction);
-
-    //save and reset logs
-    //this.vbsService.saveLogLocallyAndClear();
+    this.vbsService.submitQueryResultLog('interaction');
   }
 }

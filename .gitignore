@@ -11,6 +11,8 @@
 npm-debug.log
 yarn-error.log
 
+src/app/logtests/*
+
 # IDEs and editors
 .idea/
 .project

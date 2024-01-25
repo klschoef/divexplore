@@ -13,7 +13,7 @@ export class MessageBarComponent {
 
   showSuccessMessage(tempMessage: string) {
     if (this.successMessage != '') {
-      this.successMessage += '<br/>' + tempMessage;
+      this.successMessage += ' ' + tempMessage;
     } else {
       this.successMessage = tempMessage;
     }
@@ -27,7 +27,7 @@ export class MessageBarComponent {
 
   showErrorMessage(tempMessage: string) {
     if (this.errorMessage != '') {
-      this.errorMessage += '<br/>' + tempMessage;
+      this.errorMessage += ' ' + tempMessage;
     } else {
       this.errorMessage = tempMessage;
     }
@@ -36,6 +36,6 @@ export class MessageBarComponent {
     setTimeout(() => {
       this.isErrorVisible = false;
       this.errorMessage = '';
-    }, 2000); 
+    }, 4000); 
   }
 }
