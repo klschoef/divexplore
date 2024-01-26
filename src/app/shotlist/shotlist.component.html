@@ -2,22 +2,25 @@
 
 <div class="queryarea">
     <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
-    <span class="headertitle">v{{videoid}} ({{keyframes.length}} shots)</span>
-    <span *ngIf="this.hasMetadata(); else simplemetadata" class="videometainfo">
+    <span class="headertitle">{{videoid}} ({{keyframes.length}} shots)</span>
+    <span *ngIf="this.hasMetadata()" class="videometainfo">
         <span class="headerinfo">{{vtitle}}</span>
         <span class="headerkeyword">[by {{vchannel}}]</span>
         <span class="headerlabel">{{asTimeLabel(vduration.toString(),false)}}</span>
         <span class="headerlabel">{{fps}} fps</span>
         <span class="headerlabel">{{vduration}} secs</span>
-    </span>
+    </span>    
+</div>
+
+<div class="videobox" *ngIf="showVideoBox">
     <ng-template #simplemetadata>
         <span class="headerlabel">{{fps}} fps</span>
     </ng-template>
-    <button class="videosubmit" (click)="submitCurrentTime()">Submit Frame</button> <span class="videosubmitinfo">{{asTimeLabel(this.currentVideoTime.toString())}}</span>
-</div>
-
-<div class="videobox">
-    <video #videoplayer src="{{videoURL}}" (timeupdate)="setCurrentTime($event)" width="960" height="540" controls></video>
+    <button class="videosubmit" (click)="submitCurrentTime()">Submit</button> <span class="videosubmitinfo">{{asTimeLabel(this.currentVideoTime.toString())}}</span>
+    <span class="minispacer">&nbsp;</span>
+    <button class="hidevideobox" (click)="hideVideoBox()">Hide</button>
+    <br/>
+    <video #videoplayer src="{{videoURL}}" (timeupdate)="setCurrentTime($event)" width="480" height="270" controls></video>
 </div>
 
 <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">

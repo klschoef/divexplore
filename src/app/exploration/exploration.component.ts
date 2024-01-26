@@ -88,7 +88,7 @@ export class ExplorationComponent implements VbsServiceCommunication {
 
   ngOnInit() {
     
-    this.summariesBase = GlobalConstants.keyframeBaseURLV3C_Summaries;
+    this.summariesBase = GlobalConstants.summariesBaseURL;
 
     //already connected?
     if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {

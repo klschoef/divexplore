@@ -50,6 +50,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
 
   topicanswer: string = '';
   answerFieldHasFocus = false;
+  showVideoBox = true;
 
   showButtons = -1;
 
@@ -87,15 +88,9 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
       this.framenumber = paraMap.get('id2')?.toString();
       this.titleService.setTitle('v' + this.videoid);
       console.log(`slc: ${this.videoid} ${this.framenumber}`);
-      //if (regExpBase.test(this.videoid!) == true) {
-        this.keyframeBaseURL = GlobalConstants.keyframeBaseURLV3C_Shots;
-        this.videoBaseURL = GlobalConstants.videoURLV3C;
-        this.datasetBase = 'keyframes'; //'thumbsXL';
-      //} else {
-      //  this.keyframeBaseURL = GlobalConstants.keyframeBaseURLMarine_Shots;
-      //  this.videoBaseURL = GlobalConstants.videoURLMarine;
-      //  this.datasetBase = 'keyframes'; //'thumbsmXL';
-      //}
+      this.keyframeBaseURL = GlobalConstants.thumbsBaseURL;
+      this.videoBaseURL = GlobalConstants.videosBaseURL;
+      this.datasetBase = 'keyframes'; //'thumbsXL';
 
     });
 
@@ -280,17 +275,23 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     } 
   }
 
+  hideVideoBox() {
+    this.showVideoBox = false;
+  }
+
   setCurrentTime(data:any) {
     this.currentVideoTime = data.target.currentTime * this.fps;
   }
 
   gotoTimeOfShot(idx:number) {
+    this.showVideoBox = true;
     console.log(`goto time of shot ${idx} (fps=${this.fps})`);
     this.videoplayer.nativeElement.currentTime = parseFloat(this.framenumbers[idx]) / this.fps;
     if (this.videoplayer.nativeElement.paused) {
       this.videoplayer.nativeElement.play();
     }
-    window.scrollTo(0, 0);
+    
+    //window.scrollTo(0, 0);
   }
 
   gotoTimeOfFrame(frame:number) {

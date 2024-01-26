@@ -446,20 +446,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
   getBaseURLFromKey(selDat: string) {
-    if (selDat == 'marine-v') {
-      return GlobalConstants.keyframeBaseURLMarine_SummariesXL; 
-    }
-    else if (selDat == 'v3c-v') {
-      return GlobalConstants.keyframeBaseURLV3C_SummariesXL; 
-    }
-    if (selDat == 'marine-s') {
-      return GlobalConstants.keyframeBaseURLMarine_Shots; 
-    }
-    else if (selDat == 'v3c-s' || selDat == 'v3c') {
-      return GlobalConstants.keyframeBaseURLV3C_Shots;
-    }
-    else 
-    return GlobalConstants.keyframeBaseURLV3C;
+    return GlobalConstants.thumbsBaseURL;
   }
 
   getBaseURL() {
@@ -520,6 +507,13 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
    * Queries
    ****************************************************************************/
 
+  queryForVideo(i: number) {
+    let v = this.queryresult_videoid[i];
+    console.log('query for video ' + v);
+    this.queryinput = v;
+    this.selectedQueryType = 'videoid';
+    this.performQuery();
+  }
 
   performNewTextQuery() {
     this.selectedPage = '1';
@@ -529,7 +523,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.performQuery();
   }
 
-  performQuery() {
+  performQuery(saveToHist: boolean = true) {
     //called from the paging buttons
     if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
       this.performFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix, this.selectedPage);
@@ -537,11 +531,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     else if (this.previousQuery !== undefined && this.previousQuery.type === "similarityquery") {
       this.performSimilarityQuery(parseInt(this.previousQuery.query));
     } else {
-      this.performTextQuery();
+      this.performTextQuery(saveToHist);
     }
   }
 
-  performTextQuery() {
+  performTextQuery(saveToHist: boolean = true) {
 
     if (this.queryinput.trim() === '')
       return;
@@ -583,7 +577,9 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         this.sendToCLIPServer(msg);
       }
 
-      this.saveToHistory(msg);
+      if (saveToHist) {
+        this.saveToHistory(msg);
+      }
 
       //query event logging
       let queryEvent:QueryEvent = {
@@ -682,27 +678,34 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     return "";
   }
 
+  /*backInHistory() {
+    this.selectedHistoryEntry = '0';
+    this.performHistoryQuery();
+  }*/
+
   performHistoryQuery() {
     console.log(`run hist: ${this.selectedHistoryEntry}`)
     let hist = localStorage.getItem('history')
     if (hist && this.selectedHistoryEntry !== "-1") {
       let queryHistory:Array<QueryType> = JSON.parse(hist);
       let msg: QueryType = queryHistory[parseInt(this.selectedHistoryEntry!)];
-      if (msg.type === 'textquery') {
+
+      if (msg.type === 'file-similarityquery') {
+        this.previousQuery = undefined;
+        this.queryinput = '';
+      } else {
         this.queryinput = msg.query;
         this.selectedDataset = msg.dataset;
+        this.selectedQueryType = msg.type;
         this.selectedPage = msg.selectedpage;
         this.previousQuery = undefined;
         this.file_sim_keyframe = undefined;
         this.file_sim_pathPrefix = undefined;
       }
-      else if (msg.type === 'file-similarityquery') {
-        this.previousQuery = undefined;
-        this.queryinput = '';
-      }
 
-      this.sendToCLIPServer(msg);
-      this.saveToHistory(msg);
+      this.performQuery(false);
+      //this.sendToCLIPServer(msg);
+      //this.saveToHistory(msg);
       
       this.selectedHistoryEntry = "-1";
       this.historyDiv.nativeElement.hidden = true;

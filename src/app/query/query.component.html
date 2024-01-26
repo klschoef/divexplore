@@ -1,6 +1,7 @@
 
 <div class="queryarea">
     <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
+    <!--<button class="backbutton" (click)="this.backInHistory()"><-</button>-->
     <select [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
       <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
     </select> 
@@ -44,8 +45,9 @@
     <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">f{{this.queryresult_frame[i]}}</span>
   </div>
   <div class="righttopcorner">
-      <span class="label">
-          <a [routerLink]="['/video',this.queryresult_videoid[i],this.queryresult_frame[i]]" target="_blank">v{{this.queryresult_videoid[i]}}</a>
+      <span class="label" (click)="this.queryForVideo(i)">
+          <!--<a [routerLink]="['/video',this.queryresult_videoid[i],this.queryresult_frame[i]]" target="_blank">{{this.queryresult_videoid[i]}}</a>-->
+          {{this.queryresult_videoid[i]}}
       </span>
   </div>
   <div class="leftbottomcorner">

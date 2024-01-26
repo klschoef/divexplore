@@ -376,7 +376,7 @@ export class VBSServerConnectionService {
     let log = localStorage.getItem(LSname);
     if (log) {
       let loga = JSON.parse(log);
-      loga.push(qrl)
+      loga.push(qrl);
       localStorage.setItem(LSname, JSON.stringify(loga));
     } else {
       let loga = [qrl];

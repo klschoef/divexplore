@@ -65,16 +65,10 @@ export class GlobalConstants {
     public static dataHost = LocalConfig.config_DATA_BASE_URL;
     public static dataHostVideos = LocalConfig.config_DATA_BASE_URL_VIDEOS;
 
-    public static keyframeBaseURLMarine_Summaries: string = this.dataHost + 'marinesummaries/';
-    public static keyframeBaseURLMarine_SummariesXL: string = this.dataHost + 'marinesummariesXL/';
-    public static keyframeBaseURLV3C_Summaries: string = this.dataHost + 'summaries/';
-    public static keyframeBaseURLV3C_SummariesXL: string = this.dataHost + 'summariesXL/';
-    public static keyframeBaseURLMarine_Shots: string = this.dataHost + 'thumbsmXL/';
-    public static keyframeBaseURLV3C_Shots: string = this.dataHost + 'thumbsXL/';
-    public static keyframeBaseURLV3C: string = this.dataHost + 'keyframes/';
-
-    public static videoURLV3C = this.dataHostVideos + 'videos/';
-    public static videoURLMarine = this.dataHostVideos + 'marinevideos/';
+    public static keyframeBaseURL: string = this.dataHost + 'keyframes/';
+    public static thumbsBaseURL: string = this.dataHost + 'thumbsXL/';
+    public static summariesBaseURL: string = this.dataHost + 'summariesXL/';    
+    public static videosBaseURL = this.dataHostVideos + 'videos/';
 
     public static replacePNG2 = '.jpg'; //display
     public static replaceJPG_back2 = '.jpg'; //'.jpg'; //file-similarity
@@ -102,7 +96,7 @@ export function formatAsTime(frame:string, fps:number, withFrames:boolean=true) 
     let hh = Math.floor(secs / 3600); 
     let timeString = `${twoDigits(hh.toString())}:${twoDigits(mm.toString())}:${twoDigits(ss.toString())}`;
     if (withFrames) {
-      return `${timeString}.${ff}`
+      return `${timeString}.${twoDigits(ff.toString())}`
     } else {
       return timeString;
     }
