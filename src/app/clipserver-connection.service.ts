@@ -4,8 +4,9 @@ import { Observable, Observer } from 'rxjs';
 import { AnonymousSubject } from 'rxjs/internal/Subject';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { GlobalConstantsService } from './global-constants.service';
 
-const URL = GlobalConstants.clipServerURL;
+//const URL = GlobalConstants.clipServerURL;
 let statusConnected = {'wsstatus':'connected'};
 
 export interface Message {
@@ -23,13 +24,13 @@ export class ClipServerConnectionService {
 
   public connectionState: WSServerStatus = WSServerStatus.UNSET;
 
-  constructor() {
+  constructor(private globalConstants: GlobalConstantsService) {
     console.log('CLIPServerConnectionService created');
     this.messages = this.connectToServer();
   }
 
   public connectToServer() {
-    this.messages = <Subject<Message>>this.connectToWebsocket(URL).pipe(
+    this.messages = <Subject<Message>>this.connectToWebsocket(this.globalConstants.clipServerURL).pipe(
     map(
           (response: MessageEvent): Message => {
               //console.log(`CLIP-server: ${response.data}`);

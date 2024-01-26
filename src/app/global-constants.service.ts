@@ -1,0 +1,60 @@
+import { Injectable } from '@angular/core';
+import { ConfigService } from './config.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GlobalConstantsService {
+  constructor(private configService: ConfigService) {}
+
+  get configVBSSERVER(): string {
+    return 'https://vbs.videobrowsing.org';
+  }
+
+  get configUSER(): string {
+    return this.configService.getConfiguration().config_USER;
+  }
+
+  get configPASS(): string {
+    return this.configService.getConfiguration().config_PASS;
+  }
+
+  get clipServerURL(): string {
+    const config = this.configService.getConfiguration();
+    return `ws://${config.config_CLIP_SERVER_HOST}:${config.config_CLIP_SERVER_PORT}`;
+  }
+
+  get nodeServerURL(): string {
+    const config = this.configService.getConfiguration();
+    return `ws://${config.config_NODE_SERVER_HOST}:${config.config_NODE_SERVER_PORT}`;
+  }
+
+  get dataHost(): string {
+    return this.configService.getConfiguration().config_DATA_BASE_URL;
+  }
+
+  get dataHostVideos(): string {
+    return this.configService.getConfiguration().config_DATA_BASE_URL_VIDEOS;
+  }
+
+  get keyframeBaseURL(): string {
+    return this.dataHost + 'keyframes/';
+  }
+
+  get thumbsBaseURL(): string {
+    return this.dataHost + 'thumbsXL/';
+  }
+
+  get summariesBaseURL(): string {
+    return this.dataHost + 'summariesXL/';
+  }
+
+  get videosBaseURL(): string {
+    return this.dataHostVideos + 'videos/';
+  }
+
+  get resultsPerPage(): number {
+    return 35;
+  }
+}
+

@@ -34,6 +34,7 @@ import { UrlSegment } from '@angular/router';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { AppComponent } from './app.component';
 import { QueryComponent } from './query/query.component';
+import { GlobalConstantsService } from './global-constants.service';
 //import { QueryResultLog } from 'openapi/dres/model/queryResultLog';
 
 export enum GUIActionType {
@@ -108,13 +109,14 @@ export class VBSServerConnectionService {
     private evaluationService: EvaluationService, 
     private submissionService: SubmissionService,
     private logService: LogService,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private globalConstants: GlobalConstantsService
   ) {
     this.println(`VBSServerConnectionService created`);
     if (localStorage.getItem("LSCusername")) {
       this.activeUsername = localStorage.getItem("LSCusername")!;
     } else {
-      this.activeUsername = GlobalConstants.configUSER;
+      this.activeUsername = this.globalConstants.configUSER; //GlobalConstants.configUSER;
     }
     this.connect();
   }
@@ -124,8 +126,8 @@ export class VBSServerConnectionService {
 
       // === Handshake / Login ===
       this.userService.postApiV2Login({
-        username: GlobalConstants.configUSER,
-        password: GlobalConstants.configPASS
+        username: this.globalConstants.configUSER, //GlobalConstants.configUSER,
+        password: this.globalConstants.configPASS //GlobalConstants.configPASS
       } as LoginRequest)
       .subscribe((login: ApiUser) => {
           this.println('Login successful\n' +

@@ -3,7 +3,25 @@
 import { WebSocketEvent,GlobalConstants } from "./global-constants";
 
 var clipSocket: WebSocket = new WebSocket(GlobalConstants.clipServerURL);
- 
+/*var clipSocket: WebSocket; // = new WebSocket(GlobalConstants.clipServerURL);
+
+addEventListener('message', ({ data }) => {
+  switch(data.event) {
+    case WebSocketEvent.OPEN:
+      // Initialize and connect the WebSocket using provided URL
+      clipSocket = new WebSocket(data.clipServerURL);
+      connectWebSocket();
+      break;
+    case WebSocketEvent.CLOSE:
+      clipSocket?.close();
+      break;
+    case WebSocketEvent.MESSAGE:
+      clipSocket?.send(JSON.stringify(data.content));
+      break;
+    // Add other cases as needed
+  }
+});*/
+
 addEventListener('message', ({ data }) => {
   console.log('clip worker received message');
   if (data.event === WebSocketEvent.OPEN) {
@@ -18,6 +36,7 @@ addEventListener('message', ({ data }) => {
   //const response = `worker response to ${data}`;
   //postMessage(response);
 });
+
 
 function connectWebSocket() {  
   console.log('clip connectWebSocket() called');

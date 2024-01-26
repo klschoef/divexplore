@@ -4,9 +4,10 @@ import { Observable, Observer } from 'rxjs';
 import { AnonymousSubject } from 'rxjs/internal/Subject';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { GlobalConstantsService } from './global-constants.service';
 
 
-const URL = GlobalConstants.nodeServerURL;
+//const URL = GlobalConstants.nodeServerURL;
 let statusConnected = {'wsstatus':'connected'};
 
 export interface Message {
@@ -31,14 +32,14 @@ export class NodeServerConnectionService {
 
   public connectionState: WSServerStatus = WSServerStatus.UNSET;;
 
-  constructor() {
+  constructor(private globalConstants: GlobalConstantsService) {
     console.log('NodeServerConnectionService created');
     this.messages = this.connectToServer();
   }
 
   public connectToServer() {
     console.log(`will connect to node server: ${URL}`)
-    this.messages = <Subject<Message>>this.connectToWebsocket(URL).pipe(
+    this.messages = <Subject<Message>>this.connectToWebsocket(this.globalConstants.nodeServerURL).pipe(
     map(
           (response: MessageEvent): Message => {
               //console.log(`node-server: ${response.data}`);

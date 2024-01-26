@@ -9,6 +9,7 @@ import { ApiClientAnswer, QueryEvent, QueryEventCategory, RankedAnswer } from 'o
 import { Title } from '@angular/platform-browser';
 import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
+import { GlobalConstantsService } from '../global-constants.service';
 
 
 const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
@@ -64,7 +65,8 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     public clipService: ClipServerConnectionService, 
     private titleService: Title, 
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private globalConstants: GlobalConstantsService
   ) {}
   
   ngOnInit() {
@@ -88,8 +90,8 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
       this.framenumber = paraMap.get('id2')?.toString();
       this.titleService.setTitle('v' + this.videoid);
       console.log(`slc: ${this.videoid} ${this.framenumber}`);
-      this.keyframeBaseURL = GlobalConstants.thumbsBaseURL;
-      this.videoBaseURL = GlobalConstants.videosBaseURL;
+      this.keyframeBaseURL = this.globalConstants.thumbsBaseURL; //GlobalConstants.thumbsBaseURL;
+      this.videoBaseURL = this.globalConstants.videosBaseURL; //GlobalConstants.videosBaseURL;
       this.datasetBase = 'keyframes'; //'thumbsXL';
 
     });

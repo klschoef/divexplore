@@ -1,5 +1,3 @@
-
-
 input[type="text"] {
     font-size: 20px;
     height: 26px;
@@ -23,6 +21,12 @@ input[type="text"] {
     height: 30px;
     align-items: center;
 }
+
+.queryarea select, input, button, .mat-icon-button {
+    vertical-align: middle;
+    // Other common styles for buttons
+}
+
 
 .searchButton {
     background-color: rgb(227, 227, 158);
@@ -153,3 +157,18 @@ input[type="text"] {
     z-index: 9999;
     font-size: 12pt;
   }
+
+  /* config-modal.component.css */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000; /* high z-index to appear on top */
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    /* Add more styling as needed */
+  }
+  

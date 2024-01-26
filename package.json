@@ -22,9 +22,10 @@
     "@angular/platform-browser": "^15.0.0",
     "@angular/platform-browser-dynamic": "^15.0.0",
     "@angular/router": "^15.0.0",
-    "@openapitools/openapi-generator-cli": "2.4.26",
     "@mdi/font": "^7.1.96",
     "@mdi/js": "^7.1.96",
+    "@openapitools/openapi-generator-cli": "2.4.26",
+    "bootstrap": "^5.3.2",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0"

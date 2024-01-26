@@ -1,0 +1,46 @@
+<form [formGroup]="configForm" (ngSubmit)="onSave()">
+    <div class="form-row">
+      <label for="clipServerHost">Clip Server Host:</label>
+      <input id="clipServerHost" type="text" size="40" formControlName="clipServerHost">
+    </div>
+    <div class="form-row">
+      <label for="clipServerPort">Clip Server Port:</label>
+      <input id="clipServerPort" type="text" size="10" formControlName="clipServerPort">
+    </div>
+
+    <br/>
+    <div class="form-row">
+      <label for="nodeServerHost">Node Server Host:</label>
+      <input id="nodeServerHost" type="text" size="40" formControlName="nodeServerHost">
+    </div>
+    <div class="form-row">
+      <label for="nodeServerPort">Node Server Port:</label>
+      <input id="nodeServerPort" type="text" size="10" formControlName="nodeServerPort">
+    </div>
+
+    <br/>
+    <div class="form-row">
+        <label for="dataBaseUrl">Images Base URL:</label>
+        <input id="dataBaseUrl" type="text" size="40" formControlName="dataBaseUrl">
+      </div>
+
+    <br/>
+      <div class="form-row">
+        <label for="dataBaseUrlVideos">Videos Base URL:</label>
+        <input id="dataBaseUrlVideos" type="text" size="40" formControlName="dataBaseUrlVideos">
+      </div>
+
+    <br/>
+      <div class="form-row">
+        <label for="username">DRES Username:</label>
+        <input id="username" type="text" size="20" formControlName="username">
+      </div>
+
+      <div class="form-row">
+        <label for="password">DRES Password:</label>
+        <input id="password" type="text" size="20" formControlName="password">
+      </div>
+  
+    <button type="submit">Save</button>
+  </form>
+  

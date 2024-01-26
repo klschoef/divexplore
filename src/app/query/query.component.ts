@@ -10,6 +10,9 @@ import { QueryEvent, QueryResultLog, QueryEventLog, QueryEventCategory, RankedAn
 import { Title } from '@angular/platform-browser';
 import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfigFormComponent } from '../config-form/config-form.component';
+import { GlobalConstantsService } from '../global-constants.service';
  
 
 
@@ -81,6 +84,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   answerFieldHasFocus = false;
   showButtons = -1;
 
+  showConfigForm = false;
+
   selectedDataset =  'v3c'; //'v3c-s';
   datasets = [
     {id: 'v3c', name: 'V3C'},
@@ -103,9 +108,22 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     public clipService: ClipServerConnectionService, 
     private titleService: Title, 
     private route: ActivatedRoute,
-    private router: Router) {
+    private router: Router,
+    public dialog: MatDialog,
+    private globalConstants: GlobalConstantsService) {
+  }
+  
+  openConfigDialog(): void {
+    this.showConfigForm = true;
   }
 
+  closeConfigDialog(): void {
+    this.showConfigForm = false;
+  }
+
+  toggleConfigDialog(): void {
+    this.showConfigForm = !this.showConfigForm;
+  }
   
   ngOnInit() {
     console.log('query component (qc) initated');
@@ -224,7 +242,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
   
   private displayVideoSummary() {
-    this.videopreviewimage = GlobalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
+    this.videopreviewimage = /*GlobalConstants.dataHost*/ this.globalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
     this.videopreview.nativeElement.style.display = 'block';
   }
 
@@ -234,6 +252,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   showHelp() {
     this.showHelpActive = !this.showHelpActive;
+  }
+
+  toggleConfigModal() {
+    this.showConfigForm = !this.showConfigForm;
   }
 
   requestTaskInfo() {
@@ -446,7 +468,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
   getBaseURLFromKey(selDat: string) {
-    return GlobalConstants.thumbsBaseURL;
+    return this.globalConstants.thumbsBaseURL; // GlobalConstants.thumbsBaseURL;
   }
 
   getBaseURL() {

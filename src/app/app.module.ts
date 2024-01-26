@@ -24,8 +24,10 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MessageBarComponent } from './message-bar/message-bar.component';
+import { ConfigFormComponent } from './config-form/config-form.component';
 
 
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 @NgModule({
@@ -35,7 +37,8 @@ import { MessageBarComponent } from './message-bar/message-bar.component';
     QueryComponent,
     ExplorationComponent,
     SafePipe,
-    MessageBarComponent
+    MessageBarComponent,
+    ConfigFormComponent
   ],
   imports: [
     BrowserModule,
@@ -56,7 +59,8 @@ import { MessageBarComponent } from './message-bar/message-bar.component';
     MatAutocompleteModule,
     MatFormFieldModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatDialogModule
   ],
   providers: [VBSServerConnectionService],
   bootstrap: [AppComponent]

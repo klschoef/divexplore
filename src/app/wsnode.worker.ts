@@ -2,8 +2,28 @@
 
 import { WebSocketEvent,GlobalConstants } from "./global-constants";
 
+
 var nodeSocket: WebSocket = new WebSocket(GlobalConstants.nodeServerURL);
+
+/*var nodeSocket: WebSocket; // = new WebSocket(GlobalConstants.nodeServerURL);
  
+addEventListener('message', ({ data }) => {
+  switch(data.event) {
+    case WebSocketEvent.OPEN:
+      // Initialize and connect the WebSocket using provided URL
+      nodeSocket = new WebSocket(data.nodeServerURL);
+      connectWebSocket();
+      break;
+    case WebSocketEvent.CLOSE:
+      nodeSocket?.close();
+      break;
+    case WebSocketEvent.MESSAGE:
+      nodeSocket?.send(JSON.stringify(data.content));
+      break;
+    // Add other cases as needed
+  }
+});
+*/
 addEventListener('message', ({ data }) => {
   console.log('node worker received message');
   if (data.event === WebSocketEvent.OPEN) {

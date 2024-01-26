@@ -13,6 +13,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { GlobalConstantsService } from '../global-constants.service';
 
 interface Link {
   title: string;
@@ -74,7 +75,8 @@ export class ExplorationComponent implements VbsServiceCommunication {
     public clipService: ClipServerConnectionService,
     private titleService: Title, 
     private route: ActivatedRoute,
-    private router: Router) {
+    private router: Router,
+    private globalConstants: GlobalConstantsService) {
   }
 
   onSelectLink(link: Link) {
@@ -88,7 +90,7 @@ export class ExplorationComponent implements VbsServiceCommunication {
 
   ngOnInit() {
     
-    this.summariesBase = GlobalConstants.summariesBaseURL;
+    this.summariesBase = this.globalConstants.summariesBaseURL; //GlobalConstants.summariesBaseURL;
 
     //already connected?
     if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
