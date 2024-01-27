@@ -10,6 +10,10 @@
     </select> 
     <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
     <button class="searchButton" (click)="performNewTextQuery()">Search</button>
+    <select [(ngModel)]="selectedVideoFiltering" (change)="resetPageAndPerformQuery()">
+      <option *ngFor="let d of videoFiltering" [ngValue]="d.id">{{d.name}}</option>
+    </select> 
+    
     <button class="browseButton" (click)="browseClusters()">Xplore</button>
     <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
     <button class="resetButton" (click)="resetQuery()">Reset</button>

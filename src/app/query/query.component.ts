@@ -106,6 +106,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   private queryTypeMap: Map<string, typeof this.queryTypes>;
 
+  selectedVideoFiltering = 'all';
+  videoFiltering = [
+    {id: 'all', name: 'All'},
+    {id: 'first', name: 'First'}
+  ];
     
   constructor(
     private globalConstants: GlobalConstantsService,
@@ -601,7 +606,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         maxresults: this.globalConstants.maxResultsToReturn,
         resultsperpage: this.globalConstants.resultsPerPage, 
         selectedpage: this.selectedPage, 
-        dataset: this.selectedDataset
+        dataset: this.selectedDataset,
+        videofiltering: this.selectedVideoFiltering
       };
       this.previousQuery = msg;
 
