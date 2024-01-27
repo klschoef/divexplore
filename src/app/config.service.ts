@@ -1,18 +1,38 @@
 import { Injectable } from '@angular/core';
+import { LocalConfig } from './local-config';
+
+const LOCALSTORAGE_FIELDNAME = 'diveXploreConfig';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfigService {
-  private config: any; // Holds the current configuration
+  private config: any;
+  
 
   constructor() {
     this.loadConfig();
   }
 
   private loadConfig() {
-    const localConfig = localStorage.getItem('diveXploreConfig');
-    this.config = localConfig ? JSON.parse(localConfig) : {};
+    const localConfig = localStorage.getItem(LOCALSTORAGE_FIELDNAME);
+    this.config = localConfig ? JSON.parse(localConfig) : this.getDefaultConfig();
+    console.log('Loaded config:', this.config); // Debugging statement
+  }
+  
+
+  private getDefaultConfig() {
+    return {
+      config_CLIP_SERVER_HOST: LocalConfig.config_CLIP_SERVER_HOST,
+      config_CLIP_SERVER_PORT: LocalConfig.config_CLIP_SERVER_PORT,
+      config_NODE_SERVER_HOST: LocalConfig.config_NODE_SERVER_HOST,
+      config_NODE_SERVER_PORT: LocalConfig.config_NODE_SERVER_PORT,
+      config_DATA_BASE_URL: LocalConfig.config_DATA_BASE_URL,
+      config_DATA_BASE_URL_VIDEOS: LocalConfig.config_DATA_BASE_URL_VIDEOS,
+      config_USER: LocalConfig.config_USER,
+      config_PASS: LocalConfig.config_PASS
+      // ... add other default values
+    };
   }
 
   getConfiguration() {
@@ -21,7 +41,6 @@ export class ConfigService {
 
   updateConfiguration(newConfig: any) {
     this.config = { ...this.config, ...newConfig };
-    localStorage.setItem('localConfig', JSON.stringify(this.config));
+    localStorage.setItem(LOCALSTORAGE_FIELDNAME, JSON.stringify(this.config));
   }
 }
-

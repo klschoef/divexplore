@@ -2,6 +2,7 @@ import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../global-constants';
 import { VBSServerConnectionService, GUIAction, GUIActionType, VbsServiceCommunication } from '../vbsserver-connection.service';
+import { GlobalConstantsService } from '../global-constants.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
 import { ClipServerConnectionService } from '../clipserver-connection.service';
 import { Router,ActivatedRoute } from '@angular/router';
@@ -12,7 +13,7 @@ import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigFormComponent } from '../config-form/config-form.component';
-import { GlobalConstantsService } from '../global-constants.service';
+
  
 
 
@@ -103,14 +104,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   ];
     
   constructor(
+    private globalConstants: GlobalConstantsService,
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService, 
     private titleService: Title, 
     private route: ActivatedRoute,
     private router: Router,
-    public dialog: MatDialog,
-    private globalConstants: GlobalConstantsService) {
+    public dialog: MatDialog) {
   }
   
   openConfigDialog(): void {

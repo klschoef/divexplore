@@ -5,10 +5,8 @@ import { ConfigService } from './config.service';
   providedIn: 'root'
 })
 export class GlobalConstantsService {
-  constructor(private configService: ConfigService) {}
-
-  get configVBSSERVER(): string {
-    return 'https://vbs.videobrowsing.org';
+  constructor(private configService: ConfigService) {
+    console.log('GlobalConstantsService created');
   }
 
   get configUSER(): string {

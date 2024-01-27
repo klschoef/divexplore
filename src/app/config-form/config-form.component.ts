@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ConfigService } from '../config.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { LocalConfig } from '../local-config';
@@ -10,41 +10,33 @@ import { LocalConfig } from '../local-config';
 })
 export class ConfigFormComponent implements OnInit {
   configForm: FormGroup;
+  @Output() closeForm = new EventEmitter<void>();
 
   constructor(private configService: ConfigService, private formBuilder: FormBuilder) {
     this.configForm = this.formBuilder.group({
-      clipServerHost: '',
-      clipServerPort: '',
-      nodeServerHost: '',
-      nodeServerPort: '',
-      dataBaseUrl: '',
-      dataBaseUrlVideos: '',
-      username: '',
-      password: ''
+      config_CLIP_SERVER_HOST: '',
+      config_CLIP_SERVER_PORT: '',
+      config_NODE_SERVER_HOST: '',
+      config_NODE_SERVER_PORT: '',
+      config_DATA_BASE_URL: '',
+      config_DATA_BASE_URL_VIDEOS: '',
+      config_USER: '',
+      config_PASS: ''
       // ...add other fields
-    });
+    });    
   }
 
   ngOnInit(): void {
-    const localConfig = this.configService.getConfiguration();
-    if (localConfig) {
-      this.configForm.patchValue(localConfig);
-    } else {
-      // Initialize with default values from LocalConfig
-      this.configForm.patchValue({
-        clipServerHost: LocalConfig.config_CLIP_SERVER_HOST,
-        clipServerPort: LocalConfig.config_CLIP_SERVER_PORT,
-        nodeServerHost: LocalConfig.config_NODE_SERVER_HOST, 
-        nodeServerPort: LocalConfig.config_NODE_SERVER_PORT, 
-        dataBaseUrl: LocalConfig.config_DATA_BASE_URL, 
-        dataBaseUrlVideos: LocalConfig.config_DATA_BASE_URL_VIDEOS,
-        username: LocalConfig.config_USER, 
-        password: LocalConfig.config_PASS
-      });
-    }
-  }
+    // Fetching the current configuration from ConfigService
+    const config = this.configService.getConfiguration();
+
+    // Setting the form fields with the configuration values
+    this.configForm.patchValue(config);
+}
+
 
   onSave() {
-    //TODO this.configService.saveLocalConfig(this.configForm.value);
+    this.configService.updateConfiguration(this.configForm.value);
+    this.closeForm.emit(); // Notify the parent component
   }
 }

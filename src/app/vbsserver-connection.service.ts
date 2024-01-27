@@ -104,26 +104,22 @@ export class VBSServerConnectionService {
   submissionResponse: string = '';
 
   constructor(
+    private globalConstants: GlobalConstantsService,
     private userService: UserService,
     private evaluationClientService: EvaluationClientService,
     private evaluationService: EvaluationService, 
     private submissionService: SubmissionService,
     private logService: LogService,
-    private statusService: StatusService,
-    private globalConstants: GlobalConstantsService
+    private statusService: StatusService
   ) {
     this.println(`VBSServerConnectionService created`);
-    if (localStorage.getItem("LSCusername")) {
-      this.activeUsername = localStorage.getItem("LSCusername")!;
-    } else {
-      this.activeUsername = this.globalConstants.configUSER; //GlobalConstants.configUSER;
-    }
+    this.activeUsername = this.globalConstants.configUSER; //GlobalConstants.configUSER;
     this.connect();
   }
 
   
   connect() {
-
+      //console.log(`connecting to VBS Server: ${this.globalConstants.configUSER} and ${this.globalConstants.configPASS}`);
       // === Handshake / Login ===
       this.userService.postApiV2Login({
         username: this.globalConstants.configUSER, //GlobalConstants.configUSER,

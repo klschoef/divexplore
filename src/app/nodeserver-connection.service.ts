@@ -30,6 +30,7 @@ export class NodeServerConnectionService {
   private subject: AnonymousSubject<MessageEvent> | undefined;
   public messages: Subject<Message>;
 
+
   public connectionState: WSServerStatus = WSServerStatus.UNSET;;
 
   constructor(private globalConstants: GlobalConstantsService) {
@@ -38,6 +39,7 @@ export class NodeServerConnectionService {
   }
 
   public connectToServer() {
+    let URL = this.globalConstants.nodeServerURL;
     console.log(`will connect to node server: ${URL}`)
     this.messages = <Subject<Message>>this.connectToWebsocket(this.globalConstants.nodeServerURL).pipe(
     map(

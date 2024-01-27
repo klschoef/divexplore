@@ -1,3 +1,4 @@
+/*
 /// <reference lib="webworker" />
 
 import { WebSocketEvent,GlobalConstants } from "./global-constants";
@@ -5,7 +6,7 @@ import { WebSocketEvent,GlobalConstants } from "./global-constants";
 
 var nodeSocket: WebSocket = new WebSocket(GlobalConstants.nodeServerURL);
 
-/*var nodeSocket: WebSocket; // = new WebSocket(GlobalConstants.nodeServerURL);
+var nodeSocket: WebSocket; // = new WebSocket(GlobalConstants.nodeServerURL);
  
 addEventListener('message', ({ data }) => {
   switch(data.event) {
@@ -23,7 +24,7 @@ addEventListener('message', ({ data }) => {
     // Add other cases as needed
   }
 });
-*/
+
 addEventListener('message', ({ data }) => {
   console.log('node worker received message');
   if (data.event === WebSocketEvent.OPEN) {
@@ -58,3 +59,5 @@ function connectWebSocket() {
   }
 
 }
+
+*/

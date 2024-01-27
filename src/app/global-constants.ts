@@ -1,11 +1,5 @@
 import { LocalConfig } from "./local-config";
 
-//console.log(videoShots)
-
-//export var vbsServerConnectionService: VBSServerConnectionService | undefined;
-
-//export var queryHistory:Array<string> = [];
-
 export enum WebSocketEvent {
     UNSET = 'unset', 
     CLOSE = 'disconnected',
@@ -30,38 +24,13 @@ export interface QueryType {
   dataset: string; 
 }
 
-/*
-export interface LogResultItem { 
-  item: string; 
-  frame: string; 
-  score: number; 
-  rank: number;
-}
-
-export interface LogQueryEvent {
-  timestamp: number;
-  category: string;
-  type: string;
-  value: string;
-}
-
-export interface ResultLog {
-    timestamp: number;
-    source: string;
-    sortType: string;
-    resultSetAvailability: string,  
-    results: Array<LogResultItem>,
-    evets: Array<LogQueryEvent>
-}
-*/
-
 export class GlobalConstants {
     public static configVBSSERVER = 'https://vbs.videobrowsing.org';
     //public static configUSER = LocalConfig.config_USER;
     //public static configPASS = LocalConfig.config_PASS;
     
-    public static clipServerURL: string = 'ws://' + LocalConfig.config_CLIP_SERVER_HOST + ':' + LocalConfig.config_CLIP_SERVER_PORT;
-    public static nodeServerURL: string = 'ws://' + LocalConfig.config_NODE_SERVER_HOST + ':' + LocalConfig.config_NODE_SERVER_PORT;
+    //public static clipServerURL: string = 'ws://' + LocalConfig.config_CLIP_SERVER_HOST + ':' + LocalConfig.config_CLIP_SERVER_PORT;
+    //public static nodeServerURL: string = 'ws://' + LocalConfig.config_NODE_SERVER_HOST + ':' + LocalConfig.config_NODE_SERVER_PORT;
     //public static dataHost = LocalConfig.config_DATA_BASE_URL;
     //public static dataHostVideos = LocalConfig.config_DATA_BASE_URL_VIDEOS;
 
