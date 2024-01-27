@@ -24,7 +24,7 @@
 </div>
 
 <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">
-    <img src="{{keyframeBaseURL}}/{{item}}" width="320" height="180" (click)="gotoTimeOfShot(i)">
+    <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="gotoTimeOfShot(i)">
     <div class="righttopcorner">
         <span class="label">{{timelabels[i]}}</span>
     </div>
@@ -77,8 +77,9 @@
   
     &nbsp; 
     <span>User: {{vbsService.activeUsername}}</span>
+    <span *ngIf="vbsService.vbsServerState !== 'connected'" class="loginerror">Login-Error</span>
     
-    <span class="minispacer">&nbsp;</span>
+    <span class="tinyspacer">&nbsp;</span>
   
     <span class="whiteColor">Topic Answer:</span> 
     <input type="text" id="topicanswer" name="topicanswer" ngModel #inputfield [(ngModel)]="topicanswer" (keyup.enter)="sendTopicAnswer()" autofocus (focus)="onAnswerInputFocus()" (blur)="onAnswerInputBlur()" />
@@ -100,7 +101,7 @@
     
     <span class="submissionresponse">{{this.vbsService.submissionResponse}}</span>
 
-    <span class="spacer2">&nbsp;</span>
+    <!--<span class="spacer2">&nbsp;</span>-->
     <!--<span class="spacer2">&nbsp;</span>-->
     <span>DRES RTT: {{vbsService.serverTimeDiff}} ms</span>  
 

@@ -21,7 +21,10 @@ export class ConfigFormComponent implements OnInit {
       config_DATA_BASE_URL: '',
       config_DATA_BASE_URL_VIDEOS: '',
       config_USER: '',
-      config_PASS: ''
+      config_PASS: '',
+      config_RESULTS_PER_PAGE: 35,
+      config_MAX_RESULTS_TO_RETURN: 1000,
+      config_IMAGE_WIDTH: 236
       // ...add other fields
     });    
   }

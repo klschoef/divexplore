@@ -83,6 +83,7 @@ export class VBSServerConnectionService {
 
   sessionId: string | undefined; 
   vbsServerState: WSServerStatus = WSServerStatus.UNSET;
+  intervalUpdateError = false;
 
   serverRuns: Array<string> = [];
   serverRunIDs: Array<string> = [];
@@ -159,7 +160,7 @@ export class VBSServerConnectionService {
                   //}
                   this.serverRunStates.set(evaluation.id, evaluation.status);
                   this.serverRunIDs.push(evaluation.id);
-                  this.serverRunsRemainingSecs.set('evaluationId', '00:00');
+                  this.serverRunsRemainingSecs.set(evaluation.id, '00:00');
               });
               });
           });
@@ -169,21 +170,26 @@ export class VBSServerConnectionService {
             this.getServerTime();
           }, 10000);
 
+      }, error => {
+        console.log("cannot log in");
+        this.vbsServerState = WSServerStatus.DISCONNECTED;
       });
   }
 
   getClientTaskInfo(runId: string, comm: VbsServiceCommunication) {
     try {
-      if (this.lastRunInfoRequestReturned404) {
+      if (this.lastRunInfoRequestReturned404 || this.intervalUpdateError) {
         return;
       }
 
-      if (this.serverRunStates.get(runId) == 'ACTIVE') {
+      if (this.serverRunStates.get(runId) == 'ACTIVE' && this.vbsServerState == WSServerStatus.CONNECTED) {
         //console.log('requesting info for ' + runId + ' and session ' + this.sessionId!);
 
         this.evaluationClientService.getApiV2ClientEvaluationCurrentTaskByEvaluationId(runId, this.sessionId!)
         .pipe(
           catchError((error: any) => {
+            this.intervalUpdateError = true;
+            console.log("disabling second-interval updates, due to connection error");
             console.log('Error ' + error.status + ' when requesting evaluations!', error);
             if (error.status == 404) {
               this.lastRunInfoRequestReturned404 = true;
@@ -203,22 +209,26 @@ export class VBSServerConnectionService {
         })
         
 
-        /*this.evaluationService.getApiV2EvaluationStateList()
+        this.evaluationService.getApiV2EvaluationStateList()
         .pipe(
           catchError((error: any) => {
+            this.intervalUpdateError = true;
+            console.log("disabling second-interval updates, due to connection error");
             console.log('error occurred when requesting evaluation state list!', error);
             return of(null);  // Return an observable that emits no items to the observer
           })
         ).subscribe((states: Array<ApiEvaluationState> | null) => {
           states?.forEach((eState) => {
-            //console.log(eState);
+            //console.log(`status: ${eState.taskStatus} timeleft:${eState.timeLeft}`);
             if (eState.evaluationStatus == 'ACTIVE' && eState.taskStatus == 'RUNNING') {
               this.serverRunsRemainingSecs.set(eState.evaluationId, this.createTimestamp(eState.timeLeft) + ' ');
               //console.log(this.serverRunsRemainingSecs.get(eState.evaluationId) + ' - ' + eState.evaluationId);
+            } else {
+              this.serverRunsRemainingSecs.set(eState.evaluationId, eState.evaluationStatus);
             }
           
           })
-        })*/
+        })
       } else {
         comm.statusTaskInfoText = 'no task active';
       }

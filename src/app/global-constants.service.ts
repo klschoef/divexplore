@@ -52,7 +52,15 @@ export class GlobalConstantsService {
   }
 
   get resultsPerPage(): number {
-    return 35;
+    return this.configService.getConfiguration().config_RESULTS_PER_PAGE;
+  }
+
+  get maxResultsToReturn(): number {
+    return this.configService.getConfiguration().config_MAX_RESULTS_TO_RETURN;
+  }
+
+  get imageWidth(): number {
+    return this.configService.getConfiguration().config_IMAGE_WIDTH;
   }
 }
 

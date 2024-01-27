@@ -1,7 +1,7 @@
 input[type="text"] {
     font-size: 20px;
     height: 26px;
-    width: 57%;
+    width: 45%;
 }
 
 .queryarea input {
@@ -52,10 +52,6 @@ input[type="text"] {
     background-color: lightgray;
 }
 
-.minispacer {
-    margin-right: 5%;
-}
-
 .spacer {
     margin-right: 40px;
 }
@@ -81,13 +77,6 @@ input[type="text"] {
 
 .submissionresponse {
     width: 50px;
-}
-
-.topicanswerbutton {
-    background-color: rgba(0,110,0,0.8);
-    color: white;
-    padding: 2px;
-    width: 60px;
 }
 
 #topicanswer {
@@ -119,7 +108,7 @@ input[type="text"] {
     font-size: larger;
     font-weight: bold;
     color: black;
-    background-color: white;
+    background-color: rgba(128, 174, 244, 0.8);
     width: 100%;
     cursor: pointer;
     padding: 6px;

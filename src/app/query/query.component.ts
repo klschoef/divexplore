@@ -38,8 +38,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   
   nodeServerInfo: string | undefined;
 
-  imgWidth = GlobalConstants.imgWidth;
-  imgHeight = GlobalConstants.imgHeight;
+  imgWidth = this.globalConstants.imageWidth; 
+  imgHeight = this.globalConstants.imageWidth / GlobalConstants.imgRatio; 
 
   
   queryinput: string = '';
@@ -69,9 +69,9 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   datasetBase: string = 'keyframes';
   keyframeBaseURL: string = '';
   
-  maxresults = GlobalConstants.maxResultsToReturn; 
+  //maxresults = this.globalConstants.maxResultsToReturn;
   totalReturnedResults = 0; //how many results did our query return in total?
-  resultsPerPage = GlobalConstants.resultsPerPage; 
+  //resultsPerPage = this.globalConstants.resultsPerPage; 
   selectedPage = '1'; //user-selected page
   pages = ['1']
 
@@ -95,13 +95,17 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   ];
 
   selectedQueryType = 'textquery';
-  queryTypes = [
+  
+  private queryTypes = [
     {id: 'textquery', name: 'Free-Text'},
     {id: 'ocr-text', name: 'OCR-Text'},
     {id: 'metadata', name: 'Metadata'}, 
     {id: 'speech', name: 'Speech'},
     {id: 'videoid', name: 'VideoId'}
   ];
+
+  private queryTypeMap: Map<string, typeof this.queryTypes>;
+
     
   constructor(
     private globalConstants: GlobalConstantsService,
@@ -112,8 +116,24 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     private route: ActivatedRoute,
     private router: Router,
     public dialog: MatDialog) {
+      this.queryTypeMap = new Map<string, typeof this.queryTypes>();
+      this.initializeMap();
+  }
+
+  private initializeMap(): void {
+    // Add the array to the map for 'v3c'
+    this.queryTypeMap.set('v3c', [...this.queryTypes]);
+
+    // Filter and add the array for 'mvk' and 'lhe'
+    const filteredQueryTypes = this.queryTypes.filter(qt => !['ocr-text', 'metadata', 'speech'].includes(qt.id));
+    this.queryTypeMap.set('mvk', filteredQueryTypes);
+    this.queryTypeMap.set('lhe', filteredQueryTypes);
   }
   
+  public getQueryTypes(key: string): typeof this.queryTypes {
+    return this.queryTypeMap.get(key) || [];
+  }
+
   openConfigDialog(): void {
     this.showConfigForm = true;
   }
@@ -127,7 +147,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
   
   ngOnInit() {
-    console.log('query component (qc) initated');
+    console.log('query component (qc) initated imWidth=' + this.imgWidth + " imHeight=" + this.imgHeight);
 
     this.dresErrorMessageSubscription = this.vbsService.errorMessageEmitter.subscribe(msg => {
       this.messageBar.showErrorMessage(msg);
@@ -333,7 +353,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   @HostListener('document:keyup', ['$event'])
   handleKeyboardEventUp(event: KeyboardEvent) { 
-    if (this.queryFieldHasFocus == false && this.answerFieldHasFocus == false) {
+    if (this.queryFieldHasFocus == false && this.answerFieldHasFocus == false && this.showConfigForm == false) {
       if (this.queryFieldHasFocus == false) {
         if (event.key == 'q') {
           this.inputfield.nativeElement.select();
@@ -364,7 +384,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) { 
-    if (this.queryFieldHasFocus == false && this.answerFieldHasFocus == false) {
+    if (this.queryFieldHasFocus == false && this.answerFieldHasFocus == false && this.showConfigForm == false) {
       if (event.key == 'ArrowRight' || event.key == 'Tab') {
         if (this.showPreview) {
           if (this.selectedItem < this.queryresult_videoid.length-1) {
@@ -578,8 +598,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         type: "textquery", 
         clientId: "direct", 
         query: this.queryinput,
-        maxresults: this.maxresults,
-        resultsperpage: this.resultsPerPage, 
+        maxresults: this.globalConstants.maxResultsToReturn,
+        resultsperpage: this.globalConstants.resultsPerPage, 
         selectedpage: this.selectedPage, 
         dataset: this.selectedDataset
       };
@@ -627,8 +647,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       let msg = { 
         type: "similarityquery", 
         query: serveridx.toString(),
-        maxresults: this.maxresults,
-        resultsperpage: this.resultsPerPage, 
+        maxresults: this.globalConstants.maxResultsToReturn,
+        resultsperpage: this.globalConstants.resultsPerPage, 
         selectedpage: this.selectedPage, 
         dataset: this.selectedDataset
       };
@@ -666,8 +686,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         type: "file-similarityquery", 
         query: keyframe,
         pathprefix: pathprefix, 
-        maxresults: this.maxresults,
-        resultsperpage: this.resultsPerPage, 
+        maxresults: this.globalConstants.maxResultsToReturn,
+        resultsperpage: this.globalConstants.resultsPerPage, 
         selectedpage: this.file_sim_page,
         dataset: this.selectedDataset 
       };
@@ -897,14 +917,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     if (qresults.type === 'ocr-text' || qresults.type === 'videoid' || qresults.type === 'metadata' || qresults.type === 'speech') {
       this.pages.push('1');
     } else {
-      for (let i = 1; i < this.totalReturnedResults / this.resultsPerPage; i++) {
+      for (let i = 1; i < this.totalReturnedResults / this.globalConstants.resultsPerPage; i++) {
         this.pages.push(i.toString());
       }
     }
     //populate images
     this.clearResultArrays();
 
-    let resultnum = (parseInt(this.selectedPage) - 1) * this.resultsPerPage + 1;
+    let resultnum = (parseInt(this.selectedPage) - 1) * this.globalConstants.resultsPerPage + 1;
     this.querydataset = qresults.dataset;
     this.keyframeBaseURL = this.getBaseURLFromKey(qresults.dataset);
     

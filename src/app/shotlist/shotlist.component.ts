@@ -11,7 +11,6 @@ import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
 import { GlobalConstantsService } from '../global-constants.service';
 
-
 const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
 
 
@@ -34,6 +33,9 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
 
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
+
+  imgWidth = this.globalConstants.imageWidth; 
+  imgHeight = this.globalConstants.imageWidth / GlobalConstants.imgRatio; 
 
   keyframeBaseURL: string = '';
   videoBaseURL: string = '';

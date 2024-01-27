@@ -6,7 +6,7 @@
       <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
     </select> 
     <select [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
-      <option *ngFor="let d of queryTypes" [ngValue]="d.id">{{d.name}}</option>
+      <option *ngFor="let d of this.getQueryTypes(this.selectedDataset)" [ngValue]="d.id">{{d.name}}</option>
     </select> 
     <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
     <button class="searchButton" (click)="performNewTextQuery()">Search</button>
@@ -70,10 +70,10 @@
     <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">f{{this.queryresult_frame[i]}}</span>
   </div>
   <div class="righttopcorner">
-      <span class="label" (click)="this.queryForVideo(i)">
-          <!--<a [routerLink]="['/video',this.queryresult_videoid[i],this.queryresult_frame[i]]" target="_blank">{{this.queryresult_videoid[i]}}</a>-->
-          {{this.queryresult_videoid[i]}}
-      </span>
+      <!--<span class="label" (click)="this.queryForVideo(i)">
+          <a [routerLink]="['/video',this.queryresult_videoid[i],this.queryresult_frame[i]]" target="_blank">{{this.queryresult_videoid[i]}}</a>
+      </span>-->
+      <button class="smalllabel" (click)="this.queryForVideo(i)">{{this.queryresult_videoid[i]}}</button>
   </div>
   <div class="leftbottomcorner">
     <!-- <button *ngIf="showButtons === i" (click)="showVideoPreview(i)" class="resultaction">Video-Preview</button> -->
@@ -138,8 +138,9 @@
 
   &nbsp; 
   <span>User: {{vbsService.activeUsername}}</span>
+  <span *ngIf="vbsService.vbsServerState !== 'connected'" class="loginerror">Login-Error</span>
   
-  <span class="minispacer">&nbsp;</span>
+  <span class="tinyspacer">&nbsp;</span>
 
   <span class="whiteColor">Topic Answer:</span> 
   <input type="text" id="topicanswer" name="topicanswer" ngModel #inputfield [(ngModel)]="topicanswer" (keyup.enter)="sendTopicAnswer()" autofocus (focus)="onAnswerInputFocus()" (blur)="onAnswerInputBlur()" />
@@ -162,7 +163,7 @@
 
   <span class="submissionresponse">{{this.vbsService.submissionResponse}}</span>
 
-  <span class="spacer2">&nbsp;</span>
+  <!--<span class="spacer2">&nbsp;</span>-->
   <!--<span class="spacer2">&nbsp;</span>-->
 
   <span>DRES RTT: {{vbsService.serverTimeDiff}} ms</span>

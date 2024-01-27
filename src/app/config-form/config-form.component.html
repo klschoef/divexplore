@@ -41,7 +41,21 @@
         <label for="password">DRES Password:</label>
         <input id="password" type="text" size="20" formControlName="config_PASS">
       </div>
-  
+
+      <div class="form-row">
+        <label for="resultsPerPage">Results per page:</label>
+        <input id="resultsPerPage" type="text" size="6" formControlName="config_RESULTS_PER_PAGE">
+      </div>
+      <div class="form-row">
+        <label for="maxResultsToReturn">Total results:</label>
+        <input id="maxResultsToReturn" type="text" size="6" formControlName="config_MAX_RESULTS_TO_RETURN">
+      </div>
+      <div class="form-row">
+        <label for="imageWidth">Thumb width (px):</label>
+        <input id="imageWidth" type="text" size="6" formControlName="config_IMAGE_WIDTH">
+      </div>
+
+    <button (click)="this.closeForm.emit()">Cancel</button>
     <button type="submit">Save</button>
   </form>
   

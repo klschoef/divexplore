@@ -26,27 +26,15 @@ export interface QueryType {
 
 export class GlobalConstants {
     public static configVBSSERVER = 'https://vbs.videobrowsing.org';
-    //public static configUSER = LocalConfig.config_USER;
-    //public static configPASS = LocalConfig.config_PASS;
     
-    //public static clipServerURL: string = 'ws://' + LocalConfig.config_CLIP_SERVER_HOST + ':' + LocalConfig.config_CLIP_SERVER_PORT;
-    //public static nodeServerURL: string = 'ws://' + LocalConfig.config_NODE_SERVER_HOST + ':' + LocalConfig.config_NODE_SERVER_PORT;
-    //public static dataHost = LocalConfig.config_DATA_BASE_URL;
-    //public static dataHostVideos = LocalConfig.config_DATA_BASE_URL_VIDEOS;
-
-    //public static keyframeBaseURL: string = this.dataHost + 'keyframes/';
-    //public static thumbsBaseURL: string = this.dataHost + 'thumbsXL/';
-    //public static summariesBaseURL: string = this.dataHost + 'summariesXL/';    
-    //public static videosBaseURL = this.dataHostVideos + 'videos/';
-
     public static replacePNG2 = '.jpg'; //display
     public static replaceJPG_back2 = '.jpg'; //'.jpg'; //file-similarity
 
-    public static resultsPerPage = 35;
-    public static maxResultsToReturn = this.resultsPerPage*41; //780; //1200; //10000;
+    //public static resultsPerPage = 35;
+    //public static maxResultsToReturn = this.resultsPerPage*41; //780; //1200; //10000;
     public static imgRatio = 320.0/180.0;
-    public static imgWidth = 236; 
-    public static imgHeight = this.imgWidth/this.imgRatio;
+    //public static imgWidth = 236; 
+    //public static imgHeight = this.imgWidth/this.imgRatio;
 }
 
 export function twoDigits(str:string):string {
