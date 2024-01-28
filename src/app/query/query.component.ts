@@ -174,10 +174,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         console.log(`qc: ${this.file_sim_keyframe}`);
         this.titleService.setTitle(this.file_sim_keyframe.substring(this.file_sim_keyframe.indexOf('/') + 1));
       }
-      this.file_sim_pathPrefix = paraMap.get('id2')?.toString();
+      let sds = paraMap.get('id2')?.toString();
+      if (sds !== undefined) {
+        this.selectedDataset = sds;
+      }
+      this.file_sim_pathPrefix = paraMap.get('id3')?.toString();
       if (this.file_sim_pathPrefix) {
         console.log(`qc: ${this.file_sim_pathPrefix}`);
-        this.selectedDataset = 'v3c';
+        //this.selectedDataset = 'v3c';
         /*if (this.file_sim_pathPrefix === 'thumbsXL') {
           this.selectedDataset = 'v3c-s';
         } else if (this.file_sim_pathPrefix === 'thumbsmXL') {
@@ -541,15 +545,33 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.answerFieldHasFocus = false
   }
 
-  selectItemAndShowSummary(idx:number) {
+  selectItemAndShowSummary(idx:number, event: MouseEvent) {
     this.selectedItem = idx;
     this.showPreview = true;
     this.showVideoPreview();
+    this.adjustVideoPreviewPosition(event);
   }
+
+  adjustVideoPreviewPosition(event: MouseEvent) {
+    const previewElement = document.querySelector('.videopreview') as HTMLElement;
+    if (previewElement) {
+        // Get the clicked element's position
+        const rect = (event.target as HTMLElement).getBoundingClientRect();
+
+        // Set the position of the preview element
+        previewElement.style.left = `${rect.left}px`; // Align left edge with clicked item
+        previewElement.style.top = `${rect.top + window.scrollY}px`; // Align top edge considering scroll
+        previewElement.style.display = 'block';
+    }
+  }
+
+
+
+
 
   showVideoPreview() {
     this.requestVideoSummaries(this.queryresult_videoid[this.selectedItem]);
-    window.scrollTo(0, 0);
+    //window.scrollTo(0, 0);
 
     //query event logging
     let queryEvent:QueryEvent = {
@@ -780,7 +802,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     if (this.file_sim_keyframe === keyframe) {
       target = '_self';
     }
-    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg',GlobalConstants.replaceJPG_back2)) + '/' + encodeURIComponent(this.datasetBase) + '/' + selectedPage, target);
+    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg',GlobalConstants.replaceJPG_back2)) + '/' + this.selectedDataset + '/' + encodeURIComponent(this.datasetBase) + '/' + selectedPage, target);
   }
 
   sendFileSimilarityQuery(keyframe:string, pathprefix:string) {

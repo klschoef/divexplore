@@ -145,9 +145,27 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     return "";
   }
 
+  classifyVideoId(videoId:string) {
+    const patternFiveNumbers = /^\d{5}$/;
+    const patternLHE = /^LHE\d{2}$/;
+    const patternThreeUnderscores = /^[^\s_]+(_[^\s_]+){2}$/;
+
+    if (patternFiveNumbers.test(videoId)) {
+        return 'v3c';
+    } else if (patternLHE.test(videoId)) {
+        return 'lhe';
+    } else if (patternThreeUnderscores.test(videoId)) {
+        return 'mvk';
+    } else {
+        return 'unknown';
+    }
+  }
+
   performFileSimilarityQuery(keyframe:string) {
     //this.router.navigate(['filesimilarity',keyframe,this.datasetBase]); //or navigateByUrl(`/video/${videoid}`)
-    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg',GlobalConstants.replaceJPG_back2)) + '/' + encodeURIComponent(this.datasetBase), '_blank');
+    let dataset = this.classifyVideoId(this.videoid!);
+    //console.log(this.videoid + " --> " + dataset);
+    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg',GlobalConstants.replaceJPG_back2)) + '/' + dataset + '/' + encodeURIComponent(this.datasetBase), '_blank');
   }
 
   onVideoPlayerLoaded(event:any) {

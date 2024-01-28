@@ -9,8 +9,8 @@ import { ExplorationComponent } from './exploration/exploration.component';
 const routes: Routes = [
   {path: '', redirectTo: 'query', pathMatch: 'full'}, // component: AppComponent
   {path: 'query', component: QueryComponent},
-  {path: 'filesimilarity/:id/:id2', component: QueryComponent},
-  {path: 'filesimilarity/:id/:id2/:page', component: QueryComponent},
+  {path: 'filesimilarity/:id/:id2/:id3', component: QueryComponent},
+  {path: 'filesimilarity/:id/:id2/:id3/:page', component: QueryComponent},
   {path: 'video/:id', component: ShotlistComponent},
   {path: 'video/:id/:id2', component: ShotlistComponent},
   {path: 'exploration', component: ExplorationComponent}

@@ -105,16 +105,52 @@ background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
 }
   
 
-.videopreview {
+/*.videopreview {
     background-color: rgba(255,255,255,0.75);
     display: none;
-    position: absolute;
+    position: fixed; //absolute;
     left: 4px;
     top: 90px;
     height: 100%;
     width: 100%;
     z-index: 10;
 }
+*/
+
+/*.videopreview {
+    background-color: rgba(255,255,255,0.75);
+    display: none;
+    position: fixed;
+    left: 50%; // Center horizontally
+    top: 50%;  // Center vertically
+    transform: translate(-50%, -50%); // Adjust to center precisely
+    z-index: 10;
+    width: auto;
+    height: auto;
+}*/
+
+.videopreview {
+    background-color: rgba(255,255,255,0.75);
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    width: 100%; // Set width to 80% of the viewport width
+    max-height: 86%; // Optional: set a maximum height
+    overflow: auto; // Optional: add scroll for overflow content
+    // Adjust padding or margins if necessary
+}
+
+.videopreviewimage {
+    border: 1px solid;
+    padding: 10px;
+    box-shadow: 5px 10px;
+    width: 100%; // Make the image take the full width of its container
+    height: auto; // Maintain aspect ratio
+}
+
 
 .videosummaryheader {
     font-size: larger;
@@ -124,13 +160,6 @@ background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
     width: 100%;
     cursor: pointer;
     padding: 6px;
-}
-
-.videopreviewimage {
-    border: 1px solid;
-    padding: 10px;
-    box-shadow: 5px 10px;
-    width: 98%
 }
 
 .resultcount {

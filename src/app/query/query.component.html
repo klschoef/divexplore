@@ -74,7 +74,7 @@
   </div>
     
   <div (mouseover)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult" *ngFor="let item of queryresults; let i = index">
-    <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="selectItemAndShowSummary(i)" [ngClass]="{'blueborder': this.selectedItem == i}">
+    <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="selectItemAndShowSummary(i,$event)" [ngClass]="{'blueborder': this.selectedItem == i}">
     <div class="lefttopcorner">
       <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">{{getTimeInformationFor(i)}}</span>
     </div>
@@ -85,9 +85,7 @@
         <button class="smalllabel" (click)="this.queryForVideo(i)">{{this.queryresult_videoid[i]}}</button>
     </div>
     <div class="leftbottomcorner">
-      <!-- <button *ngIf="showButtons === i" (click)="showVideoPreview(i)" class="resultaction">Video-Preview</button> -->
-      <button *ngIf="showButtons === i" (click)="showVideoShots(this.queryresult_videoid[i],this.queryresult_frame[i])" class="resultaction">Video</button>
-      <!-- <button *ngIf="showButtons === i" (click)="performSimilarityQueryForIndex(i)" class="resultaction">Similar</button> -->
+      <button *ngIf="showButtons === i" (click)="showVideoShots(this.queryresult_videoid[i],this.queryresult_frame[i])" class="resultaction">Shots</button>
       <button *ngIf="showButtons == i" (click)="performFileSimilarityQuery(item)" class="resultaction">Similar</button>
     </div>
     <div class="rightbottomcorner">
@@ -126,9 +124,10 @@
   <h4>Thumbnail Actions</h4>
   <ul>
     <li>Click thumbnail (or press space) to open <b>preview video summary</b> view.</li>
-    <li>Click <b>Shot-List</b> to open the video view with shots in a new tab.</li>
-    <li>Click <b>Similar</b> to perform a <b>similarity query</b> in a new tab.</li>
-    <li>Click <b>Submit</b> to send result to <b>DRES</b>.</li>
+    <li>Click <b>Shots</b> (left bottom) to open the video view with shots in a new tab.</li>
+    <li>Click <b>Similar</b> (bottom) to perform a <b>similarity query</b> in a new tab.</li>
+    <li>Click <b>Videoname</b> (right top) to perform a VideoId search for this video.</li>
+    <li>Click <b>Submit</b> (right bottom) to send result to <b>DRES</b>.</li>
   </ul>
   
   <h4>Keyboard Shortcuts</h4>
@@ -148,11 +147,6 @@
   <span class="{{clipService.connectionState}}">CLIP</span>
   <span class="{{nodeService.connectionState}}">Node</span>
   <span class="{{vbsService.vbsServerState}}">DRES</span>
-<!--
-  CLIP server: <button class="{{clipService.connectionState}}" (click)="checkCLIPConnection()">{{clipService.connectionState}}</button>
-  Node server: <button class="{{nodeService.connectionState}}" (click)="checkNodeConnection()">{{nodeService.connectionState}}</button>
-  VBS Server: <button class="{{vbsService.vbsServerState}}" (click)="checkVBSServerConnection()">{{vbsService.vbsServerState}}</button>
--->
 
   &nbsp; 
   <span>User: {{vbsService.activeUsername}}</span>
@@ -180,9 +174,6 @@
   <span class="minispacer">&nbsp;</span>
 
   <span class="submissionresponse">{{this.vbsService.submissionResponse}}</span>
-
-  <!--<span class="spacer2">&nbsp;</span>-->
-  <!--<span class="spacer2">&nbsp;</span>-->
 
   <span>DRES RTT: {{vbsService.serverTimeDiff}} ms</span>
 
