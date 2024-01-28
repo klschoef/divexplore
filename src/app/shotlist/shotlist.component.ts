@@ -103,13 +103,13 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
       this.requestDataFromDB();
     }
     this.nodeService.messages.subscribe(msg => {
-      console.log(`slc: response from node service: ${msg}`)
+      //console.log(`slc: response from node service: ${msg}`)
       if ('wsstatus' in msg) { 
-        console.log('slc: node-service: connected');
+        //console.log('slc: node-service: connected');
         this.requestDataFromDB();
       } else {
         let result = msg.content;
-        console.log("slc: response from node-service: " + result[0]);
+        //console.log("slc: response from node-service: " + result[0]);
         this.loadVideoShots(result[0]);
       }
     });

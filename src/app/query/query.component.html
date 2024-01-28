@@ -2,21 +2,24 @@
 <div class="queryarea">
     <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
     <!--<button class="backbutton" (click)="this.backInHistory()"><-</button>-->
-    <select [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
+    <select class="gray-background" [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
       <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
+    </select> 
+    <select [(ngModel)]="selectedVideoFiltering" 
+            [ngClass]="{'light-red-background': selectedVideoFiltering === 'first', 'light-blue-background': selectedVideoFiltering !== 'first'}" 
+            (change)="resetPageAndPerformQuery()">
+      <option *ngFor="let d of videoFiltering" [ngValue]="d.id">{{d.name}}</option>
     </select> 
     <select [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
       <option *ngFor="let d of this.getQueryTypes(this.selectedDataset)" [ngValue]="d.id">{{d.name}}</option>
     </select>
-    <select [(ngModel)]="selectedVideoFiltering" (change)="resetPageAndPerformQuery()">
-      <option *ngFor="let d of videoFiltering" [ngValue]="d.id">{{d.name}}</option>
-    </select> 
     <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
     <button class="searchButton" (click)="performNewTextQuery()">Search</button>
     
-    <button class="browseButton" (click)="browseClusters()">Xplore</button>
+    <button class="newtab" (click)="newTab()">+Tab</button>
     <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
     <button class="resetButton" (click)="resetQuery()">Reset</button>
+    <button class="browseButton" (click)="browseClusters()">Xplore</button>
     
     <div class="historySelect" #historyDiv>
       <select [(ngModel)]="selectedHistoryEntry" value="" (change)="performHistoryQuery()">
@@ -58,38 +61,41 @@
   <mat-button-toggle-group [(ngModel)]="selectedPage">
     <mat-button-toggle *ngFor="let p of pages" [value]="p" (click)="performQuery()" [disabled]="totalReturnedResults == 0">{{p}}</mat-button-toggle> 
   </mat-button-toggle-group>
-  <span class="resultcount">{{this.queryresult_videoid.length}} results</span>
+  <span class="resultcount">{{totalReturnedResults}} results</span>
 </div>
     
 <br/>
 
-<div *ngIf="showPreview" class="videopreview" #videopreview>
-  <button class="videosummaryheader" (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video {{this.queryresult_videoid[this.selectedItem]}} ({{this.selectedItem+1}}/{{this.queryresult_videoid.length}})</button><br/>
-  <img [src]="videopreviewimage" class="videopreviewimage" (click)="closeVideoPreview()">
-</div>
-  
-<div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="queryresult" *ngFor="let item of queryresults; let i = index">
-  <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="selectItemAndShowSummary(i)" [ngClass]="{'blueborder': this.selectedItem == i}">
-  <div class="lefttopcorner">
-    <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">f{{this.queryresult_frame[i]}}</span>
-  </div>
-  <div class="righttopcorner">
-      <!--<span class="label" (click)="this.queryForVideo(i)">
-          <a [routerLink]="['/video',this.queryresult_videoid[i],this.queryresult_frame[i]]" target="_blank">{{this.queryresult_videoid[i]}}</a>
-      </span>-->
-      <button class="smalllabel" (click)="this.queryForVideo(i)">{{this.queryresult_videoid[i]}}</button>
-  </div>
-  <div class="leftbottomcorner">
-    <!-- <button *ngIf="showButtons === i" (click)="showVideoPreview(i)" class="resultaction">Video-Preview</button> -->
-    <button *ngIf="showButtons === i" (click)="showVideoShots(this.queryresult_videoid[i],this.queryresult_frame[i])" class="resultaction">Shotlist</button>
-    <!-- <button *ngIf="showButtons === i" (click)="performSimilarityQueryForIndex(i)" class="resultaction">Similar</button> -->
-    <button *ngIf="showButtons == i" (click)="performFileSimilarityQuery(item)" class="resultaction">Similar</button>
-  </div>
-  <div class="rightbottomcorner">
-      <button *ngIf="showButtons === i && !this.isVideoResult(this.querydataset)" class="submitbutton" (click)="submitResult(i)">Submit</button>
-  </div>
-</div>
+<div class="queryresults-wrapper">
 
+  <div *ngIf="showPreview" class="videopreview" #videopreview>
+    <button class="videosummaryheader" (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video {{this.queryresult_videoid[this.selectedItem]}} ({{this.selectedItem+1}}/{{this.queryresult_videoid.length}})</button><br/>
+    <img [src]="videopreviewimage" class="videopreviewimage" (click)="closeVideoPreview()">
+  </div>
+    
+  <div (mouseover)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult" *ngFor="let item of queryresults; let i = index">
+    <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="selectItemAndShowSummary(i)" [ngClass]="{'blueborder': this.selectedItem == i}">
+    <div class="lefttopcorner">
+      <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'" class="resultnum">{{getTimeInformationFor(i)}}</span>
+    </div>
+    <div class="righttopcorner">
+        <!--<span class="label" (click)="this.queryForVideo(i)">
+            <a [routerLink]="['/video',this.queryresult_videoid[i],this.queryresult_frame[i]]" target="_blank">{{this.queryresult_videoid[i]}}</a>
+        </span>-->
+        <button class="smalllabel" (click)="this.queryForVideo(i)">{{this.queryresult_videoid[i]}}</button>
+    </div>
+    <div class="leftbottomcorner">
+      <!-- <button *ngIf="showButtons === i" (click)="showVideoPreview(i)" class="resultaction">Video-Preview</button> -->
+      <button *ngIf="showButtons === i" (click)="showVideoShots(this.queryresult_videoid[i],this.queryresult_frame[i])" class="resultaction">Video</button>
+      <!-- <button *ngIf="showButtons === i" (click)="performSimilarityQueryForIndex(i)" class="resultaction">Similar</button> -->
+      <button *ngIf="showButtons == i" (click)="performFileSimilarityQuery(item)" class="resultaction">Similar</button>
+    </div>
+    <div class="rightbottomcorner">
+        <button *ngIf="showButtons === i && !this.isVideoResult(this.querydataset)" class="submitbutton" (click)="submitResult(i)">Submit</button>
+    </div>
+  </div>
+
+</div>
 
 <div *ngIf="nodeServerInfo !== undefined" class="full-message">
   {{nodeServerInfo}}
@@ -97,13 +103,24 @@
 </div>
 
 <div *ngIf="showHelpActive === true" class="full-help">
+  <h4>Datasets</h4>
+    <ul>
+      <li><b>V3C</b>: Vimeo Creative Commons 1+2 dataset with 17250 videos.</li>
+      <li><b>MVK</b>: Marine Video Kit dataset with 1371 short videos.</li>
+      <li><b>LHE</b>: Laparoscopic Hysterectomy dataset with 70 videos.</li>
+    </ul>
+  <h4>Video Filtering</h4>
+    <ul>
+      <li><b>All/v</b>: Show all keyframes/shots per video (no filtering).</li>
+      <li><b>First/v</b>: Show only first match per video.</li>
+    </ul>
   <h4>Query Types</h4>
   <ul>
-    <li><b>Free-Text</b>: most powerful search with OpenCLIP.</li>
-    <li><b>OCR-Text</b>: database search for recognized text in keyframes (with Optical Character Recognition).</li>
-    <li><b>Metadata</b>: database search for title, description, channel, and tags (all provided by video author).</li>
-    <li><b>Speech</b>: database search for recognized speech.</li>
-    <li><b>VideoId</b>: database search for a particular video id.</li>
+    <li><b>Free-Text</b>: most powerful search with OpenCLIP. Also supports <b>temporal queries</b> with <b>&lt;</b>, to specify temporal relation in a video. For example: <i>a camel &lt; sunrise &lt; a boat trip &lt; people dancing &lt; sunset</i></li>
+    <li><b>OCR-Text</b>: database search (case-insensitive) for text in keyframes recognized by  Optical Character Recognition (OCR).</li>
+    <li><b>Metadata</b>: database search (case-insensitive) for title, description, channel, and tags -- as provided by video author.</li>
+    <li><b>Speech</b>: database search (case-insensitive) for recognized speech.</li>
+    <li><b>VideoId</b>: database search (case-insensitive) for a part of their name. Use * to return all (<span style="color:rgb(0, 94, 255)">works only for MVK and LHE with First/v!</span>).</li>
   </ul>
 
   <h4>Thumbnail Actions</h4>
@@ -116,14 +133,11 @@
   
   <h4>Keyboard Shortcuts</h4>
   <ul>
-    <li><b>left/right/tab</b>: switch page (or preview summary when in preview mode)</li>
-    <li><b>1-9</b>: goto page</li>
-    <li><b>e</b>: extend query</li>
-    <li><b>q</b>: edit query</li>
-    <!--<li><b>x</b>: reset query</li>-->
-    <li><b>v</b>: open corresponding video in a new tab for current preview</li>
-    <li><b>Space</b>: show/hide preview video summary of selected item</li>
-    <li><b>Esc</b>: close preview video summary (alternative to Space)</li>
+    <li><b>&larr; &rarr;</b>: select previous or next item (blue border). <!--Press <b>s</b> to submit the selected item or <b>v</b> to open the video view.--></li>
+    <li><b>Space</b> to open/close <i>video summary</i> for selected item. Use <b>&uarr; &darr;</b> to change detail-level of video summary.</li>
+    <li><b>Shift &larr; &rarr;</b>: goto next or previous page.</li>
+    <li><b>1-9</b>: goto 1st-9th page.</li>
+    <li><b>e</b> to extend query (add more words) and <b>q</b> to select entire query for edit.</li>
   </ul>
   <button (click)="showHelpActive = false">Close</button>
 </div>

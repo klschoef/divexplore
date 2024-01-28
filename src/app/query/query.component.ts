@@ -56,6 +56,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   summaries: Array<string> = [];
   selectedSummaryIdx = 0;
 
+  queryresult_fps = new Map<string,number>();
   
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
@@ -214,28 +215,32 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       } else {
         //let result = msg.content;
         let m = JSON.parse(JSON.stringify(msg));
-        console.log("qc: response from node-server: " + msg);
-        if ("scores" in msg || m.type === 'ocr-text') {
-          this.handleQueryResponseMessage(msg); 
+        if ("videoid" in msg) {
+          this.queryresult_fps.set(m.videoid,m.fps);
         } else {
-          if ("type" in msg) {
-            if (m.type == 'metadata') {
-              this.metadata = m.results[0];
-              //this.pages = ['1'];
-              console.log('received metadata: ' + JSON.stringify(msg));
-              if (this.metadata?.location) {
-              }
-            } else if (m.type === 'info'){
-              console.log(m.message);
-              this.nodeServerInfo = m.message;
-            } else if (m.type === 'videosummaries') {
-              this.summaries = msg.content[0]['summaries'];
-              this.selectedSummaryIdx = Math.floor(this.summaries.length/2);
-              this.displayVideoSummary();
-            }
+          //console.log("qc: response from node-server: " + msg);
+          if ("scores" in msg || m.type === 'ocr-text') {
+            this.handleQueryResponseMessage(msg); 
           } else {
-            this.handleQueryResponseMessage(msg);
-          } 
+            if ("type" in msg) {
+              if (m.type == 'metadata') {
+                this.metadata = m.results[0];
+                //this.pages = ['1'];
+                //console.log('received metadata: ' + JSON.stringify(msg));
+                if (this.metadata?.location) {
+                }
+              } else if (m.type === 'info'){
+                //console.log(m.message);
+                this.nodeServerInfo = m.message;
+              } else if (m.type === 'videosummaries') {
+                this.summaries = msg.content[0]['summaries'];
+                this.selectedSummaryIdx = Math.floor(this.summaries.length/2);
+                this.displayVideoSummary();
+              }
+            } else {
+              this.handleQueryResponseMessage(msg);
+            } 
+          }
         }
       }
     });
@@ -350,6 +355,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }
   }
 
+  newTab(): void {
+    const currentUrl = window.location.href;
+    window.open(currentUrl, '_blank');
+  }
+
   asTimeLabel(frame:string, withFrames:boolean=true) {
     console.log('TODO: need FPS in query component!')
     return frame;
@@ -365,20 +375,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         }
         else if (event.key == 'e') {
           this.inputfield.nativeElement.focus();
-        }  
-        else if (event.key == 'v') {
-          /*this.selectedPage = '1';
-          this.selectedDataset = this.selectedDataset.replace('-s','-v');
-          this.performTextQuery();*/
-        }
-        else if (event.key == 's') {
-          /*this.selectedPage = '1';
-          this.selectedDataset = this.selectedDataset.replace('-v','-s');
-          this.performTextQuery();*/
-        }
-        else if (event.key == 'x') {
-          //this.resetQuery();
-        }
+        } 
         else if (event.key == 'Escape') {
           this.closeVideoPreview();
         }
@@ -390,36 +387,48 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) { 
     if (this.queryFieldHasFocus == false && this.answerFieldHasFocus == false && this.showConfigForm == false) {
-      if (event.key == 'ArrowRight' || event.key == 'Tab') {
-        if (this.showPreview) {
-          if (this.selectedItem < this.queryresult_videoid.length-1) {
-            this.selectedItem += 1;
-            this.showVideoPreview();
-          }
-          event.preventDefault(); 
-        } else {
-          this.nextPage();     
+      if (event.key == 'ArrowRight' && event.shiftKey) {
+        if (this.showPreview == false) {
+          this.nextPage();
         }
-      } else if (event.key == "ArrowLeft") {
-        if (this.showPreview) {
-          if (this.selectedItem > 0) {
-            this.selectedItem -= 1;
-            this.showVideoPreview();
-          }
-          event.preventDefault(); 
-        } else {
-          this.prevPage();     
+        event.preventDefault();
+      } else if (event.key == "ArrowLeft" && event.shiftKey) {
+        if (this.showPreview == false) {
+          this.prevPage();
         }
+        event.preventDefault(); 
+      } else if (event.key == 'ArrowRight') {
+        let toShow = this.showPreview;
+        if (this.selectedItem < this.queryresult_videoid.length-1) {
+          this.selectedItem += 1;
+        } else if (this.showPreview === false) {
+          this.selectedItem = 0;
+        } 
+        if (toShow) this.showVideoPreview();
+        event.preventDefault();
+      } else if (event.key == "ArrowLeft" ) {
+        let toShow = this.showPreview;
+        if (this.selectedItem > 0) {
+          this.selectedItem -= 1;
+        } else if (this.showPreview === false) {
+          this.selectedItem = this.queryresult_videoid.length-1;
+        } 
+        if (toShow) this.showVideoPreview();
+        event.preventDefault();
       } else if (event.key == "ArrowUp") {
-        if (this.selectedSummaryIdx > 0) {
-          this.selectedSummaryIdx -= 1;
-          this.displayVideoSummary();
+        if (this.showPreview) {
+          if (this.selectedSummaryIdx > 0) {
+            this.selectedSummaryIdx -= 1;
+            this.displayVideoSummary();
+          }
         }
         event.preventDefault();
       } else if (event.key == "ArrowDown") {
-        if (this.selectedSummaryIdx < this.summaries.length-1) {
-          this.selectedSummaryIdx += 1;
-          this.displayVideoSummary();
+        if (this.showPreview) {
+          if (this.selectedSummaryIdx < this.summaries.length-1) {
+            this.selectedSummaryIdx += 1;
+            this.displayVideoSummary();
+          }
         }
         event.preventDefault();
       } else if (event.key == 'Space' || event.key == ' ') {
@@ -427,43 +436,45 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         if (this.showPreview)
           this.showVideoPreview();
         event.preventDefault();
-      } else if (event.key === 'v' && this.showPreview) {
+      } /*else if (event.key === 's') {
+        this.submitResult(this.selectedItem);
+      } else if (event.key === 'v') { //&& this.showPreview) {
         this.showVideoShots(this.queryresult_videoid[this.selectedSummaryIdx],'1');
-      } 
-      else {
-        switch (event.key) {
-          case '1':
-            this.gotoPage('1');
-            break;
-          case '2':
-            this.gotoPage('2');
-            break;
-          case '3':
-            this.gotoPage('3');
-            break;
-          case '4':
-            this.gotoPage('4');
-            break;
-          case '5':
-            this.gotoPage('5');
-            break;
-          case '6':
-            this.gotoPage('6');
-            break;
-          case '7':
-            this.gotoPage('7');
-            break;
-          case '8':
-            this.gotoPage('8');
-            break;
-          case '9':
-            this.gotoPage('9');
-            break;
-          case '0':
-            this.gotoPage('10');
-            break;
-          default:
-            break;
+      }*/ else if (event.key == '1') {
+        if (this.showPreview == false) {
+          this.gotoPage('1');
+        }
+      } else if (event.key == '2') {
+        if (this.showPreview == false) {
+          this.gotoPage('2');
+        }
+      } else if (event.key == '3') {
+        if (this.showPreview == false) {
+          this.gotoPage('3');
+        }
+      } else if (event.key == '4') {
+        if (this.showPreview == false) {
+          this.gotoPage('4');
+        }
+      } else if (event.key == '5') {
+        if (this.showPreview == false) {
+          this.gotoPage('5');
+        }
+      } else if (event.key == '6') {
+        if (this.showPreview == false) {
+          this.gotoPage('6');
+        }
+      } else if (event.key == '7') {
+        if (this.showPreview == false) {
+          this.gotoPage('7');
+        }
+      } else if (event.key == '8') {
+        if (this.showPreview == false) {
+          this.gotoPage('8');
+        }
+      } else if (event.key == '9') {
+        if (this.showPreview == false) {
+          this.gotoPage('9');
         }
       }
     }
@@ -551,6 +562,77 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.vbsService.submitQueryResultLog('interaction');
   }
 
+
+  showVideoShots(videoid:string, frame:string) {
+    //this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
+    window.open('video/' + videoid + '/' + frame, '_blank');
+  }
+
+  mouseOverShot(i:number) {
+    this.showButtons = i;
+    this.getFPSForItem(i);
+  }
+
+  mouseLeaveShot(i:number) {
+    this.showButtons = -1;
+  }
+
+  getFPSForItem(i: number) {
+    if (this.queryresult_fps.get(this.queryresult_videoid[i]) == undefined) {
+      let msg = { 
+        type: "videofps", 
+        synchronous: false,
+        videoid: this.queryresult_videoid[i]
+      };
+      this.sendToNodeServer(msg);
+    }
+  }
+
+  getTimeInformationFor(i: number) {
+    let fps = this.queryresult_fps.get(this.queryresult_videoid[i]);
+    if (fps !== undefined) {
+      let sTime = formatAsTime(this.queryresult_frame[i], fps, false);
+      return sTime;
+    } else {
+      return ''; //this.queryresult_frame[i];
+    }
+  }
+
+  resetPageAndPerformQuery() {
+    //this.selectedQueryType = 'textquery';
+    this.selectedPage = '1';
+    this.performTextQuery();
+  }
+
+  resetQuery() {
+    this.queryinput = '';
+    this.inputfield.nativeElement.focus();
+    this.inputfield.nativeElement.select();
+    this.file_sim_keyframe = undefined
+    this.file_sim_pathPrefix = undefined
+    this.previousQuery = undefined
+    this.selectedPage = '1';
+    this.selectedDataset = 'v3c';
+    this.selectedVideoFiltering = 'all';
+    this.pages = ['1'];
+    this.clearResultArrays();
+    let queryHistory:Array<QueryType> = [];
+    localStorage.setItem('history', JSON.stringify(queryHistory));
+  }
+
+
+  private clearResultArrays() {
+    this.queryresults = [];
+    //this.queryresult_serveridx = [];
+    this.queryresult_resultnumber = [];
+    this.queryresult_videoid = [];
+    this.queryresult_frame = [];
+    this.queryresult_videopreview = [];
+    this.queryTimestamp = 0;
+    this.vbsService.queryEvents = []
+    this.vbsService.queryResults = []
+  }
+
    /****************************************************************************
    * Queries
    ****************************************************************************/
@@ -585,8 +667,23 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   performTextQuery(saveToHist: boolean = true) {
 
-    if (this.queryinput.trim() === '')
+    let qi = this.queryinput.trim();
+    if (qi === '') {
       return;
+    }
+
+    if (qi == '*' && this.selectedQueryType !== 'videoid') {
+      this.messageBar.showErrorMessage('* queries work only for VideoId');
+      return;
+    } 
+
+    if (qi == '*' && this.selectedQueryType === 'videoid' && (this.selectedVideoFiltering !== 'first' || this.selectedDataset === 'v3c')) {
+      this.messageBar.showErrorMessage('* queries work only with MVK or LHE and Video Filter (First/v)');
+      return;
+    } 
+
+    this.showHelpActive = false;
+    this.showPreview = false;
 
     if (this.clipService.connectionState === WSServerStatus.CONNECTED ||
       this.nodeService.connectionState === WSServerStatus.CONNECTED) {
@@ -613,6 +710,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
       msg.dataset = this.selectedDataset;
       msg.type = this.selectedQueryType;
+      msg.videofiltering = this.selectedVideoFiltering;
 
       //this.sendToCLIPServer(msg);
 
@@ -653,6 +751,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       let msg = { 
         type: "similarityquery", 
         query: serveridx.toString(),
+        videofiltering: this.selectedVideoFiltering, 
         maxresults: this.globalConstants.maxResultsToReturn,
         resultsperpage: this.globalConstants.resultsPerPage, 
         selectedpage: this.selectedPage, 
@@ -691,6 +790,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       let msg = { 
         type: "file-similarityquery", 
         query: keyframe,
+        videofiltering: this.selectedVideoFiltering, 
         pathprefix: pathprefix, 
         maxresults: this.globalConstants.maxResultsToReturn,
         resultsperpage: this.globalConstants.resultsPerPage, 
@@ -746,6 +846,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         this.queryinput = msg.query;
         this.selectedDataset = msg.dataset;
         this.selectedQueryType = msg.type;
+        this.selectedVideoFiltering = msg.videofiltering;
         this.selectedPage = msg.selectedpage;
         this.previousQuery = undefined;
         this.file_sim_keyframe = undefined;
@@ -797,7 +898,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   requestVideoSummaries(videoid:string) {
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
-      console.log('qc: get video summaries info from database', videoid);
+      //console.log('qc: get video summaries info from database', videoid);
       let msg = { 
         type: "videosummaries", 
         videoid: videoid
@@ -825,49 +926,6 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.nodeService.messages.next(message);
   }
   
-  showVideoShots(videoid:string, frame:string) {
-    //this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
-    window.open('video/' + videoid + '/' + frame, '_blank');
-  }
-
-  /*performSimilarityQueryForIndex(idx:number) {
-    this.selectedPage = '1';
-    let serveridx = this.queryresult_serveridx[idx];
-    this.performSimilarityQuery(serveridx);
-  }*/
-
-  resetPageAndPerformQuery() {
-    this.selectedPage = '1';
-    this.performTextQuery();
-  }
-
-  resetQuery() {
-    this.queryinput = '';
-    this.inputfield.nativeElement.focus();
-    this.inputfield.nativeElement.select();
-    this.file_sim_keyframe = undefined
-    this.file_sim_pathPrefix = undefined
-    this.previousQuery = undefined
-    this.selectedPage = '1';
-    this.selectedDataset = 'v3c';
-    this.pages = ['1'];
-    this.clearResultArrays();
-    let queryHistory:Array<QueryType> = [];
-    localStorage.setItem('history', JSON.stringify(queryHistory));
-  }
-
-
-  private clearResultArrays() {
-    this.queryresults = [];
-    //this.queryresult_serveridx = [];
-    this.queryresult_resultnumber = [];
-    this.queryresult_videoid = [];
-    this.queryresult_frame = [];
-    this.queryresult_videopreview = [];
-    this.queryTimestamp = 0;
-    this.vbsService.queryEvents = []
-    this.vbsService.queryResults = []
-  }
 
   /****************************************************************************
    * WebSockets (CLIP and Node.js)
@@ -920,7 +978,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
     //create pages array
     this.pages = [];
-    if (qresults.type === 'ocr-text' || qresults.type === 'videoid' || qresults.type === 'metadata' || qresults.type === 'speech') {
+    if (qresults.num == qresults.totalresults || qresults.type === 'ocr-text' || qresults.type === 'videoid' || qresults.type === 'metadata' || qresults.type === 'speech') {
       this.pages.push('1');
     } else {
       for (let i = 1; i < this.totalReturnedResults / this.globalConstants.resultsPerPage; i++) {
@@ -991,7 +1049,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     console.log(`${videoid} - ${keyframe} - ${frameNumber}`);
 
     let msg = { 
-      type: "videofps", 
+      type: "videofps",
+      synchronous: true,  
       videoid: videoid
     };
     let message = {

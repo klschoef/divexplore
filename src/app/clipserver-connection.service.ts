@@ -78,7 +78,7 @@ export class ClipServerConnectionService {
           error: (err: any) => {},
           complete: () => {},
           next: (data: Object) => {
-              console.log('Sent to CLIP-server: ', data);
+              //console.log('Sent to CLIP-server: ', data);
               if (ws.readyState === WebSocket.OPEN) {
                   ws.send(JSON.stringify(data));
               }

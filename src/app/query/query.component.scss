@@ -1,7 +1,7 @@
 input[type="text"] {
     font-size: 20px;
     height: 26px;
-    width: 45%;
+    width: 35%;
 }
 
 .queryarea input {
@@ -39,7 +39,7 @@ input[type="text"] {
 }
 
 .resetButton {
-    background-color: red;
+    background-color: rgb(242, 103, 103);
 }
 
 .historySelect {
@@ -92,6 +92,18 @@ input[type="text"] {
     box-sizing: border-box;
 }
 
+.light-red-background {
+    background-color: rgb(250, 191, 191); /* Or any light-red color of your choice */
+}  
+
+.light-blue-background {
+    background-color: lightblue; /* Or any blue color of your choice */
+}
+
+.gray-background {
+background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
+}
+  
 
 .videopreview {
     background-color: rgba(255,255,255,0.75);
@@ -142,9 +154,21 @@ input[type="text"] {
     position: fixed;
     top: 50%;
     left: 50%;
+    width: 70%;
     transform: translate(-50%, -50%);
     z-index: 9999;
     font-size: 12pt;
+  }
+
+  .full-help h4 {
+    font-weight: bold;
+    margin-bottom: 4px;
+    margin-top: 10px;
+  }
+
+  .full-help ul {
+    margin-top: 0px;
+    margin-bottom: 0px;
   }
 
   /* config-modal.component.css */

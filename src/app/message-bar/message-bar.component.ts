@@ -27,7 +27,7 @@ export class MessageBarComponent {
 
   showErrorMessage(tempMessage: string) {
     if (this.errorMessage != '') {
-      this.errorMessage += ' ' + tempMessage;
+      this.errorMessage += ' --- ' + tempMessage;
     } else {
       this.errorMessage = tempMessage;
     }

@@ -87,6 +87,19 @@ div.shotlist {
     float: left;
 }
 
+.queryresults-wrapper {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.queryresults-wrapper::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
 
 .selectedqueryresult {
     background-color: blue;

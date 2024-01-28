@@ -18,6 +18,7 @@ export enum WSServerStatus {
 export interface QueryType { 
   type: string; 
   query: string; 
+  videofiltering: string;
   maxresults: number; 
   resultsperpage: number; 
   selectedpage: string; 

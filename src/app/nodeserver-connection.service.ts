@@ -70,9 +70,10 @@ export class NodeServerConnectionService {
             obs.next(new MessageEvent('message', msg));
           }
           ws.onmessage = (msg) => {
-            console.log('message from node-server');
+            //console.log("received: " + msg.data);
             let d = JSON.parse(msg.data);
-            if (d.type == 'videofps') {
+            //console.log(d);
+            if (d.type == 'videofps' && d.synchronous == true) {
               const requestSubject = this.pendingRequests.get(d.correlationId);
               if (requestSubject) {
                   requestSubject.next(d);
@@ -80,6 +81,9 @@ export class NodeServerConnectionService {
                   this.pendingRequests.delete(d.correlationId);
               }
             } else {
+              /*if (d.type !== 'videofps') {
+                console.log('message from node-server');
+              }*/
               obs.next(msg);
             }
           };
@@ -100,8 +104,11 @@ export class NodeServerConnectionService {
           complete: () => {},
           next: (data: Object) => {
               if (ws.readyState === WebSocket.OPEN) {
-                  ws.send(JSON.stringify(data));
+                let strObj = JSON.stringify(data);
+                ws.send(strObj);
+                /*if (!strObj.includes('videofps')) {
                   console.log('Sent to node-server: ', data);
+                }*/
               }
           }
       };
@@ -109,7 +116,7 @@ export class NodeServerConnectionService {
   }
 
   private pendingRequests: Map<string, Subject<FPSResponse>> = new Map();
-  
+   
 
   public sendMessageAndWait(message: any): Observable<FPSResponse> {
       const responseObservable = new Subject<FPSResponse>();

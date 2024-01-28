@@ -23,24 +23,28 @@
     <video #videoplayer src="{{videoURL}}" (timeupdate)="setCurrentTime($event)" width="480" height="270" controls></video>
 </div>
 
-<div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">
-    <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="gotoTimeOfShot(i)">
-    <div class="righttopcorner">
-        <span class="label">{{timelabels[i]}}</span>
-    </div>
-    <div class="lefttopcorner">
-        <span class="label">
-            f{{this.framenumbers[i]}}
-        </span>
-    </div>
-    <div class="leftbottomcorner">
-        <button *ngIf="showButtons === i" (click)="performFileSimilarityQuery(item)" class="resultaction">Similar</button>
-    </div>
-    <div class="rightbottomcorner">
-        <button *ngIf="showButtons === i" class="submitbutton" (click)="submitResult(i)">Submit</button>
-    </div>
-</div>
+<div class="queryresults-wrapper">
 
+    <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">
+        <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="gotoTimeOfShot(i)">
+        <div class="righttopcorner">
+            
+        </div>
+        <div class="lefttopcorner">
+            <span class="label">{{timelabels[i]}}</span>
+            <!--<span class="label">
+                f{{this.framenumbers[i]}}
+            </span>-->
+        </div>
+        <div class="leftbottomcorner">
+            <button *ngIf="showButtons === i" (click)="performFileSimilarityQuery(item)" class="resultaction">Similar</button>
+        </div>
+        <div class="rightbottomcorner">
+            <button *ngIf="showButtons === i" class="submitbutton" (click)="submitResult(i)">Submit</button>
+        </div>
+    </div>
+
+</div>
 
 <div class="footerinfo" *ngIf="this.hasMetadata()" >
     <span class="videometainfo">

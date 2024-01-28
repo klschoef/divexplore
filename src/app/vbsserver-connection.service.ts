@@ -362,7 +362,7 @@ export class VBSServerConnectionService {
     .subscribe(
       (response) => {
         let info = 'QueryResultLog: ' + JSON.stringify(response);
-        console.log(info);
+        //console.log(info);
         //this.successMessageEmitter.emit(response.description);
         this.queryResults = []; //clear all results
         this.queryEvents = []; //clear all events
