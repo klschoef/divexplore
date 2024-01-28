@@ -108,8 +108,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   selectedVideoFiltering = 'all';
   videoFiltering = [
-    {id: 'all', name: 'All'},
-    {id: 'first', name: 'First'}
+    {id: 'all', name: 'All/v'},
+    {id: 'first', name: 'First/v'}
   ];
     
   constructor(
@@ -597,7 +597,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         this.selectedPage = '1';
       }
       
-      console.log('qc: query for', this.queryinput);
+      console.log('qc: query for', this.queryinput + " videofiltering=" + this.selectedVideoFiltering);
       this.queryBaseURL = this.getBaseURL();
       let msg = { 
         type: "textquery", 

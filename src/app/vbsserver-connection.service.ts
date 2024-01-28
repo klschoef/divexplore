@@ -375,7 +375,11 @@ export class VBSServerConnectionService {
   }
 
 
-  saveLogLocally(qr: QueryResultLog) {
+  saveLogLocally(qrOrig: QueryResultLog) {
+    let qr = JSON.parse(JSON.stringify(qrOrig));
+    //qr.results = [];
+    qr.results = qr.results.slice(0, 10);
+
     let qrl: ExtendedQueryResultLog = qr as unknown as ExtendedQueryResultLog;
     qrl.serverTime = this.serverTimestamp;
     qrl.serverTimeDiff = this.serverTimeDiff;
