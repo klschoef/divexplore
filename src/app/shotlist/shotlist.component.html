@@ -25,7 +25,7 @@
 
 <div class="queryresults-wrapper">
 
-    <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index">
+    <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1" class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index" #queryResult>
         <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="gotoTimeOfShot(i)">
         <div class="righttopcorner">
             

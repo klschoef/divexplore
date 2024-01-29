@@ -1,4 +1,5 @@
 import { ViewChild,ElementRef,AfterViewInit, Component } from '@angular/core';
+import { ViewChildren, QueryList } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { VBSServerConnectionService, VbsServiceCommunication } from '../vbsserver-connection.service';
 import { NodeServerConnectionService } from '../nodeserver-connection.service';
@@ -60,6 +61,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
   currentVideoTime: number = 0;
   @ViewChild('videoplayer') videoplayer!: ElementRef<HTMLVideoElement>;
   @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
+  @ViewChildren('queryResult') queryResults!: QueryList<ElementRef>;
 
   constructor(
     public vbsService: VBSServerConnectionService,
@@ -122,7 +124,20 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
 
   ngAfterViewInit(): void {
     this.videoplayer.nativeElement.addEventListener('loadeddata', this.onVideoPlayerLoaded.bind(this));
+    this.queryResults.changes.subscribe((list: QueryList<ElementRef>) => {
+      this.scrollToSelectedQueryResult();
+    });
   }
+
+  scrollToSelectedQueryResult() {
+    const selectedElement = this.queryResults.toArray().find(el => el.nativeElement.classList.contains('selectedqueryresult'));
+    if (selectedElement) {
+      const elementPosition = selectedElement.nativeElement.getBoundingClientRect().top + window.scrollY;
+      const offset = 50; // Adjust this value as needed
+      window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
+    }
+  }
+  
 
   requestTaskInfo() {
     if (this.vbsService.serverRunIDs.length > 0 && this.vbsService.selectedServerRun === undefined) {
