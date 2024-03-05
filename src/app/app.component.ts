@@ -1,9 +1,9 @@
 import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { GlobalConstants, WSServerStatus, WebSocketEvent } from './global-constants';
-import { VBSServerConnectionService } from './vbsserver-connection.service';
-import { NodeServerConnectionService } from './nodeserver-connection.service';
-import { ClipServerConnectionService } from './clipserver-connection.service';
+import { VBSServerConnectionService } from './services/vbsserver-connection/vbsserver-connection.service';
+import { NodeServerConnectionService } from './services/nodeserver-connection/nodeserver-connection.service';
+import { ClipServerConnectionService } from './services/clipserver-connection/clipserver-connection.service';
 import { Router } from '@angular/router';
 
 

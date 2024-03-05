@@ -1,10 +1,10 @@
 import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../global-constants';
-import { VBSServerConnectionService, GUIAction, GUIActionType, VbsServiceCommunication } from '../vbsserver-connection.service';
-import { GlobalConstantsService } from '../global-constants.service';
-import { NodeServerConnectionService } from '../nodeserver-connection.service';
-import { ClipServerConnectionService } from '../clipserver-connection.service';
+import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../../global-constants';
+import { VBSServerConnectionService, GUIAction, GUIActionType, VbsServiceCommunication } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { GlobalConstantsService } from '../../global-constants.service';
+import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
+import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
 import { Router,ActivatedRoute } from '@angular/router';
 import { query } from '@angular/animations';
 import { QueryEvent, QueryResultLog, QueryEventLog, QueryEventCategory, RankedAnswer, ApiClientAnswer } from 'openapi/dres';
@@ -371,117 +371,83 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
   @HostListener('document:keyup', ['$event'])
-  handleKeyboardEventUp(event: KeyboardEvent) { 
-    if (this.queryFieldHasFocus == false && this.answerFieldHasFocus == false && this.showConfigForm == false) {
-      if (this.queryFieldHasFocus == false) {
-        if (event.key == 'q') {
+  handleKeyboardEventUp(event: KeyboardEvent) {
+    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm) {
+      switch (event.key) {
+        case 'q':
           this.inputfield.nativeElement.select();
-        }
-        else if (event.key == 'e') {
+          break;
+        case 'e':
           this.inputfield.nativeElement.focus();
-        } 
-        else if (event.key == 'Escape') {
+          break;
+        case 'Escape':
           this.closeVideoPreview();
-        }
+          break;
       }
     }
   }
 
-
   @HostListener('document:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) { 
-    if (this.queryFieldHasFocus == false && this.answerFieldHasFocus == false && this.showConfigForm == false) {
-      if (event.key == 'ArrowRight' && event.shiftKey) {
-        if (this.showPreview == false) {
-          this.nextPage();
-        }
-        event.preventDefault();
-      } else if (event.key == "ArrowLeft" && event.shiftKey) {
-        if (this.showPreview == false) {
-          this.prevPage();
-        }
-        event.preventDefault(); 
-      } else if (event.key == 'ArrowRight') {
-        let toShow = this.showPreview;
-        if (this.selectedItem < this.queryresult_videoid.length-1) {
-          this.selectedItem += 1;
-        } else if (this.showPreview === false) {
-          this.selectedItem = 0;
-        } 
-        if (toShow) this.showVideoPreview();
-        event.preventDefault();
-      } else if (event.key == "ArrowLeft" ) {
-        let toShow = this.showPreview;
-        if (this.selectedItem > 0) {
-          this.selectedItem -= 1;
-        } else if (this.showPreview === false) {
-          this.selectedItem = this.queryresult_videoid.length-1;
-        } 
-        if (toShow) this.showVideoPreview();
-        event.preventDefault();
-      } else if (event.key == "ArrowUp") {
-        if (this.showPreview) {
-          if (this.selectedSummaryIdx > 0) {
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm) {
+      switch (event.key) {
+        case 'ArrowRight':
+        case 'ArrowLeft':
+          this.handleArrowKeys(event);
+          break;
+        case 'ArrowUp':
+          if (this.showPreview && this.selectedSummaryIdx > 0) {
             this.selectedSummaryIdx -= 1;
             this.displayVideoSummary();
           }
-        }
-        event.preventDefault();
-      } else if (event.key == "ArrowDown") {
-        if (this.showPreview) {
-          if (this.selectedSummaryIdx < this.summaries.length-1) {
+          break;
+        case 'ArrowDown':
+          if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
             this.selectedSummaryIdx += 1;
             this.displayVideoSummary();
           }
-        }
-        event.preventDefault();
-      } else if (event.key == 'Space' || event.key == ' ') {
-        this.showPreview = !this.showPreview;
-        if (this.showPreview)
-          this.showVideoPreview();
-        event.preventDefault();
-      } /*else if (event.key === 's') {
-        this.submitResult(this.selectedItem);
-      } else if (event.key === 'v') { //&& this.showPreview) {
-        this.showVideoShots(this.queryresult_videoid[this.selectedSummaryIdx],'1');
-      }*/ else if (event.key == '1') {
-        if (this.showPreview == false) {
-          this.gotoPage('1');
-        }
-      } else if (event.key == '2') {
-        if (this.showPreview == false) {
-          this.gotoPage('2');
-        }
-      } else if (event.key == '3') {
-        if (this.showPreview == false) {
-          this.gotoPage('3');
-        }
-      } else if (event.key == '4') {
-        if (this.showPreview == false) {
-          this.gotoPage('4');
-        }
-      } else if (event.key == '5') {
-        if (this.showPreview == false) {
-          this.gotoPage('5');
-        }
-      } else if (event.key == '6') {
-        if (this.showPreview == false) {
-          this.gotoPage('6');
-        }
-      } else if (event.key == '7') {
-        if (this.showPreview == false) {
-          this.gotoPage('7');
-        }
-      } else if (event.key == '8') {
-        if (this.showPreview == false) {
-          this.gotoPage('8');
-        }
-      } else if (event.key == '9') {
-        if (this.showPreview == false) {
-          this.gotoPage('9');
-        }
+          break;
+        case ' ':
+          this.showPreview = !this.showPreview;
+          if (this.showPreview) this.showVideoPreview();
+          break;
+        /*
+        case 's':
+          this.submitResult(this.selectedItem);
+          break;
+        case 'v':
+          this.showVideoShots(this.queryresult_videoid[this.selectedSummaryIdx],'1');
+          break;
+        */
+        default:
+          if (this.isNumericKey(event.key) && !this.showPreview) {
+            this.gotoPage(event.key);
+          }
+          break;
       }
+      event.preventDefault();
     }
+  }
+
+  private handleArrowKeys(event: KeyboardEvent) {
+    const { key, shiftKey } = event;
+    if (shiftKey) {
+      if (!this.showPreview) {
+        key === 'ArrowRight' ? this.nextPage() : this.prevPage();
+      }
+    } else {
+      let toShow = this.showPreview;
+      if (key === 'ArrowRight') {
+        this.selectedItem = this.selectedItem < this.queryresult_videoid.length - 1 ? this.selectedItem + 1 : !this.showPreview ? 0 : this.selectedItem;
+      } else { // ArrowLeft
+        this.selectedItem = this.selectedItem > 0 ? this.selectedItem - 1 : !this.showPreview ? this.queryresult_videoid.length - 1 : this.selectedItem;
+      }
+      if (toShow) this.showVideoPreview();
+    }
+  }
+
+  private isNumericKey(key: string): boolean {
+    return ['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(key);
   }
 
   prevPage() {

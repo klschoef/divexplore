@@ -10,21 +10,21 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
-import { ShotlistComponent } from './shotlist/shotlist.component';
+import { ShotlistComponent } from './components/shotlist/shotlist.component';
 import { ApiModule,Configuration } from 'openapi/dres';
 import { GlobalConstants } from './global-constants';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { VBSServerConnectionService } from './vbsserver-connection.service';
-import { QueryComponent } from './query/query.component';
-import { ExplorationComponent } from './exploration/exploration.component';
+import { VBSServerConnectionService } from './services/vbsserver-connection/vbsserver-connection.service';
+import { QueryComponent } from './components/query/query.component';
+import { ExplorationComponent } from './components/exploration/exploration.component';
 import { SafePipe } from './safe.pipe';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MessageBarComponent } from './message-bar/message-bar.component';
-import { ConfigFormComponent } from './config-form/config-form.component';
+import { MessageBarComponent } from './components/message-bar/message-bar.component';
+import { ConfigFormComponent } from './components/config-form/config-form.component';
 
 
 import { MatDialogModule } from '@angular/material/dialog';

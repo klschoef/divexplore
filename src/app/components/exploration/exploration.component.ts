@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { VBSServerConnectionService, VbsServiceCommunication } from '../vbsserver-connection.service';
-import { NodeServerConnectionService } from '../nodeserver-connection.service';
+import { VBSServerConnectionService, VbsServiceCommunication } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GlobalConstants, WSServerStatus } from '../global-constants';
-import { ClipServerConnectionService } from '../clipserver-connection.service';
+import { GlobalConstants, WSServerStatus } from '../../global-constants';
+import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
 import { Title } from '@angular/platform-browser';
 //import { MatInputModule, MatAutocompleteModule, MatFormFieldModule } from '@angular/material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -13,7 +13,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { GlobalConstantsService } from '../global-constants.service';
+import { GlobalConstantsService } from '../../global-constants.service';
 
 interface Link {
   title: string;

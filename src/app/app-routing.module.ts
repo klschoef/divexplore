@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ShotlistComponent } from './shotlist/shotlist.component';
+import { ShotlistComponent } from './components/shotlist/shotlist.component';
 import { AppComponent } from './app.component';
-import { QueryComponent } from './query/query.component';
-import { ExplorationComponent } from './exploration/exploration.component';
+import { QueryComponent } from './components/query/query.component';
+import { ExplorationComponent } from './components/exploration/exploration.component';
 
 //'' is default route
 const routes: Routes = [
