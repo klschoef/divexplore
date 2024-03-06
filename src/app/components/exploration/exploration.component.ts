@@ -13,7 +13,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { GlobalConstantsService } from '../../global-constants.service';
+import { GlobalConstantsService } from '../../services/config/global-constants.service';
 
 interface Link {
   title: string;

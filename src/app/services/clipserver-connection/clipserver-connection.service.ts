@@ -4,7 +4,7 @@ import { Observable, Observer } from 'rxjs';
 import { AnonymousSubject } from 'rxjs/internal/Subject';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { GlobalConstantsService } from '../../global-constants.service';
+import { GlobalConstantsService } from '../config/global-constants.service';
 
 //const URL = GlobalConstants.clipServerURL;
 let statusConnected = {'wsstatus':'connected'};

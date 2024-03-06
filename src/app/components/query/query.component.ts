@@ -2,7 +2,7 @@ import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../../global-constants';
 import { VBSServerConnectionService, GUIAction, GUIActionType, VbsServiceCommunication } from '../../services/vbsserver-connection/vbsserver-connection.service';
-import { GlobalConstantsService } from '../../global-constants.service';
+import { GlobalConstantsService } from '../../services/config/global-constants.service';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
 import { Router,ActivatedRoute } from '@angular/router';

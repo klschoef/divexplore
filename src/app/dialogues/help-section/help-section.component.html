@@ -1,0 +1,40 @@
+<expl-dialog title="Help" (clickOnClose)="clickOnClose.emit($event)">
+    <a href="https://www.youtube.com/watch?v=Nlt7w0pYWYE" target="_blank">Watch Teaser Video</a>
+    <h4>Datasets</h4>
+      <ul>
+        <li><b>V3C</b>: Vimeo Creative Commons 1+2 dataset with 17250 videos.</li>
+        <li><b>MVK</b>: Marine Video Kit dataset with 1371 short videos.</li>
+        <li><b>LHE</b>: Laparoscopic Hysterectomy dataset with 70 videos.</li>
+      </ul>
+    <h4>Video Filtering</h4>
+      <ul>
+        <li><b>All/v</b>: Show all keyframes/shots per video (no filtering).</li>
+        <li><b>First/v</b>: Show only first match per video.</li>
+      </ul>
+    <h4>Query Types</h4>
+    <ul>
+      <li><b>Free-Text</b>: most powerful search with OpenCLIP. Also supports <b>temporal queries</b> with <b>&lt;</b>, to specify temporal relation in a video. <br/>For example: <i>a camel &lt; sunrise &lt; a boat trip &lt; people dancing &lt; sunset</i></li>
+      <li><b>OCR-Text</b>: database search (case-insensitive) for text in keyframes recognized by  Optical Character Recognition (OCR).</li>
+      <li><b>Metadata</b>: database search (case-insensitive) for title, description, channel, and tags -- as provided by video author.</li>
+      <li><b>Speech</b>: database search (case-insensitive) for recognized speech.</li>
+      <li><b>VideoId</b>: database search (case-insensitive) for a part of their name. Use * to return all (<span style="color:rgb(0, 94, 255)">works only for MVK and LHE with First/v!</span>).</li>
+    </ul>
+  
+    <h4>Thumbnail Actions</h4>
+    <ul>
+      <li>Click thumbnail (or press space) to open <b>preview video summary</b> view.</li>
+      <li>Click <b>Shots</b> (left bottom) to open the video view with shots in a new tab.</li>
+      <li>Click <b>Similar</b> (bottom) to perform a <b>similarity query</b> in a new tab.</li>
+      <li>Click <b>Videoname</b> (right top) to perform a VideoId search for this video.</li>
+      <li>Click <b>Submit</b> (right bottom) to send result to <b>DRES</b>.</li>
+    </ul>
+    
+    <h4>Keyboard Shortcuts</h4>
+    <ul>
+      <li><b>&larr; &rarr;</b>: select previous or next item (blue border). <!--Press <b>s</b> to submit the selected item or <b>v</b> to open the video view.--></li>
+      <li><b>Space</b> to open/close <i>video summary</i> for selected item. Use <b>&uarr; &darr;</b> to change detail-level of video summary.</li>
+      <li><b>Shift &larr; &rarr;</b>: goto next or previous page.</li>
+      <li><b>1-9</b>: goto 1st-9th page.</li>
+      <li><b>e</b> to extend query (add more words) and <b>q</b> to select entire query for edit.</li>
+    </ul>
+</expl-dialog>

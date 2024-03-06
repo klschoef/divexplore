@@ -28,6 +28,8 @@ import { ConfigFormComponent } from './components/config-form/config-form.compon
 
 
 import { MatDialogModule } from '@angular/material/dialog';
+import { HelpSectionComponent } from './dialogues/help-section/help-section.component';
+import { ExplDialogComponent } from './features/expl-dialog/expl-dialog.component';
 
 
 @NgModule({
@@ -38,7 +40,9 @@ import { MatDialogModule } from '@angular/material/dialog';
     ExplorationComponent,
     SafePipe,
     MessageBarComponent,
-    ConfigFormComponent
+    ConfigFormComponent,
+    HelpSectionComponent,
+    ExplDialogComponent
   ],
   imports: [
     BrowserModule,

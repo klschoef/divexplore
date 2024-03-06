@@ -34,7 +34,7 @@ import { UrlSegment } from '@angular/router';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { AppComponent } from '../../app.component';
 import { QueryComponent } from '../../components/query/query.component';
-import { GlobalConstantsService } from '../../global-constants.service';
+import { GlobalConstantsService } from '../config/global-constants.service';
 //import { QueryResultLog } from 'openapi/dres/model/queryResultLog';
 
 export enum GUIActionType {

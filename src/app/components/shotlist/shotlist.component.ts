@@ -10,7 +10,7 @@ import { ApiClientAnswer, QueryEvent, QueryEventCategory, RankedAnswer } from 'o
 import { Title } from '@angular/platform-browser';
 import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
-import { GlobalConstantsService } from '../../global-constants.service';
+import { GlobalConstantsService } from '../../services/config/global-constants.service';
 
 const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
 

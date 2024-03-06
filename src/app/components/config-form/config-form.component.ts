@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { ConfigService } from '../../config.service';
+import { ConfigService } from '../../services/config/config.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { LocalConfig } from '../../local-config';
 
