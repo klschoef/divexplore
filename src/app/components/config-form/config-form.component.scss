@@ -13,4 +13,20 @@
   input[type="text"] {
     width: 100%; // Ensures input takes the full width of its grid area
   }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+
+    .cancel-button {
+        background-color: #ff7f7f;
+        color: black; 
+        margin-right: 10px; 
+    }
+
+    .save-button {
+        background-color: #7fff7f; 
+        color: black; 
+    }
+}
   

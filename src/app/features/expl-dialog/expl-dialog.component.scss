@@ -38,4 +38,8 @@
       font-weight: bold;
       text-align: center;
     }
+
+    #close-icon:hover {
+      cursor: pointer; // This will change the cursor to a pointer when hovering over the icon
+    }
   }
