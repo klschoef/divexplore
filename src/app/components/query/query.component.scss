@@ -177,29 +177,6 @@ background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
     font-size: 20pt;
   }
 
-  .full-help {
-    padding: 40px;
-    background-color: #ffffe0;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 70%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-    font-size: 12pt;
-  }
-
-  .full-help h4 {
-    font-weight: bold;
-    margin-bottom: 4px;
-    margin-top: 10px;
-  }
-
-  .full-help ul {
-    margin-top: 0px;
-    margin-bottom: 0px;
-  }
-
   /* config-modal.component.css */
 .modal {
     position: fixed;
