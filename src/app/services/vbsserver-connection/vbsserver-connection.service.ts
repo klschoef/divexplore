@@ -3,6 +3,7 @@ import { Injectable, EventEmitter, OnInit } from '@angular/core';
 import {UserService} from '../../../../openapi/dres/api/user.service';
 import {EvaluationClientService} from '../../../../openapi/dres/api/evaluationClient.service';
 import {SubmissionService} from '../../../../openapi/dres/api/submission.service';
+import {VbsServiceCommunication} from '../../interfaces/vbs-task-interface';
 //import {LogService} from '../../openapi/dres/api/log.service';
 
 //import * as videoDataFPS from '../assets/v3c_video_fps.json';
@@ -36,36 +37,6 @@ import { AppComponent } from '../../app.component';
 import { QueryComponent } from '../../components/query/query.component';
 import { GlobalConstantsService } from '../config/global-constants.service';
 //import { QueryResultLog } from 'openapi/dres/model/queryResultLog';
-
-export enum GUIActionType {
-  TEXTQUERY = 'TEXTQUERY',
-  SIMILARITY = 'SIMILARITY',
-  FILESIMILARITY = 'FILESIMILARITY',
-  HISTORYQUERY = 'HISTORYQUERY', 
-  INSPECTFULLIMAGE = 'INSPECTFULLIMAGE',
-  HIDEFULLIMAGE = 'HIDEFULLIMAGE',
-  NEXTPAGE = 'NEXTPAGE',
-  PREVPAGE = 'PREVPAGE',
-  SHOWHELP = 'SHOWHELP',
-  RESETQUERY = 'RESETQUERY',
-  SUBMIT = 'SUBMIT',
-  SUBMITANSWER = 'SUBMITANSWER', 
-  CLEARQUERY = 'CLEARQUERY'
-}
-
-export interface GUIAction { 
-  timestamp: number;
-  actionType: GUIActionType;
-  page?: string;
-  info?: string; 
-  item?: number; 
-  results?: Array<string>;
-}
-
-export interface VbsServiceCommunication {
-  statusTaskRemainingTime: string;
-  statusTaskInfoText: string;
-}
 
 interface ExtendedQueryResultLog extends QueryResultLog {
   serverTime: number;

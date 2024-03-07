@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { VBSServerConnectionService, VbsServiceCommunication } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { VbsServiceCommunication } from '../../interfaces/vbs-task-interface';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GlobalConstants, WSServerStatus } from '../../global-constants';

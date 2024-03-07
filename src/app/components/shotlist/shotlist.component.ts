@@ -1,7 +1,8 @@
 import { ViewChild,ElementRef,AfterViewInit, Component } from '@angular/core';
 import { ViewChildren, QueryList } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { VBSServerConnectionService, VbsServiceCommunication } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { VbsServiceCommunication } from '../../interfaces/vbs-task-interface';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
 import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } from '../../global-constants';

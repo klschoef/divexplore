@@ -1,7 +1,9 @@
 import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../../global-constants';
-import { VBSServerConnectionService, GUIAction, GUIActionType, VbsServiceCommunication } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { VBSServerConnectionService} from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { VbsServiceCommunication } from '../../interfaces/vbs-task-interface';
+import { GUIAction, GUIActionType } from '../../interfaces/gui-action';
 import { GlobalConstantsService } from '../../services/config/global-constants.service';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
@@ -530,10 +532,6 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         previewElement.style.display = 'block';
     }
   }
-
-
-
-
 
   showVideoPreview() {
     this.requestVideoSummaries(this.queryresult_videoid[this.selectedItem]);
