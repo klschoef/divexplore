@@ -24,12 +24,10 @@ interface Link {
 
 interface Cluster {
   cluster_id: string;
-  name: string; 
-  count: number; 
-  members: [string]; 
+  name: string;
+  count: number;
+  members: [string];
 }
-
-
 
 @Component({
   selector: 'app-exploration',
@@ -38,7 +36,7 @@ interface Cluster {
 })
 export class ExplorationComponent implements VbsServiceCommunication {
   links: Link[] = [
-    { title: 'cluster0', url: 'cluster0.html', content: '<h1>Cluster 0 (1 items)</h1><a href="cluster-1.html">prev</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="cluster1.html">next</a></br><div id="container"><img class="image" src="https://divexplore.itec.aau.at/summaries/07787/07787_summary_1_1_1_1.jpg"><img class="zoom" src="https://divexplore.itec.aau.at/summaries/07787/07787_summary_1_1_1_1.jpg"><a href="localhost:4200/video/07787">07787</a><br/></div>'},
+    { title: 'cluster0', url: 'cluster0.html', content: '<h1>Cluster 0 (1 items)</h1><a href="cluster-1.html">prev</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="cluster1.html">next</a></br><div id="container"><img class="image" src="https://divexplore.itec.aau.at/summaries/07787/07787_summary_1_1_1_1.jpg"><img class="zoom" src="https://divexplore.itec.aau.at/summaries/07787/07787_summary_1_1_1_1.jpg"><a href="localhost:4200/video/07787">07787</a><br/></div>' },
     { title: 'cluster1', url: 'http://www.orf.at/', content: '' },
     { title: 'cluster2', url: 'cluster/cluster2.html', content: '' },
     { title: 'cluster3', url: './cluster/cluster3.html', content: '' },
@@ -74,7 +72,7 @@ export class ExplorationComponent implements VbsServiceCommunication {
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService,
-    private titleService: Title, 
+    private titleService: Title,
     private route: ActivatedRoute,
     private router: Router,
     private globalConstants: GlobalConstantsService) {
@@ -86,11 +84,11 @@ export class ExplorationComponent implements VbsServiceCommunication {
       this.localPageHtml = html;
     });*/
   }
-  sandbox="allow-scripts"
+  sandbox = "allow-scripts"
 
 
   ngOnInit() {
-    
+
     this.summariesBase = this.globalConstants.summariesBaseURL; //GlobalConstants.summariesBaseURL;
 
     //already connected?
@@ -101,9 +99,9 @@ export class ExplorationComponent implements VbsServiceCommunication {
     }
 
     this.nodeService.messages.subscribe(msg => {
-      this.nodeServerInfo = undefined; 
+      this.nodeServerInfo = undefined;
 
-      if ('wsstatus' in msg) { 
+      if ('wsstatus' in msg) {
         console.log('ec: node-notification: connected');
       } else {
         //let result = msg.content;
@@ -140,21 +138,21 @@ export class ExplorationComponent implements VbsServiceCommunication {
 
 
   @HostListener('document:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) { 
+  handleKeyboardEvent(event: KeyboardEvent) {
     if (event.key == 'ArrowRight' || event.key == 'Tab') {
       if (this.showZoomedSummary) {
-        if (this.selectedSummary < this.summaries.length-1) {
+        if (this.selectedSummary < this.summaries.length - 1) {
           this.selectedSummary += 1;
         }
-        event.preventDefault(); 
+        event.preventDefault();
       }
     } else if (event.key == "ArrowLeft") {
       if (this.showZoomedSummary) {
         if (this.selectedSummary > 0) {
           this.selectedSummary -= 1;
         }
-        event.preventDefault(); 
-      } 
+        event.preventDefault();
+      }
     } else if (event.key == 'Space' || event.key == ' ') {
       this.showZoomedSummary = !this.showZoomedSummary;
       if (this.showZoomedSummary) {
@@ -166,7 +164,7 @@ export class ExplorationComponent implements VbsServiceCommunication {
       event.preventDefault();
     } else if (event.key === 'v' && this.showZoomedSummary) {
       this.showVideoShots(this.summaries[this.selectedSummary]);
-    } 
+    }
   }
 
   requestTaskInfo() {
@@ -174,21 +172,21 @@ export class ExplorationComponent implements VbsServiceCommunication {
   }
 
   queryAllClusters() {
-    let msg = { 
-      dataset: 'v3c', 
-      type: "clusters", 
+    let msg = {
+      dataset: 'v3c',
+      type: "clusters",
       clientId: "direct"
     };
 
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
       this.sendToNodeServer(msg);
-    } 
+    }
   }
 
   displayFn(cluster?: Cluster): string {
     return cluster && cluster.name ? cluster.name : '';
   }
-  
+
   selectSummary(idx: number) {
     this.selectedSummary = idx;
     this.showZoomedSummary = true;
@@ -204,25 +202,25 @@ export class ExplorationComponent implements VbsServiceCommunication {
     this.queryCluster(event.option.value.cluster_id);
   }
 
-  queryCluster(clusterid:string) {
-    let msg = { 
-      dataset: 'v3c', 
+  queryCluster(clusterid: string) {
+    let msg = {
+      dataset: 'v3c',
       type: "cluster",
-      query: clusterid, 
+      query: clusterid,
       clientId: "direct"
     };
 
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
       this.showClusterList = false;
       this.sendToNodeServer(msg);
-    } 
+    }
   }
 
   showHideClusterList() {
     this.showClusterList = !this.showClusterList;
   }
 
-  sendToNodeServer(msg:any) {
+  sendToNodeServer(msg: any) {
     let message = {
       source: 'appcomponent',
       content: msg
@@ -230,7 +228,7 @@ export class ExplorationComponent implements VbsServiceCommunication {
     this.nodeService.messages.next(message);
   }
 
-  showVideoShots(summary:string) {
+  showVideoShots(summary: string) {
     let videoid = summary.substring(0, summary.indexOf('/'));
     //this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
     window.open('video/' + videoid + '/1', '_blank');

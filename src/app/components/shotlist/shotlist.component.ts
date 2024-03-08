@@ -1,4 +1,4 @@
-import { ViewChild,ElementRef,AfterViewInit, Component } from '@angular/core';
+import { ViewChild, ElementRef, AfterViewInit, Component } from '@angular/core';
 import { ViewChildren, QueryList } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
@@ -22,7 +22,7 @@ const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important
   styleUrls: ['./shotlist.component.scss']
 })
 
-export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication {
+export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication {
   videoid: string | undefined;
   framenumber: string | undefined;
   videoURL: string = ''
@@ -36,8 +36,8 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
 
-  imgWidth = this.globalConstants.imageWidth; 
-  imgHeight = this.globalConstants.imageWidth / GlobalConstants.imgRatio; 
+  imgWidth = this.globalConstants.imageWidth;
+  imgHeight = this.globalConstants.imageWidth / GlobalConstants.imgRatio;
 
   keyframeBaseURL: string = '';
   videoBaseURL: string = '';
@@ -50,7 +50,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
   vuploaddate = '';
   vtags = [];
   vcategories = [];
-  vtexts =[]; 
+  vtexts = [];
   vspeech: any | undefined;
 
   topicanswer: string = '';
@@ -67,13 +67,13 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
   constructor(
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
-    public clipService: ClipServerConnectionService, 
-    private titleService: Title, 
+    public clipService: ClipServerConnectionService,
+    private titleService: Title,
     private route: ActivatedRoute,
     private router: Router,
     private globalConstants: GlobalConstantsService
-  ) {}
-  
+  ) { }
+
   ngOnInit() {
     console.log('shotlist component (slc) initiated');
 
@@ -107,7 +107,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     }
     this.nodeService.messages.subscribe(msg => {
       //console.log(`slc: response from node service: ${msg}`)
-      if ('wsstatus' in msg) { 
+      if ('wsstatus' in msg) {
         //console.log('slc: node-service: connected');
         this.requestDataFromDB();
       } else {
@@ -138,7 +138,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
       window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
     }
   }
-  
+
 
   requestTaskInfo() {
     if (this.vbsService.serverRunIDs.length > 0 && this.vbsService.selectedServerRun === undefined) {
@@ -161,37 +161,37 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     return "";
   }
 
-  classifyVideoId(videoId:string) {
+  classifyVideoId(videoId: string) {
     const patternFiveNumbers = /^\d{5}$/;
     const patternLHE = /^LHE\d{2}$/;
     const patternThreeUnderscores = /^[^\s_]+(_[^\s_]+){2}$/;
 
     if (patternFiveNumbers.test(videoId)) {
-        return 'v3c';
+      return 'v3c';
     } else if (patternLHE.test(videoId)) {
-        return 'lhe';
+      return 'lhe';
     } else if (patternThreeUnderscores.test(videoId)) {
-        return 'mvk';
+      return 'mvk';
     } else {
-        return 'unknown';
+      return 'unknown';
     }
   }
 
-  performFileSimilarityQuery(keyframe:string) {
+  performFileSimilarityQuery(keyframe: string) {
     //this.router.navigate(['filesimilarity',keyframe,this.datasetBase]); //or navigateByUrl(`/video/${videoid}`)
     let dataset = this.classifyVideoId(this.videoid!);
     //console.log(this.videoid + " --> " + dataset);
-    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg',GlobalConstants.replaceJPG_back2)) + '/' + dataset + '/' + encodeURIComponent(this.datasetBase), '_blank');
+    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg', GlobalConstants.replaceJPG_back2)) + '/' + dataset + '/' + encodeURIComponent(this.datasetBase), '_blank');
   }
 
-  onVideoPlayerLoaded(event:any) {
+  onVideoPlayerLoaded(event: any) {
     console.log('video player loaded');
     if (this.framenumber) {
       this.gotoTimeOfFrame(parseInt(this.framenumber));
     }
   }
 
-  getQueryResultCSSClass(frame:string) {
+  getQueryResultCSSClass(frame: string) {
     if (this.framenumber && this.framenumber === frame) {
       return 'selectedqueryresult';
     } else {
@@ -207,7 +207,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     }
   }
 
-  asTimeLabel(frame:string, withFrames:boolean=true) {
+  asTimeLabel(frame: string, withFrames: boolean = true) {
     return formatAsTime(frame, this.fps, withFrames);
   }
 
@@ -216,7 +216,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     this.requestVideoShots(this.videoid!);
   }
 
-  sendToNodeServer(msg:any) {
+  sendToNodeServer(msg: any) {
     let message = {
       source: 'appcomponent',
       content: msg
@@ -224,11 +224,11 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     this.nodeService.messages.next(message);
   }
 
-  requestVideoShots(videoid:string) {
+  requestVideoShots(videoid: string) {
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
       console.log('slc: get video info from database', videoid);
-      let msg = { 
-        type: "videoinfo", 
+      let msg = {
+        type: "videoinfo",
         videoid: videoid
       };
       this.sendToNodeServer(msg);
@@ -237,7 +237,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     }
   }
 
-  loadVideoShots(videoinfo:any) {
+  loadVideoShots(videoinfo: any) {
     console.log(videoinfo);
     this.fps = parseFloat(videoinfo['fps']);
     if ('duration' in videoinfo) {
@@ -256,26 +256,26 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     this.timelabels = [];
 
     let logResults: Array<RankedAnswer> = [];
-    for (let i=0; i < videoinfo['shots'].length; i++) {
+    for (let i = 0; i < videoinfo['shots'].length; i++) {
       let shotinfo = videoinfo['shots'][i];
       let kf = shotinfo['keyframe'];
       this.videoURL = this.videoBaseURL + '/' + this.videoid + '.mp4';
       this.keyframes.push(`${this.videoid}/${kf}`);
-      let comps = kf.replace('.jpg','').split('_');
-      let fnumber = comps[comps.length-1];
+      let comps = kf.replace('.jpg', '').split('_');
+      let fnumber = comps[comps.length - 1];
       this.framenumbers.push(fnumber);
-      this.timelabels.push(formatAsTime(fnumber,this.fps));
+      this.timelabels.push(formatAsTime(fnumber, this.fps));
 
-      let logAnswer:ApiClientAnswer = {
+      let logAnswer: ApiClientAnswer = {
         text: undefined,
         mediaItemName: this.videoid,
         mediaItemCollectionName: '',
         start: fnumber, // / this.fps * 1000, 
         end: fnumber, // / this.fps * 1000
       }
-      let logResult:RankedAnswer = {
+      let logResult: RankedAnswer = {
         answer: logAnswer,
-        rank: (i+1)
+        rank: (i + 1)
       }
       logResults.push(logResult)
     }
@@ -298,7 +298,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
       this.nodeService.connectToServer();
     }
   }
-  
+
   checkCLIPConnection() {
     if (this.clipService.connectionState !== WSServerStatus.CONNECTED) {
       this.clipService.connectToServer();
@@ -310,29 +310,29 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
       this.connectToVBSServer();
     } else if (this.vbsService.vbsServerState == WSServerStatus.CONNECTED) {
       this.disconnectFromVBSServer();
-    } 
+    }
   }
 
   hideVideoBox() {
     this.showVideoBox = false;
   }
 
-  setCurrentTime(data:any) {
+  setCurrentTime(data: any) {
     this.currentVideoTime = data.target.currentTime * this.fps;
   }
 
-  gotoTimeOfShot(idx:number) {
+  gotoTimeOfShot(idx: number) {
     this.showVideoBox = true;
     console.log(`goto time of shot ${idx} (fps=${this.fps})`);
     this.videoplayer.nativeElement.currentTime = parseFloat(this.framenumbers[idx]) / this.fps;
     if (this.videoplayer.nativeElement.paused) {
       this.videoplayer.nativeElement.play();
     }
-    
+
     //window.scrollTo(0, 0);
   }
 
-  gotoTimeOfFrame(frame:number) {
+  gotoTimeOfFrame(frame: number) {
     console.log(`goto time of frame ${frame} (fps=${this.fps})`);
     this.videoplayer.nativeElement.currentTime = frame / this.fps;
   }
@@ -357,7 +357,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime), this.fps, this.vduration);
 
     //query event logging
-    let queryEvent:QueryEvent = {
+    let queryEvent: QueryEvent = {
       timestamp: Date.now(),
       category: QueryEventCategory.OTHER,
       type: 'submitTime',
@@ -372,7 +372,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     this.vbsService.submitFrame(this.videoid!, parseInt(this.framenumbers[index]), this.fps, this.vduration);
 
     //query event logging
-    let queryEvent:QueryEvent = {
+    let queryEvent: QueryEvent = {
       timestamp: Date.now(),
       category: QueryEventCategory.OTHER,
       type: 'submitShot',
@@ -387,7 +387,7 @@ export class ShotlistComponent implements AfterViewInit,VbsServiceCommunication 
     this.vbsService.submitText(this.topicanswer)
 
     //query event logging
-    let queryEvent:QueryEvent = {
+    let queryEvent: QueryEvent = {
       timestamp: Date.now(),
       category: QueryEventCategory.OTHER,
       type: "submitAnswer2",

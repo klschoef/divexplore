@@ -11,7 +11,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { ShotlistComponent } from './components/shotlist/shotlist.component';
-import { ApiModule,Configuration } from 'openapi/dres';
+import { ApiModule, Configuration } from 'openapi/dres';
 import { GlobalConstants } from './shared/config/global-constants';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { VBSServerConnectionService } from './services/vbsserver-connection/vbsserver-connection.service';
@@ -46,7 +46,7 @@ import { ExplDialogComponent } from './features/expl-dialog/expl-dialog.componen
   ],
   imports: [
     BrowserModule,
-    ApiModule.forRoot( () => {
+    ApiModule.forRoot(() => {
       return new Configuration({
         basePath: GlobalConstants.configVBSSERVER
         , withCredentials: true
@@ -55,7 +55,7 @@ import { ExplDialogComponent } from './features/expl-dialog/expl-dialog.componen
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    BrowserAnimationsModule, 
+    BrowserAnimationsModule,
     MatIconModule,
     MatSliderModule,
     MatButtonToggleModule,

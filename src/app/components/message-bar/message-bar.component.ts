@@ -22,7 +22,7 @@ export class MessageBarComponent {
     setTimeout(() => {
       this.isSuccessVisible = false;
       this.successMessage = '';
-    }, 1000); 
+    }, 1000);
   }
 
   showErrorMessage(tempMessage: string) {
@@ -36,6 +36,6 @@ export class MessageBarComponent {
     setTimeout(() => {
       this.isErrorVisible = false;
       this.errorMessage = '';
-    }, 4000); 
+    }, 4000);
   }
 }

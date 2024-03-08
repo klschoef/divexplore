@@ -1,13 +1,13 @@
-import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
+import { ViewChild, ElementRef, Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../../shared/config/global-constants';
-import { VBSServerConnectionService} from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
 import { GUIAction, GUIActionType } from '../../shared/interfaces/gui-action';
 import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
-import { Router,ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { query } from '@angular/animations';
 import { QueryEvent, QueryResultLog, QueryEventLog, QueryEventCategory, RankedAnswer, ApiClientAnswer } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
@@ -16,15 +16,12 @@ import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigFormComponent } from '../config-form/config-form.component';
 
- 
-
-
 @Component({
   selector: 'app-query',
   templateUrl: './query.component.html',
   styleUrls: ['./query.component.scss']
 })
-export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
+export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @ViewChild('inputfield') inputfield!: ElementRef<HTMLInputElement>;
   @ViewChild('historyDiv') historyDiv!: ElementRef<HTMLDivElement>;
@@ -33,17 +30,17 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   private dresErrorMessageSubscription!: Subscription;
   private dresSuccessMessageSubscription!: Subscription;
-  
+
   file_sim_keyframe: string | undefined
   file_sim_pathPrefix: string | undefined
   file_sim_page: string = "1"
-  
+
   nodeServerInfo: string | undefined;
 
-  imgWidth = this.globalConstants.imageWidth; 
-  imgHeight = this.globalConstants.imageWidth / GlobalConstants.imgRatio; 
+  imgWidth = this.globalConstants.imageWidth;
+  imgHeight = this.globalConstants.imageWidth / GlobalConstants.imgRatio;
 
-  
+
   queryinput: string = '';
   topicanswer: string = '';
   queryresults: Array<string> = [];
@@ -58,20 +55,20 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   summaries: Array<string> = [];
   selectedSummaryIdx = 0;
 
-  queryresult_fps = new Map<string,number>();
-  
+  queryresult_fps = new Map<string, number>();
+
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
 
   videopreviewimage: string = '';
 
-  previousQuery : any | undefined;
+  previousQuery: any | undefined;
 
   querydataset: string = '';
   queryBaseURL = this.getBaseURL();
   datasetBase: string = 'keyframes';
   keyframeBaseURL: string = '';
-  
+
   //maxresults = this.globalConstants.maxResultsToReturn;
   totalReturnedResults = 0; //how many results did our query return in total?
   //resultsPerPage = this.globalConstants.resultsPerPage; 
@@ -81,7 +78,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   selectedItem = 0;
   showPreview = false;
   showHelpActive = false;
-  
+
   thumbSize = 'small';
   selectedHistoryEntry: string | undefined
   queryFieldHasFocus = false;
@@ -90,70 +87,44 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   showConfigForm = false;
 
-  selectedDataset =  'v3c'; //'v3c-s';
+  selectedDataset = 'v3c'; //'v3c-s';
   datasets = [
-    {id: 'v3c', name: 'V3C'},
-    {id: 'mvk', name: 'MVK'},
-    {id: 'lhe', name: 'LHE'}
+    { id: 'v3c', name: 'V3C' },
+    { id: 'mvk', name: 'MVK' },
+    { id: 'lhe', name: 'LHE' }
   ];
 
   selectedQueryType = 'textquery';
-  
+
   private queryTypes = [
-    {id: 'textquery', name: 'Free-Text'},
-    {id: 'ocr-text', name: 'OCR-Text'},
-    {id: 'metadata', name: 'Metadata'}, 
-    {id: 'speech', name: 'Speech'},
-    {id: 'videoid', name: 'VideoId'}
+    { id: 'textquery', name: 'Free-Text' },
+    { id: 'ocr-text', name: 'OCR-Text' },
+    { id: 'metadata', name: 'Metadata' },
+    { id: 'speech', name: 'Speech' },
+    { id: 'videoid', name: 'VideoId' }
   ];
 
   private queryTypeMap: Map<string, typeof this.queryTypes>;
 
   selectedVideoFiltering = 'all';
   videoFiltering = [
-    {id: 'all', name: 'All/v'},
-    {id: 'first', name: 'First/v'}
+    { id: 'all', name: 'All/v' },
+    { id: 'first', name: 'First/v' }
   ];
-    
+
   constructor(
     private globalConstants: GlobalConstantsService,
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
-    public clipService: ClipServerConnectionService, 
-    private titleService: Title, 
+    public clipService: ClipServerConnectionService,
+    private titleService: Title,
     private route: ActivatedRoute,
     private router: Router,
     public dialog: MatDialog) {
-      this.queryTypeMap = new Map<string, typeof this.queryTypes>();
-      this.initializeMap();
+    this.queryTypeMap = new Map<string, typeof this.queryTypes>();
+    this.initializeMap();
   }
 
-  private initializeMap(): void {
-    // Add the array to the map for 'v3c'
-    this.queryTypeMap.set('v3c', [...this.queryTypes]);
-
-    // Filter and add the array for 'mvk' and 'lhe'
-    const filteredQueryTypes = this.queryTypes.filter(qt => !['ocr-text', 'metadata', 'speech'].includes(qt.id));
-    this.queryTypeMap.set('mvk', filteredQueryTypes);
-    this.queryTypeMap.set('lhe', filteredQueryTypes);
-  }
-  
-  public getQueryTypes(key: string): typeof this.queryTypes {
-    return this.queryTypeMap.get(key) || [];
-  }
-
-  openConfigDialog(): void {
-    this.showConfigForm = true;
-  }
-
-  closeConfigDialog(): void {
-    this.showConfigForm = false;
-  }
-
-  toggleConfigDialog(): void {
-    this.showConfigForm = !this.showConfigForm;
-  }
-  
   ngOnInit() {
     console.log('query component (qc) initated imWidth=' + this.imgWidth + " imHeight=" + this.imgHeight);
 
@@ -214,19 +185,19 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }
 
     this.nodeService.messages.subscribe(msg => {
-      this.nodeServerInfo = undefined; 
+      this.nodeServerInfo = undefined;
 
-      if ('wsstatus' in msg) { 
+      if ('wsstatus' in msg) {
         console.log('qc: node-notification: connected');
       } else {
         //let result = msg.content;
         let m = JSON.parse(JSON.stringify(msg));
         if ("videoid" in msg) {
-          this.queryresult_fps.set(m.videoid,m.fps);
+          this.queryresult_fps.set(m.videoid, m.fps);
         } else {
           //console.log("qc: response from node-server: " + msg);
           if ("scores" in msg || m.type === 'ocr-text') {
-            this.handleQueryResponseMessage(msg); 
+            this.handleQueryResponseMessage(msg);
           } else {
             if ("type" in msg) {
               if (m.type == 'metadata') {
@@ -235,24 +206,24 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
                 //console.log('received metadata: ' + JSON.stringify(msg));
                 if (this.metadata?.location) {
                 }
-              } else if (m.type === 'info'){
+              } else if (m.type === 'info') {
                 //console.log(m.message);
                 this.nodeServerInfo = m.message;
               } else if (m.type === 'videosummaries') {
                 this.summaries = msg.content[0]['summaries'];
-                this.selectedSummaryIdx = Math.floor(this.summaries.length/2);
+                this.selectedSummaryIdx = Math.floor(this.summaries.length / 2);
                 this.displayVideoSummary();
               }
             } else {
               this.handleQueryResponseMessage(msg);
-            } 
+            }
           }
         }
       }
     });
 
     this.clipService.messages.subscribe(msg => {
-      if ('wsstatus' in msg) { 
+      if ('wsstatus' in msg) {
         console.log('qc: CLIP-notification: connected');
         if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
           this.sendFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
@@ -273,11 +244,29 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.dresErrorMessageSubscription.unsubscribe();
     this.dresSuccessMessageSubscription.unsubscribe();
   }
-  
+
   ngAfterViewInit(): void {
     this.historyDiv.nativeElement.hidden = true;
   }
-  
+
+  private initializeMap(): void {
+    // Add the array to the map for 'v3c'
+    this.queryTypeMap.set('v3c', [...this.queryTypes]);
+
+    // Filter and add the array for 'mvk' and 'lhe'
+    const filteredQueryTypes = this.queryTypes.filter(qt => !['ocr-text', 'metadata', 'speech'].includes(qt.id));
+    this.queryTypeMap.set('mvk', filteredQueryTypes);
+    this.queryTypeMap.set('lhe', filteredQueryTypes);
+  }
+
+  public getQueryTypes(key: string): typeof this.queryTypes {
+    return this.queryTypeMap.get(key) || [];
+  }
+
+  toggleConfigDialog(): void {
+    this.showConfigForm = !this.showConfigForm;
+  }
+
   private displayVideoSummary() {
     this.videopreviewimage = /*GlobalConstants.dataHost*/ this.globalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
     this.videopreview.nativeElement.style.display = 'block';
@@ -303,10 +292,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[this.vbsService.selectedServerRun], this);
     }
   }
-  
-  
+
+
   browseClusters() {
-    this.router.navigate(['exploration']); 
+    this.router.navigate(['exploration']);
   }
 
   toggleHistorySelect() {
@@ -320,8 +309,8 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     let historyList = [];
     let hist = localStorage.getItem('history')
     if (hist) {
-      let histj:[QueryType] = JSON.parse(hist);
-      for (let i=0; i < histj.length; i++) {
+      let histj: [QueryType] = JSON.parse(hist);
+      for (let i = 0; i < histj.length; i++) {
         let ho = histj[i];
         historyList.push(`${ho.type}: ${ho.query} (${ho.dataset})`)
       }
@@ -336,7 +325,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
     let hist = localStorage.getItem('history')
     if (hist) {
-      let queryHistory:Array<QueryType> = JSON.parse(hist);
+      let queryHistory: Array<QueryType> = JSON.parse(hist);
       let containedPos = -1;
       let i = 0;
       for (let qh of queryHistory) {
@@ -347,7 +336,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         i++;
       }
       if (containedPos >= 0) {
-        queryHistory.splice(containedPos,1);
+        queryHistory.splice(containedPos, 1);
         queryHistory.unshift(msg);
         localStorage.setItem('history', JSON.stringify(queryHistory));
       }
@@ -356,7 +345,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
         localStorage.setItem('history', JSON.stringify(queryHistory));
       }
     } else {
-      let queryHistory:Array<QueryType> = [msg];
+      let queryHistory: Array<QueryType> = [msg];
       localStorage.setItem('history', JSON.stringify(queryHistory));
     }
   }
@@ -366,7 +355,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     window.open(currentUrl, '_blank');
   }
 
-  asTimeLabel(frame:string, withFrames:boolean=true) {
+  asTimeLabel(frame: string, withFrames: boolean = true) {
     console.log('TODO: need FPS in query component!')
     return frame;
     //return formatAsTime(frame, this.fps, withFrames);
@@ -468,7 +457,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }
   }
 
-  gotoPage(pnum:string) {
+  gotoPage(pnum: string) {
     let testPage = parseInt(pnum);
     if (testPage < this.pages.length && testPage > 0) {
       this.selectedPage = pnum;
@@ -490,7 +479,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
 
   getIDPartNums() {
     if (this.selectedDataset == 'marine-v' || this.selectedDataset == 'marine-s') {
-      return 3; 
+      return 3;
     }
     else { //if (this.selectedDataset == 'v3c-v' || this.selectedDataset == 'v3c-v') {
       return 1;
@@ -513,7 +502,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.answerFieldHasFocus = false
   }
 
-  selectItemAndShowSummary(idx:number, event: MouseEvent) {
+  selectItemAndShowSummary(idx: number, event: MouseEvent) {
     this.selectedItem = idx;
     this.showPreview = true;
     this.showVideoPreview();
@@ -523,13 +512,13 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   adjustVideoPreviewPosition(event: MouseEvent) {
     const previewElement = document.querySelector('.videopreview') as HTMLElement;
     if (previewElement) {
-        // Get the clicked element's position
-        const rect = (event.target as HTMLElement).getBoundingClientRect();
+      // Get the clicked element's position
+      const rect = (event.target as HTMLElement).getBoundingClientRect();
 
-        // Set the position of the preview element
-        previewElement.style.left = `${rect.left}px`; // Align left edge with clicked item
-        previewElement.style.top = `${rect.top + window.scrollY}px`; // Align top edge considering scroll
-        previewElement.style.display = 'block';
+      // Set the position of the preview element
+      previewElement.style.left = `${rect.left}px`; // Align left edge with clicked item
+      previewElement.style.top = `${rect.top + window.scrollY}px`; // Align top edge considering scroll
+      previewElement.style.display = 'block';
     }
   }
 
@@ -538,7 +527,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     //window.scrollTo(0, 0);
 
     //query event logging
-    let queryEvent:QueryEvent = {
+    let queryEvent: QueryEvent = {
       timestamp: Date.now(),
       category: QueryEventCategory.BROWSING,
       type: "videosummary",
@@ -549,24 +538,24 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   }
 
 
-  showVideoShots(videoid:string, frame:string) {
+  showVideoShots(videoid: string, frame: string) {
     //this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
     window.open('video/' + videoid + '/' + frame, '_blank');
   }
 
-  mouseOverShot(i:number) {
+  mouseOverShot(i: number) {
     this.showButtons = i;
     this.getFPSForItem(i);
   }
 
-  mouseLeaveShot(i:number) {
+  mouseLeaveShot(i: number) {
     this.showButtons = -1;
   }
 
   getFPSForItem(i: number) {
     if (this.queryresult_fps.get(this.queryresult_videoid[i]) == undefined) {
-      let msg = { 
-        type: "videofps", 
+      let msg = {
+        type: "videofps",
         synchronous: false,
         videoid: this.queryresult_videoid[i]
       };
@@ -602,7 +591,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.selectedVideoFiltering = 'all';
     this.pages = ['1'];
     this.clearResultArrays();
-    let queryHistory:Array<QueryType> = [];
+    let queryHistory: Array<QueryType> = [];
     localStorage.setItem('history', JSON.stringify(queryHistory));
   }
 
@@ -619,9 +608,9 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.vbsService.queryResults = []
   }
 
-   /****************************************************************************
-   * Queries
-   ****************************************************************************/
+  /****************************************************************************
+  * Queries
+  ****************************************************************************/
 
   queryForVideo(i: number) {
     let v = this.queryresult_videoid[i];
@@ -661,12 +650,12 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     if (qi == '*' && this.selectedQueryType !== 'videoid') {
       this.messageBar.showErrorMessage('* queries work only for VideoId');
       return;
-    } 
+    }
 
     if (qi == '*' && this.selectedQueryType === 'videoid' && (this.selectedVideoFiltering !== 'first' || this.selectedDataset === 'v3c')) {
       this.messageBar.showErrorMessage('* queries work only with MVK or LHE and Video Filter (First/v)');
       return;
-    } 
+    }
 
     this.showHelpActive = false;
     this.showPreview = false;
@@ -679,16 +668,16 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       if (this.previousQuery !== undefined && this.previousQuery.type === 'textquery' && this.previousQuery.query !== this.queryinput) {
         this.selectedPage = '1';
       }
-      
+
       console.log('qc: query for', this.queryinput + " videofiltering=" + this.selectedVideoFiltering);
       this.queryBaseURL = this.getBaseURL();
-      let msg = { 
-        type: "textquery", 
-        clientId: "direct", 
+      let msg = {
+        type: "textquery",
+        clientId: "direct",
         query: this.queryinput,
         maxresults: this.globalConstants.maxResultsToReturn,
-        resultsperpage: this.globalConstants.resultsPerPage, 
-        selectedpage: this.selectedPage, 
+        resultsperpage: this.globalConstants.resultsPerPage,
+        selectedpage: this.selectedPage,
         dataset: this.selectedDataset,
         videofiltering: this.selectedVideoFiltering
       };
@@ -715,7 +704,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       }
 
       //query event logging
-      let queryEvent:QueryEvent = {
+      let queryEvent: QueryEvent = {
         timestamp: Date.now(),
         category: QueryEventCategory.TEXT,
         type: this.selectedQueryType,
@@ -723,24 +712,24 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       }
       this.vbsService.queryEvents.push(queryEvent);
 
-      
+
     } else {
       alert(`CLIP connection down: ${this.clipService.connectionState}. Try reconnecting by pressing the red button!`);
     }
   }
 
-  performSimilarityQuery(serveridx:number) {
+  performSimilarityQuery(serveridx: number) {
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
       //alert(`search for ${i} ==> ${idx}`);
       console.log('similarity-query for ', serveridx);
       this.queryBaseURL = this.getBaseURL();
-      let msg = { 
-        type: "similarityquery", 
+      let msg = {
+        type: "similarityquery",
         query: serveridx.toString(),
-        videofiltering: this.selectedVideoFiltering, 
+        videofiltering: this.selectedVideoFiltering,
         maxresults: this.globalConstants.maxResultsToReturn,
-        resultsperpage: this.globalConstants.resultsPerPage, 
-        selectedpage: this.selectedPage, 
+        resultsperpage: this.globalConstants.resultsPerPage,
+        selectedpage: this.selectedPage,
         dataset: this.selectedDataset
       };
       this.previousQuery = msg;
@@ -749,7 +738,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.saveToHistory(msg);
 
       //query event logging
-      let queryEvent:QueryEvent = {
+      let queryEvent: QueryEvent = {
         timestamp: Date.now(),
         category: QueryEventCategory.IMAGE,
         type: "similarityquery",
@@ -760,28 +749,28 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }
   }
 
-  performFileSimilarityQuery(keyframe:string, pathprefix:string = this.datasetBase, selectedPage:string = "1") {
+  performFileSimilarityQuery(keyframe: string, pathprefix: string = this.datasetBase, selectedPage: string = "1") {
     //this.router.navigate(['filesimilarity',keyframe,this.datasetBase,selectedPage]); //or navigateByUrl(`/video/${videoid}`)
     let target = '_blank';
     if (this.file_sim_keyframe === keyframe) {
       target = '_self';
     }
-    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg',GlobalConstants.replaceJPG_back2)) + '/' + this.selectedDataset + '/' + encodeURIComponent(this.datasetBase) + '/' + selectedPage, target);
+    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg', GlobalConstants.replaceJPG_back2)) + '/' + this.selectedDataset + '/' + encodeURIComponent(this.datasetBase) + '/' + selectedPage, target);
   }
 
-  sendFileSimilarityQuery(keyframe:string, pathprefix:string) {
+  sendFileSimilarityQuery(keyframe: string, pathprefix: string) {
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
 
       console.log('file-similarity-query for ', keyframe);
-      let msg = { 
-        type: "file-similarityquery", 
+      let msg = {
+        type: "file-similarityquery",
         query: keyframe,
-        videofiltering: this.selectedVideoFiltering, 
-        pathprefix: pathprefix, 
+        videofiltering: this.selectedVideoFiltering,
+        pathprefix: pathprefix,
         maxresults: this.globalConstants.maxResultsToReturn,
-        resultsperpage: this.globalConstants.resultsPerPage, 
+        resultsperpage: this.globalConstants.resultsPerPage,
         selectedpage: this.file_sim_page,
-        dataset: this.selectedDataset 
+        dataset: this.selectedDataset
       };
       this.previousQuery = msg;
 
@@ -789,11 +778,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.saveToHistory(msg);
 
       //query event logging
-      let queryEvent:QueryEvent = {
+      let queryEvent: QueryEvent = {
         timestamp: Date.now(),
         category: QueryEventCategory.BROWSING,
         type: "filesimilarityquery",
-        value: `${keyframe}` 
+        value: `${keyframe}`
       }
       this.vbsService.queryEvents.push(queryEvent);
     }
@@ -822,7 +811,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     console.log(`run hist: ${this.selectedHistoryEntry}`)
     let hist = localStorage.getItem('history')
     if (hist && this.selectedHistoryEntry !== "-1") {
-      let queryHistory:Array<QueryType> = JSON.parse(hist);
+      let queryHistory: Array<QueryType> = JSON.parse(hist);
       let msg: QueryType = queryHistory[parseInt(this.selectedHistoryEntry!)];
 
       if (msg.type === 'file-similarityquery') {
@@ -842,12 +831,12 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.performQuery(false);
       //this.sendToCLIPServer(msg);
       //this.saveToHistory(msg);
-      
+
       this.selectedHistoryEntry = "-1";
       this.historyDiv.nativeElement.hidden = true;
 
       //query event logging
-      let queryEvent:QueryEvent = {
+      let queryEvent: QueryEvent = {
         timestamp: Date.now(),
         category: QueryEventCategory.OTHER,
         type: "historyquery",
@@ -861,7 +850,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
   performHistoryLastQuery() {
     let hist = localStorage.getItem('history')
     if (hist) {
-      let queryHistory:Array<QueryType> = JSON.parse(hist);
+      let queryHistory: Array<QueryType> = JSON.parse(hist);
       let msg: QueryType = queryHistory[0];
       if (msg.type === 'textquery') {
         this.queryinput = msg.query;
@@ -872,7 +861,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.sendToCLIPServer(msg);
 
       //query event logging
-      let queryEvent:QueryEvent = {
+      let queryEvent: QueryEvent = {
         timestamp: Date.now(),
         category: QueryEventCategory.OTHER,
         type: "historylastquery",
@@ -882,11 +871,11 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }
   }
 
-  requestVideoSummaries(videoid:string) {
+  requestVideoSummaries(videoid: string) {
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
       //console.log('qc: get video summaries info from database', videoid);
-      let msg = { 
-        type: "videosummaries", 
+      let msg = {
+        type: "videosummaries",
         videoid: videoid
       };
       this.sendToNodeServer(msg);
@@ -895,7 +884,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     }
   }
 
-  sendToCLIPServer(msg:any) {
+  sendToCLIPServer(msg: any) {
     let message = {
       source: 'appcomponent',
       content: msg
@@ -904,14 +893,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.queryTimestamp = getTimestampInSeconds();
   }
 
-  sendToNodeServer(msg:any) {
+  sendToNodeServer(msg: any) {
     let message = {
       source: 'appcomponent',
       content: msg
     };
     this.nodeService.messages.next(message);
   }
-  
+
 
   /****************************************************************************
    * WebSockets (CLIP and Node.js)
@@ -943,7 +932,7 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.connectToVBSServer();
     } else if (this.vbsService.vbsServerState == WSServerStatus.CONNECTED) {
       this.disconnectFromVBSServer();
-    } 
+    }
   }
 
 
@@ -952,10 +941,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     this.showPreview = false;
   }
 
-  handleQueryResponseMessage(qresults:any) {
+  handleQueryResponseMessage(qresults: any) {
     console.log(qresults);
     //console.log('dataset=' + qresults.dataset);
-    
+
     if (qresults.totalresults === 0) {
       this.nodeServerInfo = 'The query returned 0 results!';
     }
@@ -977,10 +966,10 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     let resultnum = (parseInt(this.selectedPage) - 1) * this.globalConstants.resultsPerPage + 1;
     this.querydataset = qresults.dataset;
     this.keyframeBaseURL = this.getBaseURLFromKey(qresults.dataset);
-    
-    let logResults:Array<RankedAnswer> = [];
+
+    let logResults: Array<RankedAnswer> = [];
     for (let i = 0; i < qresults.results.length; i++) {
-      let e = qresults.results[i].replace('.png',GlobalConstants.replacePNG2);
+      let e = qresults.results[i].replace('.png', GlobalConstants.replacePNG2);
       let filename = e.split('/');
       let videoid = filename[0];
       // Split the second part of the filename by underscore and take the last element
@@ -994,14 +983,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.queryresult_resultnumber.push(resultnum.toString());
       this.queryresult_videopreview.push('');
 
-      let logAnswer:ApiClientAnswer = {
+      let logAnswer: ApiClientAnswer = {
         text: undefined,
         mediaItemName: videoid,
         mediaItemCollectionName: this.selectedDataset,
-        start: framenumber, 
+        start: framenumber,
         end: framenumber
       }
-      let logResult:RankedAnswer = {
+      let logResult: RankedAnswer = {
         answer: logAnswer,
         rank: resultnum
       }
@@ -1031,26 +1020,26 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
     let videoid = this.queryresult_videoid[index];
     let keyframe = this.queryresults[index];
     let comps = keyframe.split('_');
-    let frameNumber = comps[comps.length-1].split('.')[0]
+    let frameNumber = comps[comps.length - 1].split('.')[0]
     console.log(`${videoid} - ${keyframe} - ${frameNumber}`);
 
-    let msg = { 
+    let msg = {
       type: "videofps",
-      synchronous: true,  
+      synchronous: true,
       videoid: videoid
     };
     let message = {
       source: 'appcomponent',
       content: msg
     };
-    
+
     this.nodeService.sendMessageAndWait(message).subscribe((response) => {
       console.log('Received video info: fps=' + response.fps + " duration=" + response.duration);
 
       this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps, response.duration);
 
       //query event logging
-      let queryEvent:QueryEvent = {
+      let queryEvent: QueryEvent = {
         timestamp: Date.now(),
         category: QueryEventCategory.OTHER,
         type: "submitFrame",
@@ -1060,14 +1049,14 @@ export class QueryComponent implements AfterViewInit,VbsServiceCommunication {
       this.vbsService.submitQueryResultLog('interaction');
     });
 
-    
+
 
   }
 
   sendTopicAnswer() {
     this.vbsService.submitText(this.topicanswer)
 
-    let queryEvent:QueryEvent = {
+    let queryEvent: QueryEvent = {
       timestamp: Date.now(),
       category: QueryEventCategory.OTHER,
       type: 'submitAnswer1',

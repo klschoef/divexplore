@@ -26,7 +26,7 @@ export class ConfigFormComponent implements OnInit {
       config_MAX_RESULTS_TO_RETURN: 1000,
       config_IMAGE_WIDTH: 236
       // ...add other fields
-    });    
+    });
   }
 
   ngOnInit(): void {
@@ -35,7 +35,7 @@ export class ConfigFormComponent implements OnInit {
 
     // Setting the form fields with the configuration values
     this.configForm.patchValue(config);
-}
+  }
 
 
   onSave() {
