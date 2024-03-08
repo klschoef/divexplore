@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { ConfigService } from '../../services/config/config.service';
+import { ConfigService } from '../../shared/config/services/config.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { LocalConfig } from '../../local-config';
+import { LocalConfig } from '../../shared/config/local-config';
 
 @Component({
   selector: 'app-config-form',

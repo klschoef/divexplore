@@ -12,12 +12,12 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { ShotlistComponent } from './components/shotlist/shotlist.component';
 import { ApiModule,Configuration } from 'openapi/dres';
-import { GlobalConstants } from './global-constants';
+import { GlobalConstants } from './shared/config/global-constants';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { VBSServerConnectionService } from './services/vbsserver-connection/vbsserver-connection.service';
 import { QueryComponent } from './components/query/query.component';
 import { ExplorationComponent } from './components/exploration/exploration.component';
-import { SafePipe } from './safe.pipe';
+import { SafePipe } from './shared/safe.pipe';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';

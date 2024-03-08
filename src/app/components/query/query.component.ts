@@ -1,10 +1,10 @@
 import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../../global-constants';
+import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../../shared/config/global-constants';
 import { VBSServerConnectionService} from '../../services/vbsserver-connection/vbsserver-connection.service';
-import { VbsServiceCommunication } from '../../interfaces/vbs-task-interface';
-import { GUIAction, GUIActionType } from '../../interfaces/gui-action';
-import { GlobalConstantsService } from '../../services/config/global-constants.service';
+import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
+import { GUIAction, GUIActionType } from '../../shared/interfaces/gui-action';
+import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
 import { Router,ActivatedRoute } from '@angular/router';

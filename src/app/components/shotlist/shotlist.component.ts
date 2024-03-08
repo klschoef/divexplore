@@ -2,16 +2,16 @@ import { ViewChild,ElementRef,AfterViewInit, Component } from '@angular/core';
 import { ViewChildren, QueryList } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
-import { VbsServiceCommunication } from '../../interfaces/vbs-task-interface';
+import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
-import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } from '../../global-constants';
+import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } from '../../shared/config/global-constants';
 import { mdiConsoleLine } from '@mdi/js';
 import { ApiClientAnswer, QueryEvent, QueryEventCategory, RankedAnswer } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
 import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
-import { GlobalConstantsService } from '../../services/config/global-constants.service';
+import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
 
 const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
 

@@ -3,7 +3,7 @@ import { Injectable, EventEmitter, OnInit } from '@angular/core';
 import {UserService} from '../../../../openapi/dres/api/user.service';
 import {EvaluationClientService} from '../../../../openapi/dres/api/evaluationClient.service';
 import {SubmissionService} from '../../../../openapi/dres/api/submission.service';
-import {VbsServiceCommunication} from '../../interfaces/vbs-task-interface';
+import {VbsServiceCommunication} from '../../shared/interfaces/vbs-task-interface';
 //import {LogService} from '../../openapi/dres/api/log.service';
 
 //import * as videoDataFPS from '../assets/v3c_video_fps.json';
@@ -29,13 +29,13 @@ import {
   QueryEventCategory,
   StatusService
 } from '../../../../openapi/dres';
-import { GlobalConstants, WSServerStatus } from '../../global-constants';
+import { GlobalConstants, WSServerStatus } from '../../shared/config/global-constants';
 import { NONE_TYPE } from '@angular/compiler';
 import { UrlSegment } from '@angular/router';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { AppComponent } from '../../app.component';
 import { QueryComponent } from '../../components/query/query.component';
-import { GlobalConstantsService } from '../config/global-constants.service';
+import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
 //import { QueryResultLog } from 'openapi/dres/model/queryResultLog';
 
 interface ExtendedQueryResultLog extends QueryResultLog {

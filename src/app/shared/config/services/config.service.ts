@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { LocalConfig } from '../../local-config';
+import { LocalConfig } from '../local-config';
 
 const LOCALSTORAGE_FIELDNAME = 'diveXploreConfig';
 
