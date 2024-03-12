@@ -25,7 +25,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @ViewChild('inputfield') inputfield!: ElementRef<HTMLInputElement>;
   @ViewChild('historyDiv') historyDiv!: ElementRef<HTMLDivElement>;
-  @ViewChild('videopreview') videopreview!: ElementRef<HTMLDivElement>;
+  @ViewChild('videopreview') videopreview!: ElementRef<HTMLVideoElement>;
   @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
 
   private dresErrorMessageSubscription!: Subscription;
@@ -86,6 +86,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   queryFieldHasFocus = false;
   answerFieldHasFocus = false;
   showButtons = -1;
+  activeButton: string = '';
 
   showConfigForm = false;
 
@@ -274,9 +275,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   //TODO: change sources
   private displayVideoSummary() {
     this.videoPreviewImageThumb = /*GlobalConstants.dataHost*/ this.globalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
+    //console.log("display video summary for " + this.videoPreviewImageThumb);
     this.videoPreviewImageLarge = '';
-    this.videoSrc = '';
-    this.videopreview.nativeElement.style.display = 'block';
+    this.videoSrc = this.globalConstants.dataHost + '/videos/' + this.queryresult_videoid[this.selectedItem] + '.mp4';
   }
 
   reloadComponent(): void {
@@ -554,6 +555,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   setContent(content: 'image' | 'thumbnail' | 'video') {
     this.currentContent = content;
+    this.activeButton = content;
   }
 
   showVideoShots(videoid: string, frame: string) {

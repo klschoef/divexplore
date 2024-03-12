@@ -68,17 +68,16 @@
 
 <div class="queryresults-wrapper">
 
-  <!-- Modify here | Add buttons top right switch between preview, summary, video -->
-  <div *ngIf="showPreview" class="videopreview" #videopreview>
+  <div *ngIf="showPreview" class="videopreview">
     <div class="header-container">
       <div class="preview-switch">
-        <button class="top-right-button" mat-icon-button (click)="setContent('image')">
+        <button class="top-left-button" [class.active]="activeButton === 'image'" mat-icon-button (click)="setContent('image')">
           <mat-icon>crop_square</mat-icon>
         </button>
-        <button class="top-right-button" mat-icon-button (click)="setContent('thumbnail')">
+        <button class="top-left-button" [class.active]="activeButton === 'thumbnail'" mat-icon-button (click)="setContent('thumbnail')">
           <mat-icon>grid_view</mat-icon>
         </button>
-        <button class="top-right-button" mat-icon-button (click)="setContent('video')">
+        <button class="top-left-button" [class.active]="activeButton === 'video'" mat-icon-button (click)="setContent('video')">
           <mat-icon>videocam</mat-icon>
         </button>
       </div>
@@ -89,7 +88,7 @@
     </div>
     <img *ngIf="currentContent === 'image'" [src]="videoPreviewImageLarge" class="videopreviewimage" (click)="closeVideoPreview()">
     <img *ngIf="currentContent === 'thumbnail'"[src]="videoPreviewImageThumb" class="videopreviewimage" (click)="closeVideoPreview()">
-    <video *ngIf="currentContent === 'video'"[src]="videoSrc" class="videopreviewimage" controls></video>
+    <video #videopreview *ngIf="currentContent === 'video'"[src]="videoSrc" class="videopreviewimage" controls></video>
   </div>
     
   <div (mouseover)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult" *ngFor="let item of queryresults; let i = index">

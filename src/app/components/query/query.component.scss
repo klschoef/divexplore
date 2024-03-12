@@ -131,7 +131,8 @@ background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
 
 .videopreview {
     background-color: rgba(255,255,255,0.75);
-    display: none;
+    justify-content: center;
+    display: block;
     position: fixed;
     left: 50%;
     top: 50%;
@@ -142,13 +143,16 @@ background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
     overflow: auto; // Optional: add scroll for overflow content
     // Adjust padding or margins if necessary
 }
-
 .videopreviewimage {
-    border: 1px solid;
-    padding: 10px;
-    box-shadow: 5px 10px;
-    width: 100%; // Make the image take the full width of its container
-    height: auto; // Maintain aspect ratio
+    width: 100%; /* Allow the image/video to expand fully within its container */
+    max-height: 80vh; /* Limit height to avoid vertical scrolling */
+    object-fit: cover; /* Cover might not be ideal for all videos, consider 'contain' for no cropping */
+}
+
+.videopreviewimage video {
+    width: 100%; /* Ensure video width is responsive to the container size */
+    height: auto; /* Adjust height automatically to maintain aspect ratio */
+    max-height: 80vh; /* Ensure video doesn't extend beyond viewport height */
 }
 
 .header-container {
@@ -163,9 +167,15 @@ background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
     flex: 0 0 20%;
 }
 
-.top-right-button {
+.top-left-button {
     flex-grow: 1;
     margin: 0 2px;
+    cursor: pointer;
+    background-color: rgba(230, 230, 230, 0.8);
+}
+
+.top-left-button.active {
+    background-color: rgba(126, 126, 126, 0.8);
 }
 
 .videosummaryheader {
@@ -185,6 +195,7 @@ background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
     justify-content: center;
     background-color: rgba(209, 90, 69, 0.8);
     flex-grow: 1;
+    cursor: pointer;
 }
 
 .resultcount {
