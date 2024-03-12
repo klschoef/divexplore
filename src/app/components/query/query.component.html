@@ -68,9 +68,28 @@
 
 <div class="queryresults-wrapper">
 
+  <!-- Modify here | Add buttons top right switch between preview, summary, video -->
   <div *ngIf="showPreview" class="videopreview" #videopreview>
-    <button class="videosummaryheader" (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video {{this.queryresult_videoid[this.selectedItem]}} ({{this.selectedItem+1}}/{{this.queryresult_videoid.length}})</button><br/>
-    <img [src]="videopreviewimage" class="videopreviewimage" (click)="closeVideoPreview()">
+    <div class="header-container">
+      <div class="preview-switch">
+        <button class="top-right-button" mat-icon-button (click)="setContent('image')">
+          <mat-icon>crop_square</mat-icon>
+        </button>
+        <button class="top-right-button" mat-icon-button (click)="setContent('thumbnail')">
+          <mat-icon>grid_view</mat-icon>
+        </button>
+        <button class="top-right-button" mat-icon-button (click)="setContent('video')">
+          <mat-icon>videocam</mat-icon>
+        </button>
+      </div>
+      <button class="videosummaryheader" (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video {{this.queryresult_videoid[this.selectedItem]}} ({{this.selectedItem+1}}/{{this.queryresult_videoid.length}})</button><br/>
+      <button class="close-button" (click)="closeVideoPreview()" mat-icon-button>
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <img *ngIf="currentContent === 'image'" [src]="videoPreviewImageLarge" class="videopreviewimage" (click)="closeVideoPreview()">
+    <img *ngIf="currentContent === 'thumbnail'"[src]="videoPreviewImageThumb" class="videopreviewimage" (click)="closeVideoPreview()">
+    <video *ngIf="currentContent === 'video'"[src]="videoSrc" class="videopreviewimage" controls></video>
   </div>
     
   <div (mouseover)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult" *ngFor="let item of queryresults; let i = index">

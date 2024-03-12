@@ -151,15 +151,40 @@ background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
     height: auto; // Maintain aspect ratio
 }
 
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-switch {
+    display: flex;
+    justify-content: space-between;
+    flex: 0 0 20%;
+}
+
+.top-right-button {
+    flex-grow: 1;
+    margin: 0 2px;
+}
 
 .videosummaryheader {
+    flex: 0 0 75%;
     font-size: larger;
     font-weight: bold;
     color: black;
     background-color: rgba(128, 174, 244, 0.8);
-    width: 100%;
+    flex-grow: 1;
     cursor: pointer;
     padding: 6px;
+}
+
+.close-button {
+    display: flex;
+    flex: 0 0 5%;
+    justify-content: center;
+    background-color: rgba(209, 90, 69, 0.8);
+    flex-grow: 1;
 }
 
 .resultcount {

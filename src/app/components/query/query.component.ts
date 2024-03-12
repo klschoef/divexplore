@@ -60,7 +60,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
 
-  videopreviewimage: string = '';
+  videoPreviewImageThumb: string = '';
+  videoPreviewImageLarge: string = '';
+  videoSrc: string = '';
 
   previousQuery: any | undefined;
 
@@ -111,6 +113,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     { id: 'all', name: 'All/v' },
     { id: 'first', name: 'First/v' }
   ];
+
+  currentContent: 'image' | 'thumbnail' | 'video' = 'image';
 
   constructor(
     private globalConstants: GlobalConstantsService,
@@ -267,8 +271,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.showConfigForm = !this.showConfigForm;
   }
 
+  //TODO: change sources
   private displayVideoSummary() {
-    this.videopreviewimage = /*GlobalConstants.dataHost*/ this.globalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
+    this.videoPreviewImageThumb = /*GlobalConstants.dataHost*/ this.globalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
+    this.videoPreviewImageLarge = '';
+    this.videoSrc = '';
     this.videopreview.nativeElement.style.display = 'block';
   }
 
@@ -522,9 +529,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
+  /* Shows video preview on click on query-result */
   showVideoPreview() {
     this.requestVideoSummaries(this.queryresult_videoid[this.selectedItem]);
     //window.scrollTo(0, 0);
+
+    //console.log("show video preview for " + this.queryresult_videoid[this.selectedItem]);
 
     //query event logging
     let queryEvent: QueryEvent = {
@@ -537,6 +547,14 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.vbsService.submitQueryResultLog('interaction');
   }
 
+  closeVideoPreview() {
+    //this.videopreview.nativeElement.style.display = 'none';
+    this.showPreview = false;
+  }
+
+  setContent(content: 'image' | 'thumbnail' | 'video') {
+    this.currentContent = content;
+  }
 
   showVideoShots(videoid: string, frame: string) {
     //this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
@@ -682,10 +700,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         videofiltering: this.selectedVideoFiltering
       };
       this.previousQuery = msg;
-
-      msg.dataset = this.selectedDataset;
-      msg.type = this.selectedQueryType;
-      msg.videofiltering = this.selectedVideoFiltering;
 
       //this.sendToCLIPServer(msg);
 
@@ -905,42 +919,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   /****************************************************************************
    * WebSockets (CLIP and Node.js)
    ****************************************************************************/
-
-  connectToVBSServer() {
-    this.vbsService.connect();
-  }
-
-  disconnectFromVBSServer() {
-    //this.vbsService.logout(this);
-  }
-
-
-  checkNodeConnection() {
-    if (this.nodeService.connectionState !== WSServerStatus.CONNECTED) {
-      this.nodeService.connectToServer();
-    }
-  }
-
-  checkCLIPConnection() {
-    if (this.clipService.connectionState !== WSServerStatus.CONNECTED) {
-      this.clipService.connectToServer();
-    }
-  }
-
-  checkVBSServerConnection() {
-    if (this.vbsService.vbsServerState == WSServerStatus.UNSET || this.vbsService.vbsServerState == WSServerStatus.DISCONNECTED) {
-      this.connectToVBSServer();
-    } else if (this.vbsService.vbsServerState == WSServerStatus.CONNECTED) {
-      this.disconnectFromVBSServer();
-    }
-  }
-
-
-  closeVideoPreview() {
-    //this.videopreview.nativeElement.style.display = 'none';
-    this.showPreview = false;
-  }
-
   handleQueryResponseMessage(qresults: any) {
     console.log(qresults);
     //console.log('dataset=' + qresults.dataset);
@@ -968,6 +946,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.keyframeBaseURL = this.getBaseURLFromKey(qresults.dataset);
 
     let logResults: Array<RankedAnswer> = [];
+
     for (let i = 0; i < qresults.results.length; i++) {
       let e = qresults.results[i].replace('.png', GlobalConstants.replacePNG2);
       let filename = e.split('/');
@@ -1028,6 +1007,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       synchronous: true,
       videoid: videoid
     };
+
     let message = {
       source: 'appcomponent',
       content: msg
@@ -1048,9 +1028,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.vbsService.queryEvents.push(queryEvent);
       this.vbsService.submitQueryResultLog('interaction');
     });
-
-
-
   }
 
   sendTopicAnswer() {
