@@ -68,6 +68,7 @@
 
 <div class="queryresults-wrapper">
 
+  <div class="backdrop" *ngIf="showPreview" (click)="closeVideoPreview()"></div>
   <div *ngIf="showPreview" class="videopreview">
     <div class="header-container">
       <div class="preview-switch">

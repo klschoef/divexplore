@@ -86,7 +86,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   queryFieldHasFocus = false;
   answerFieldHasFocus = false;
   showButtons = -1;
-  activeButton: string = '';
+  activeButton: string = 'image';
 
   showConfigForm = false;
 
