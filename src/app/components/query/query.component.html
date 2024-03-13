@@ -123,41 +123,7 @@
 
 <app-message-bar></app-message-bar>
   
-<div class="statusbar">
-  <span class="{{clipService.connectionState}}">CLIP</span>
-  <span class="{{nodeService.connectionState}}">Node</span>
-  <span class="{{vbsService.vbsServerState}}">DRES</span>
-
-  &nbsp; 
-  <span>User: {{vbsService.activeUsername}}</span>
-  <span *ngIf="vbsService.vbsServerState !== 'connected'" class="loginerror">Login-Error</span>
-  
-  <span class="tinyspacer">&nbsp;</span>
-
-  <span class="whiteColor">Topic Answer:</span> 
-  <input type="text" id="topicanswer" name="topicanswer" ngModel #inputfield [(ngModel)]="topicanswer" (keyup.enter)="sendTopicAnswer()" autofocus (focus)="onAnswerInputFocus()" (blur)="onAnswerInputBlur()" />
-  <button class="topicanswerbutton" (click)="sendTopicAnswer()">Submit</button>
-  
-
-  <span class="spacer">&nbsp;</span>
-
-  <span>
-    <select class="grayBackground" [(ngModel)]="this.vbsService.selectedServerRun" value="0" (change)="selectRun()">
-      <option *ngFor="let r of this.vbsService.serverRuns; let i = index" [ngValue]="i" [selected]="(i === 0 && this.vbsService.selectedServerRun === undefined) || (i === this.vbsService.selectedServerRun!)">{{r}}</option>
-    </select>
-  </span>
-  &nbsp;
-  <span>{{statusTaskInfoText}}</span>
-  &nbsp;
-  <span class="remainingTimeInfo" *ngIf="this.vbsService.selectedServerRun !== undefined" >{{getRemainingTaskTime()}}</span>
-  
-  <span class="minispacer">&nbsp;</span>
-
-  <span class="submissionresponse">{{this.vbsService.submissionResponse}}</span>
-
-  <span>DRES RTT: {{vbsService.serverTimeDiff}} ms</span>
-
-</div>
+<app-status-bar (answerFieldFocusChange)="handleAnswerFieldFocusChange($event)"></app-status-bar>
   
 <br/>&nbsp;
 <br/>&nbsp;

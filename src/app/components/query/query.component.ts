@@ -42,7 +42,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
 
   queryinput: string = '';
-  topicanswer: string = '';
   queryresults: Array<string> = [];
   //: Array<number> = [];
   queryresult_resultnumber: Array<string> = [];
@@ -84,7 +83,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   thumbSize = 'small';
   selectedHistoryEntry: string | undefined
   queryFieldHasFocus = false;
-  answerFieldHasFocus = false;
+  answerFieldHasFocus = false; //deldel
   showButtons = -1;
   activeButton: string = 'image';
 
@@ -522,12 +521,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.queryFieldHasFocus = false;
   }
 
-  onAnswerInputFocus() {
-    this.answerFieldHasFocus = true;
-  }
-
-  onAnswerInputBlur() {
-    this.answerFieldHasFocus = false
+  handleAnswerFieldFocusChange(hasFocus: boolean) {
+    this.answerFieldHasFocus = hasFocus;
   }
 
   selectItemAndShowSummary(idx: number, event: MouseEvent) {
@@ -833,25 +828,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
-  selectRun() {
-    if (this.vbsService.selectedServerRun !== undefined) {
-      localStorage.setItem('selectedEvaluation', '' + this.vbsService.selectedServerRun!);
-    }
-  }
-
-  getRemainingTaskTime() {
-    if (this.vbsService.selectedServerRun !== undefined) {
-      let remainingTime = this.vbsService.serverRunsRemainingSecs.get(this.vbsService.serverRunIDs[this.vbsService.selectedServerRun]);
-      return remainingTime;
-    }
-    return "";
-  }
-
-  /*backInHistory() {
-    this.selectedHistoryEntry = '0';
-    this.performHistoryQuery();
-  }*/
-
   performHistoryQuery() {
     console.log(`run hist: ${this.selectedHistoryEntry}`)
     let hist = localStorage.getItem('history')
@@ -1059,18 +1035,5 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.vbsService.queryEvents.push(queryEvent);
       this.vbsService.submitQueryResultLog('interaction');
     });
-  }
-
-  sendTopicAnswer() {
-    this.vbsService.submitText(this.topicanswer)
-
-    let queryEvent: QueryEvent = {
-      timestamp: Date.now(),
-      category: QueryEventCategory.OTHER,
-      type: 'submitAnswer1',
-      value: this.topicanswer
-    }
-    this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryResultLog('interaction');
   }
 }

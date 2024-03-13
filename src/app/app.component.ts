@@ -6,8 +6,6 @@ import { NodeServerConnectionService } from './services/nodeserver-connection/no
 import { ClipServerConnectionService } from './services/clipserver-connection/clipserver-connection.service';
 import { Router } from '@angular/router';
 
-
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',

@@ -30,6 +30,7 @@ import { ConfigFormComponent } from './components/config-form/config-form.compon
 import { MatDialogModule } from '@angular/material/dialog';
 import { HelpSectionComponent } from './dialogues/help-section/help-section.component';
 import { ExplDialogComponent } from './features/expl-dialog/expl-dialog.component';
+import { StatusBarComponent } from './components/status-bar/status-bar.component';
 
 
 @NgModule({
@@ -42,7 +43,8 @@ import { ExplDialogComponent } from './features/expl-dialog/expl-dialog.componen
     MessageBarComponent,
     ConfigFormComponent,
     HelpSectionComponent,
-    ExplDialogComponent
+    ExplDialogComponent,
+    StatusBarComponent
   ],
   imports: [
     BrowserModule,
