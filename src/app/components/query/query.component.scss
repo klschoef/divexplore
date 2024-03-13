@@ -146,13 +146,14 @@ background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
 .videopreviewimage {
     width: 100%; /* Allow the image/video to expand fully within its container */
     max-height: 80vh; /* Limit height to avoid vertical scrolling */
-    object-fit: cover; /* Cover might not be ideal for all videos, consider 'contain' for no cropping */
+    object-fit: contain; /* Cover might not be ideal for all videos, consider 'contain' for no cropping */
 }
 
 .videopreviewimage video {
     width: 100%; /* Ensure video width is responsive to the container size */
     height: auto; /* Adjust height automatically to maintain aspect ratio */
     max-height: 80vh; /* Ensure video doesn't extend beyond viewport height */
+    object-fit: contain;
 }
 
 .header-container {

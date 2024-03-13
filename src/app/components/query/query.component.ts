@@ -1,4 +1,4 @@
-import { ViewChild, ElementRef, Component, AfterViewInit } from '@angular/core';
+import { ViewChild, ElementRef, Component, AfterViewInit, Renderer2 } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../../shared/config/global-constants';
 import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
@@ -25,7 +25,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @ViewChild('inputfield') inputfield!: ElementRef<HTMLInputElement>;
   @ViewChild('historyDiv') historyDiv!: ElementRef<HTMLDivElement>;
-  @ViewChild('videopreview') videopreview!: ElementRef<HTMLVideoElement>;
+  @ViewChild('videopreview', { static: false }) videopreview!: ElementRef;
   @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
 
   private dresErrorMessageSubscription!: Subscription;
@@ -122,6 +122,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService,
+    private renderer: Renderer2,
     private titleService: Title,
     private route: ActivatedRoute,
     private router: Router,
@@ -254,6 +255,25 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.historyDiv.nativeElement.hidden = true;
   }
 
+  ngAfterViewChecked(): void {
+    if (this.videopreview && this.currentContent === 'video') {
+      this.playVideo();
+    }
+  } 
+
+  playVideo(): void {
+    let time = parseFloat(this.queryresult_frame[this.selectedItem]) / this.queryresult_fps.get(this.queryresult_videoid[this.selectedItem])!;  
+
+    const videoElement = this.videopreview.nativeElement;
+
+    if(videoElement.paused) {
+      this.renderer.setProperty(videoElement, 'currentTime', time);
+      this.renderer.listen(videoElement, 'loadedmetadata', () => {
+        videoElement.play();
+      });
+    }
+  }
+
   private initializeMap(): void {
     // Add the array to the map for 'v3c'
     this.queryTypeMap.set('v3c', [...this.queryTypes]);
@@ -274,10 +294,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   //TODO: change sources
   private displayVideoSummary() {
-    this.videoPreviewImageThumb = /*GlobalConstants.dataHost*/ this.globalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
-    //console.log("display video summary for " + this.videoPreviewImageThumb);
-    this.videoPreviewImageLarge = '';
-    this.videoSrc = this.globalConstants.dataHost + '/videos/' + this.queryresult_videoid[this.selectedItem] + '.mp4';
+    let videoId = this.queryresult_videoid[this.selectedItem];
+    this.videoPreviewImageThumb = this.globalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
+    this.videoPreviewImageLarge = this.globalConstants.thumbsBaseURL + videoId + '/' + videoId + '_' + this.queryresult_frame[this.selectedItem] + '.jpg';
+    this.videoSrc = this.globalConstants.videosBaseURL + this.queryresult_videoid[this.selectedItem] + '.mp4';
   }
 
   reloadComponent(): void {
@@ -556,6 +576,15 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   setContent(content: 'image' | 'thumbnail' | 'video') {
     this.currentContent = content;
     this.activeButton = content;
+    /*
+    if(this.currentContent == 'video') {
+      console.log('displayVideoSummary: currentContent is video');
+      this.videopreview.nativeElement.currentTime = parseFloat(this.queryresult_frame[this.selectedItem]) / 30;
+      if (this.videopreview.nativeElement.paused) {
+        this.videopreview.nativeElement.play();
+      }
+    }
+    */
   }
 
   showVideoShots(videoid: string, frame: string) {
