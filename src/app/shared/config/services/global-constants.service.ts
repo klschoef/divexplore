@@ -51,6 +51,11 @@ export class GlobalConstantsService {
     return this.dataHostVideos + 'videos/';
   }
 
+  get summariesLargeBaseUrl(): string {
+    return this.dataHost + 'summariesl/';
+  }
+
+
   get resultsPerPage(): number {
     return this.configService.getConfiguration().config_RESULTS_PER_PAGE;
   }

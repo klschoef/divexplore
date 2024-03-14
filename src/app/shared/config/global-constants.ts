@@ -1,66 +1,66 @@
 import { LocalConfig } from "./local-config";
 
 export enum WebSocketEvent {
-    UNSET = 'unset', 
-    CLOSE = 'disconnected',
-    OPEN = 'connected',
-    SEND = 'sending',
-    MESSAGE = 'message',
-    ERROR = 'error'
+  UNSET = 'unset',
+  CLOSE = 'disconnected',
+  OPEN = 'connected',
+  SEND = 'sending',
+  MESSAGE = 'message',
+  ERROR = 'error'
 }
 
 export enum WSServerStatus {
-    UNSET = 'unset',
-    CONNECTED = 'connected',
-    DISCONNECTED = 'disconnected'
+  UNSET = 'unset',
+  CONNECTED = 'connected',
+  DISCONNECTED = 'disconnected'
 }
 
-export interface QueryType { 
-  type: string; 
-  query: string; 
+export interface QueryType {
+  type: string;
+  query: string;
   videofiltering: string;
-  maxresults: number; 
-  resultsperpage: number; 
-  selectedpage: string; 
-  dataset: string; 
+  maxresults: number;
+  resultsperpage: number;
+  selectedpage: string;
+  dataset: string;
 }
 
 export class GlobalConstants {
-    public static configVBSSERVER = 'https://vbs.videobrowsing.org';
-    
-    public static replacePNG2 = '.jpg'; //display
-    public static replaceJPG_back2 = '.jpg'; //'.jpg'; //file-similarity
+  public static configVBSSERVER = 'https://vbs.videobrowsing.org';
 
-    //public static resultsPerPage = 35;
-    //public static maxResultsToReturn = this.resultsPerPage*41; //780; //1200; //10000;
-    public static imgRatio = 320.0/180.0;
-    //public static imgWidth = 236; 
-    //public static imgHeight = this.imgWidth/this.imgRatio;
+  public static replacePNG2 = '.jpg'; //display
+  public static replaceJPG_back2 = '.jpg'; //'.jpg'; //file-similarity
+
+  //public static resultsPerPage = 35;
+  //public static maxResultsToReturn = this.resultsPerPage*41; //780; //1200; //10000;
+  public static imgRatio = 320.0 / 180.0;
+  //public static imgWidth = 236; 
+  //public static imgHeight = this.imgWidth/this.imgRatio;
 }
 
-export function twoDigits(str:string):string {
-    if (str.length < 2) {
-      return `0${str}`;
-    } else {
-      return str;
-    }
-}
-
-export function formatAsTime(frame:string, fps:number, withFrames:boolean=true) {
-    let ff = Math.floor(parseInt(frame) % fps);
-    let secs = parseInt(frame) / fps;
-    let ss = Math.floor(secs % 60);
-    let mm = Math.floor(secs / 60);
-    let hh = Math.floor(secs / 3600); 
-    let timeString = `${twoDigits(hh.toString())}:${twoDigits(mm.toString())}:${twoDigits(ss.toString())}`;
-    if (withFrames) {
-      return `${timeString}.${twoDigits(ff.toString())}`
-    } else {
-      return timeString;
-    }
+export function twoDigits(str: string): string {
+  if (str.length < 2) {
+    return `0${str}`;
+  } else {
+    return str;
   }
+}
 
-export function getTimestampInSeconds () {
+export function formatAsTime(frame: string, fps: number, withFrames: boolean = true) {
+  let ff = Math.floor(parseInt(frame) % fps);
+  let secs = parseInt(frame) / fps;
+  let ss = Math.floor(secs % 60);
+  let mm = Math.floor(secs / 60);
+  let hh = Math.floor(secs / 3600);
+  let timeString = `${twoDigits(hh.toString())}:${twoDigits(mm.toString())}:${twoDigits(ss.toString())}`;
+  if (withFrames) {
+    return `${timeString}.${twoDigits(ff.toString())}`
+  } else {
+    return timeString;
+  }
+}
+
+export function getTimestampInSeconds() {
   return Math.floor(Date.now() / 1000)
 }
 /**

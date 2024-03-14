@@ -89,7 +89,10 @@
     </div>
     <img *ngIf="currentContent === 'image'" [src]="videoLargePreview" class="videopreviewimage" (click)="closeVideoPreview()">
     <img *ngIf="currentContent === 'thumbnail'"[src]="videoSummaryPreview" class="videopreviewimage" (click)="closeVideoPreview()">
-    <video #videopreview *ngIf="currentContent === 'video'"[src]="videoPlayPreview" class="videopreviewimage" controls></video>
+    <div *ngIf="currentContent === 'video'" class="videopreviewimage">
+      <video #videopreview [src]="videoPlayPreview"  controls></video>
+      <!-- <img [src]="videoSummaryLargePreview" (click)="closeVideoPreview()"> -->
+    </div>
   </div>
   <div (mouseover)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult" *ngFor="let item of queryresults; let i = index">
     <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="selectItemAndShowSummary(i,$event)" [ngClass]="{'blueborder': this.selectedItem == i}">

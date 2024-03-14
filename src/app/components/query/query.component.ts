@@ -63,6 +63,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   videoSummaryPreview: string = '';
   videoLargePreview: string = '';
   videoPlayPreview: string = '';
+  //videoSummaryLargePreview: string = '';
 
   previousQuery: any | undefined;
 
@@ -258,20 +259,20 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   ngAfterViewChecked(): void {
     if (this.videopreview && this.currentContent === 'video') {
-      this.playVideo();
+      this.playVideoAtFrame();
     }
-  } 
+  }
 
-  playVideo(): void {
+  playVideoAtFrame(): void {
     this.getFPSForItem(this.selectedItem);
 
     let frame = parseFloat(this.queryresult_frame[this.selectedItem]);
     let fps = this.queryresult_fps.get(this.queryresult_videoid[this.selectedItem])!;
-    let time = frame / fps;  
+    let time = frame / fps;
 
     const videoElement = this.videopreview.nativeElement;
 
-    if(videoElement.paused && !Number.isNaN(time)) {
+    if (videoElement.paused && !Number.isNaN(time)) {
       this.renderer.setProperty(videoElement, 'currentTime', time);
       this.renderer.listen(videoElement, 'loadedmetadata', () => {
         videoElement.play();
@@ -297,15 +298,15 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.showConfigForm = !this.showConfigForm;
   }
 
-  //TODO: change sources
   private displayVideoSummary() {
     let videoId = this.queryresult_videoid[this.selectedItem];
     let frame = this.queryresult_frame[this.selectedItem];
     let summary = this.summaries[this.selectedSummaryIdx];
 
     this.videoSummaryPreview = this.urlRetrievalService.getPreviewSummaryUrl(summary);
+    //this.videoSummaryLargePreview = this.urlRetrievalService.getPreviewSummaryLargeUrl(summary);
     this.videoLargePreview = this.urlRetrievalService.getThumbnailUrl(videoId, frame);
-    this.videoPlayPreview = this.urlRetrievalService.getVideoUrl(videoId);  
+    this.videoPlayPreview = this.urlRetrievalService.getVideoUrl(videoId);
   }
 
   reloadComponent(): void {

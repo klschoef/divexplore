@@ -8,9 +8,9 @@ export class UrlRetrievalService {
   private baseThumbsUrl: string = '';
   private baseVideosUrl: string = '';
 
-  constructor(    
-      private globalConstants: GlobalConstantsService,
-    ) {
+  constructor(
+    private globalConstants: GlobalConstantsService,
+  ) {
     this.baseThumbsUrl = this.globalConstants.thumbsBaseURL;
     this.baseVideosUrl = this.globalConstants.videosBaseURL;
   }
@@ -21,8 +21,12 @@ export class UrlRetrievalService {
 
   getPreviewSummaryUrl(summaries: string) {
     return this.globalConstants.dataHost + '/' + summaries;
-  }  
-  
+  }
+
+  getPreviewSummaryLargeUrl(summaries: string) {
+    return this.globalConstants.summariesLargeBaseUrl + '/' + summaries;
+  }
+
   getVideoUrl(videoId: string) {
     return `${this.baseVideosUrl}${videoId}.mp4`;
   }
