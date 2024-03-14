@@ -15,6 +15,7 @@ import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigFormComponent } from '../config-form/config-form.component';
+import { UrlRetrievalService } from 'src/app/services/url-retrieval/url-retrieval.service';
 
 @Component({
   selector: 'app-query',
@@ -59,9 +60,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
 
-  videoPreviewImageThumb: string = '';
-  videoPreviewImageLarge: string = '';
-  videoSrc: string = '';
+  videoSummaryPreview: string = '';
+  videoLargePreview: string = '';
+  videoPlayPreview: string = '';
 
   previousQuery: any | undefined;
 
@@ -83,7 +84,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   thumbSize = 'small';
   selectedHistoryEntry: string | undefined
   queryFieldHasFocus = false;
-  answerFieldHasFocus = false; //deldel
+  answerFieldHasFocus = false;
   showButtons = -1;
   activeButton: string = 'image';
 
@@ -121,6 +122,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService,
+    public urlRetrievalService: UrlRetrievalService,
     private renderer: Renderer2,
     private titleService: Title,
     private route: ActivatedRoute,
@@ -261,11 +263,15 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   } 
 
   playVideo(): void {
-    let time = parseFloat(this.queryresult_frame[this.selectedItem]) / this.queryresult_fps.get(this.queryresult_videoid[this.selectedItem])!;  
+    this.getFPSForItem(this.selectedItem);
+
+    let frame = parseFloat(this.queryresult_frame[this.selectedItem]);
+    let fps = this.queryresult_fps.get(this.queryresult_videoid[this.selectedItem])!;
+    let time = frame / fps;  
 
     const videoElement = this.videopreview.nativeElement;
 
-    if(videoElement.paused) {
+    if(videoElement.paused && !Number.isNaN(time)) {
       this.renderer.setProperty(videoElement, 'currentTime', time);
       this.renderer.listen(videoElement, 'loadedmetadata', () => {
         videoElement.play();
@@ -294,9 +300,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   //TODO: change sources
   private displayVideoSummary() {
     let videoId = this.queryresult_videoid[this.selectedItem];
-    this.videoPreviewImageThumb = this.globalConstants.dataHost + '/' + this.summaries[this.selectedSummaryIdx];
-    this.videoPreviewImageLarge = this.globalConstants.thumbsBaseURL + videoId + '/' + videoId + '_' + this.queryresult_frame[this.selectedItem] + '.jpg';
-    this.videoSrc = this.globalConstants.videosBaseURL + this.queryresult_videoid[this.selectedItem] + '.mp4';
+    let frame = this.queryresult_frame[this.selectedItem];
+    let summary = this.summaries[this.selectedSummaryIdx];
+
+    this.videoSummaryPreview = this.urlRetrievalService.getPreviewSummaryUrl(summary);
+    this.videoLargePreview = this.urlRetrievalService.getThumbnailUrl(videoId, frame);
+    this.videoPlayPreview = this.urlRetrievalService.getVideoUrl(videoId);  
   }
 
   reloadComponent(): void {
@@ -571,15 +580,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   setContent(content: 'image' | 'thumbnail' | 'video') {
     this.currentContent = content;
     this.activeButton = content;
-    /*
-    if(this.currentContent == 'video') {
-      console.log('displayVideoSummary: currentContent is video');
-      this.videopreview.nativeElement.currentTime = parseFloat(this.queryresult_frame[this.selectedItem]) / 30;
-      if (this.videopreview.nativeElement.paused) {
-        this.videopreview.nativeElement.play();
-      }
-    }
-    */
   }
 
   showVideoShots(videoid: string, frame: string) {
@@ -713,7 +713,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         this.selectedPage = '1';
       }
 
-      console.log('qc: query for', this.queryinput + " videofiltering=" + this.selectedVideoFiltering);
+      console.log('qc: query for', this.queryinput + " videofiltering=" + this.selectedVideoFiltering + " and " + this.queryType);
       this.queryBaseURL = this.getBaseURL();
       let msg = {
         type: "textquery",

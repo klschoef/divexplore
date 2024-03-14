@@ -87,11 +87,10 @@
         <mat-icon>close</mat-icon>
       </button>
     </div>
-    <img *ngIf="currentContent === 'image'" [src]="videoPreviewImageLarge" class="videopreviewimage" (click)="closeVideoPreview()">
-    <img *ngIf="currentContent === 'thumbnail'"[src]="videoPreviewImageThumb" class="videopreviewimage" (click)="closeVideoPreview()">
-    <video #videopreview *ngIf="currentContent === 'video'"[src]="videoSrc" class="videopreviewimage" controls></video>
+    <img *ngIf="currentContent === 'image'" [src]="videoLargePreview" class="videopreviewimage" (click)="closeVideoPreview()">
+    <img *ngIf="currentContent === 'thumbnail'"[src]="videoSummaryPreview" class="videopreviewimage" (click)="closeVideoPreview()">
+    <video #videopreview *ngIf="currentContent === 'video'"[src]="videoPlayPreview" class="videopreviewimage" controls></video>
   </div>
-    
   <div (mouseover)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult" *ngFor="let item of queryresults; let i = index">
     <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="selectItemAndShowSummary(i,$event)" [ngClass]="{'blueborder': this.selectedItem == i}">
     <div class="lefttopcorner">
