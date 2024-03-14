@@ -10,6 +10,6 @@
     "types": []
   },
   "include": [
-    "src/**/*.worker.ts"
+    "src/app/app.component.ts" // Temporarily point to an existing file
   ]
 }
