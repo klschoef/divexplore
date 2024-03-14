@@ -23,83 +23,60 @@ import { UrlRetrievalService } from 'src/app/services/url-retrieval/url-retrieva
   styleUrls: ['./query.component.scss']
 })
 export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
-
+  // Component's core properties
   @ViewChild('inputfield') inputfield!: ElementRef<HTMLInputElement>;
   @ViewChild('historyDiv') historyDiv!: ElementRef<HTMLDivElement>;
   @ViewChild('videopreview', { static: false }) videopreview!: ElementRef;
   @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
 
+  // Subscriptions for handling events
   private dresErrorMessageSubscription!: Subscription;
   private dresSuccessMessageSubscription!: Subscription;
 
-  file_sim_keyframe: string | undefined
-  file_sim_pathPrefix: string | undefined
-  file_sim_page: string = "1"
-
-  nodeServerInfo: string | undefined;
-
-  imgWidth = this.globalConstants.imageWidth;
-  imgHeight = this.globalConstants.imageWidth / GlobalConstants.imgRatio;
-
-
+  // Query-related properties
   queryinput: string = '';
   queryresults: Array<string> = [];
-  //: Array<number> = [];
   queryresult_resultnumber: Array<string> = [];
   queryresult_videoid: Array<string> = [];
   queryresult_frame: Array<string> = [];
   queryresult_videopreview: Array<string> = [];
   queryTimestamp: number = 0;
   queryType: string = '';
+  previousQuery: any | undefined;
+  querydataset: string = '';
+
+  // Metadata and summaries for video analysis
   metadata: any;
   summaries: Array<string> = [];
   selectedSummaryIdx = 0;
 
-  queryresult_fps = new Map<string, number>();
-
-  public statusTaskInfoText: string = ""; //property binding
-  statusTaskRemainingTime: string = ""; //property binding
-
+  // Video playback and preview properties
   videoSummaryPreview: string = '';
   videoLargePreview: string = '';
   videoPlayPreview: string = '';
+  currentContent: 'image' | 'thumbnail' | 'video' = 'image';
   //videoSummaryLargePreview: string = '';
 
-  previousQuery: any | undefined;
-
-  querydataset: string = '';
-  queryBaseURL = this.getBaseURL();
-  datasetBase: string = 'keyframes';
-  keyframeBaseURL: string = '';
-
-  //maxresults = this.globalConstants.maxResultsToReturn;
-  totalReturnedResults = 0; //how many results did our query return in total?
-  //resultsPerPage = this.globalConstants.resultsPerPage; 
-  selectedPage = '1'; //user-selected page
-  pages = ['1']
-
+  // UI state and navigation properties
   selectedItem = 0;
   showPreview = false;
   showHelpActive = false;
-
   thumbSize = 'small';
-  selectedHistoryEntry: string | undefined
+  selectedHistoryEntry: string | undefined;
   queryFieldHasFocus = false;
   answerFieldHasFocus = false;
   showButtons = -1;
   activeButton: string = 'image';
-
   showConfigForm = false;
 
+  // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
   datasets = [
     { id: 'v3c', name: 'V3C' },
     { id: 'mvk', name: 'MVK' },
     { id: 'lhe', name: 'LHE' }
   ];
-
   selectedQueryType = 'textquery';
-
   private queryTypes = [
     { id: 'textquery', name: 'Free-Text' },
     { id: 'ocr-text', name: 'OCR-Text' },
@@ -107,16 +84,41 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     { id: 'speech', name: 'Speech' },
     { id: 'videoid', name: 'VideoId' }
   ];
-
-  private queryTypeMap: Map<string, typeof this.queryTypes>;
-
   selectedVideoFiltering = 'all';
   videoFiltering = [
     { id: 'all', name: 'All/v' },
     { id: 'first', name: 'First/v' }
   ];
 
-  currentContent: 'image' | 'thumbnail' | 'video' = 'image';
+  // Results and pagination
+  //maxresults = this.globalConstants.maxResultsToReturn;
+  totalReturnedResults = 0; //how many results did our query return in total?
+  //resultsPerPage = this.globalConstants.resultsPerPage; 
+  selectedPage = '1'; //user-selected page
+  pages = ['1']
+
+  // Helper properties for file similarity and node server info
+  file_sim_keyframe: string | undefined
+  file_sim_pathPrefix: string | undefined
+  file_sim_page: string = "1"
+  nodeServerInfo: string | undefined;
+
+  // Display ratios and base URLs
+  imgWidth = this.globalConstants.imageWidth;
+  imgHeight = this.globalConstants.imageWidth / GlobalConstants.imgRatio;
+  queryBaseURL = this.getBaseURL();
+  keyframeBaseURL: string = '';
+  datasetBase: string = 'keyframes';
+
+  // FPS mapping for video frames
+  queryresult_fps = new Map<string, number>();
+
+  // Mapping for different query types based on the selected dataset
+  private queryTypeMap: Map<string, typeof this.queryTypes>;
+
+  // Task information properties
+  public statusTaskInfoText: string = ""; //property binding
+  statusTaskRemainingTime: string = ""; //property binding
 
   constructor(
     private globalConstants: GlobalConstantsService,
