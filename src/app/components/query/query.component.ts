@@ -35,6 +35,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   // Query-related properties
   queryinput: string = '';
+  dynamicQueries: string[] = [];
   queryresults: Array<string> = [];
   queryresult_resultnumber: Array<string> = [];
   queryresult_videoid: Array<string> = [];
@@ -65,6 +66,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   selectedHistoryEntry: string | undefined;
   queryFieldHasFocus = false;
   answerFieldHasFocus = false;
+  temporalFieldHasFocus = false;
   showButtons = -1;
   activeButton: string = 'image';
   showConfigForm = false;
@@ -402,7 +404,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @HostListener('document:keyup', ['$event'])
   handleKeyboardEventUp(event: KeyboardEvent) {
-    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm) {
+    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm && !this.temporalFieldHasFocus) {
       switch (event.key) {
         case 'q':
           this.inputfield.nativeElement.select();
@@ -419,7 +421,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm) {
+    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm && !this.temporalFieldHasFocus) {
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowLeft':
@@ -525,12 +527,34 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
+  trackByFn(index: any, item: any) {
+    return index;
+  }
+
+  addQueryField() {
+    this.dynamicQueries.push('');
+    console.log(this.dynamicQueries); // Debugging
+  }
+
+  removeQueryField(index: number) {
+    this.dynamicQueries.splice(index, 1);
+    console.log(this.dynamicQueries); // Debugging
+  }
+
   onQueryInputFocus() {
     this.queryFieldHasFocus = true;
   }
 
   onQueryInputBlur() {
     this.queryFieldHasFocus = false;
+  }
+
+  onTemporalInputFocus() {
+    this.temporalFieldHasFocus = true;
+  }
+
+  onTemporalInputBlur() {
+    this.temporalFieldHasFocus = false;
   }
 
   handleAnswerFieldFocusChange(hasFocus: boolean) {
@@ -676,16 +700,27 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   performQuery(saveToHist: boolean = true) {
-    //called from the paging buttons
+    // Check for file similarity queries first
     if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
       this.performFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix, this.selectedPage);
-    }
-    else if (this.previousQuery !== undefined && this.previousQuery.type === "similarityquery") {
+    } else if (this.previousQuery !== undefined && this.previousQuery.type === "similarityquery") {
       this.performSimilarityQuery(parseInt(this.previousQuery.query));
     } else {
-      this.performTextQuery(saveToHist);
+      // Handling for unified query input, including temporal queries
+      if (this.dynamicQueries.length > 0) {
+        // Handling temporal queries or a single dynamic query alongside the original queryinput
+        const nonEmptyQueries = [this.queryinput, ...this.dynamicQueries].filter(q => q.trim() !== '');
+        const queryString = nonEmptyQueries.join(' < ');
+        // Assuming performTextQuery can handle the new concatenated query string format
+        this.queryinput = queryString; // Update queryinput to include all concatenated queries
+        this.performTextQuery(saveToHist);
+      } else {
+        // If no dynamic queries, proceed with the original queryinput
+        this.performTextQuery(saveToHist);
+      }
     }
   }
+
 
   performTextQuery(saveToHist: boolean = true) {
 
@@ -993,6 +1028,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     this.inputfield.nativeElement.blur();
     this.nodeServerInfo = undefined;
+
+    this.dynamicQueries = [];
 
     this.vbsService.queryResults = logResults;
     this.vbsService.submitQueryResultLog('feedbackModel', this.selectedPage);
