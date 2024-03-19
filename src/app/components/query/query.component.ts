@@ -730,6 +730,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       };
       this.previousQuery = msg;
 
+      msg.dataset = this.selectedDataset;
+      msg.type = this.selectedQueryType;
+      msg.videofiltering = this.selectedVideoFiltering;
+
       //this.sendToCLIPServer(msg);
 
       this.queryTimestamp = getTimestampInSeconds();
