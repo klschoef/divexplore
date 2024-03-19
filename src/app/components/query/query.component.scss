@@ -1,0 +1,221 @@
+input[type="text"] {
+    font-size: 20px;
+    height: 26px;
+    width: 35%;
+}
+
+.queryarea input {
+    margin-top: 14px;
+}
+
+.queryarea button {
+    margin-top: 12px;
+}
+
+.queryarea input,button {
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.mat-button-toggle-group {
+    height: 30px;
+    align-items: center;
+}
+
+.queryarea select, input, button, .mat-icon-button {
+    vertical-align: middle;
+    // Other common styles for buttons
+}
+
+
+.searchButton {
+    background-color: rgb(227, 227, 158);
+    color: black;
+    margin-right: 40px;
+}
+
+.browseButton {
+    background-color: rgb(135, 161, 213);
+}
+
+.resetButton {
+    background-color: rgb(242, 103, 103);
+}
+
+.historySelect {
+    float: right;
+    padding-right: 20px;
+    padding-bottom: 30px;
+}
+
+.historyToggle, .historySelect option {
+    background-color: lightgray;
+}
+
+.spacer {
+    margin-right: 40px;
+}
+
+.spacer2 {
+    margin-right: 18%;
+}
+
+#topicanswer {
+    font-size: 20px;
+    height: 26px;
+    width: 25%;
+    background-color: rgb(220,220,220);
+}
+
+
+.blueborder {
+    border: 3px solid blue;
+    box-sizing: border-box;
+}
+
+.light-red-background {
+    background-color: rgb(250, 191, 191); /* Or any light-red color of your choice */
+}  
+
+.light-blue-background {
+    background-color: lightblue; /* Or any blue color of your choice */
+}
+
+.gray-background {
+background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
+}
+  
+
+/*.videopreview {
+    background-color: rgba(255,255,255,0.75);
+    display: none;
+    position: fixed; //absolute;
+    left: 4px;
+    top: 90px;
+    height: 100%;
+    width: 100%;
+    z-index: 10;
+}
+*/
+
+/*.videopreview {
+    background-color: rgba(255,255,255,0.75);
+    display: none;
+    position: fixed;
+    left: 50%; // Center horizontally
+    top: 50%;  // Center vertically
+    transform: translate(-50%, -50%); // Adjust to center precisely
+    z-index: 10;
+    width: auto;
+    height: auto;
+}*/
+
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Adjust the last value to change the darkness */
+    z-index: 9; /* Make sure this is less than the z-index of .videopreview */
+  }
+
+.videopreview {
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    display: block;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    width: 100%; // Set width to 80% of the viewport width
+    max-height: 86%; // Optional: set a maximum height
+    overflow: auto; // Optional: add scroll for overflow content
+    // Adjust padding or margins if necessary
+}
+.videopreviewimage {
+    width: 100%; /* Allow the image/video to expand fully within its container */
+    max-height: 80vh; /* Limit height to avoid vertical scrolling */
+    object-fit: contain; /* Cover might not be ideal for all videos, consider 'contain' for no cropping */
+}
+
+.videopreviewimage video {
+    width: 100%; /* Ensure video width is responsive to the container size */
+    height: auto; /* Adjust height automatically to maintain aspect ratio */
+    max-height: 80vh; /* Ensure video doesn't extend beyond viewport height */
+    object-fit: contain;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-switch {
+    display: flex;
+    justify-content: space-between;
+    flex: 0 0 20%;
+}
+
+.top-left-button {
+    flex-grow: 1;
+    margin: 0 2px;
+    cursor: pointer;
+    background-color: rgba(230, 230, 230, 0.8);
+}
+
+.top-left-button.active {
+    background-color: rgba(126, 126, 126, 0.8);
+}
+
+.videosummaryheader {
+    flex: 0 0 75%;
+    font-size: larger;
+    font-weight: bold;
+    color: black;
+    background-color: rgba(128, 174, 244, 0.8);
+    flex-grow: 1;
+    cursor: pointer;
+    padding: 6px;
+}
+
+.close-button {
+    display: flex;
+    flex: 0 0 5%;
+    justify-content: center;
+    background-color: rgba(209, 90, 69, 0.8);
+    flex-grow: 1;
+    cursor: pointer;
+}
+
+.resultcount {
+    padding-left: 10px;
+}
+
+.full-message {
+    padding: 40px;
+    background-color: #ffffe0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    font-size: 20pt;
+  }
+
+  /* config-modal.component.css */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000; /* high z-index to appear on top */
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    /* Add more styling as needed */
+  }
+  

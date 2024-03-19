@@ -1,0 +1,79 @@
+<div class="queryarea">
+    <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
+    <span class="headertitle">{{videoid}} ({{keyframes.length}} shots)</span>
+    <span *ngIf="this.hasMetadata()" class="videometainfo">
+        <span class="headerinfo">{{vtitle}}</span>
+        <span class="headerkeyword">[by {{vchannel}}]</span>
+        <span class="headerlabel">{{asTimeLabel(vduration.toString(),false)}}</span>
+        <span class="headerlabel">{{fps}} fps</span>
+        <span class="headerlabel">{{vduration}} secs</span>
+    </span>
+</div>
+
+<div class="videobox" *ngIf="showVideoBox">
+    <ng-template #simplemetadata>
+        <span class="headerlabel">{{fps}} fps</span>
+    </ng-template>
+    <button class="videosubmit" (click)="submitCurrentTime()">Submit</button> <span
+        class="videosubmitinfo">{{asTimeLabel(this.currentVideoTime.toString())}}</span>
+    <span class="minispacer">&nbsp;</span>
+    <button class="hidevideobox" (click)="hideVideoBox()">Hide</button>
+    <br />
+    <video #videoplayer src="{{videoURL}}" (timeupdate)="setCurrentTime($event)" width="480" height="270"
+        controls></video>
+</div>
+
+<div class="queryresults-wrapper">
+
+    <div (mouseover)="showButtons = i" (mouseleave)="showButtons = -1"
+        class="{{getQueryResultCSSClass(this.framenumbers[i])}}" *ngFor="let item of keyframes; let i = index"
+        #queryResult>
+        <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}" (click)="gotoTimeOfShot(i)">
+        <div class="righttopcorner">
+
+        </div>
+        <div class="lefttopcorner">
+            <span class="label">{{timelabels[i]}}</span>
+            <!--<span class="label">
+                f{{this.framenumbers[i]}}
+            </span>-->
+        </div>
+        <div class="leftbottomcorner">
+            <button *ngIf="showButtons === i" (click)="performFileSimilarityQuery(item)"
+                class="resultaction">Similar</button>
+        </div>
+        <div class="rightbottomcorner">
+            <button *ngIf="showButtons === i" class="submitbutton" (click)="submitResult(i)">Submit</button>
+        </div>
+    </div>
+
+</div>
+
+<div class="footerinfo" *ngIf="this.hasMetadata()">
+    <span class="videometainfo">
+        <h3 class="videoheader">Video Description</h3>
+        <span class="headerdescription" [innerHTML]="vdescription"></span>
+        <h3 class="videoheader">Video Tags</h3>
+        <span class="keyword" *ngFor="let tag of vtags">{{tag}}</span>
+        <h3 class="videoheader">Categories</h3>
+        <span class="keyword" *ngFor="let cat of vcategories">{{cat}}</span>
+        <h3 class="videoheader">Video Channel</h3>
+        <span class="keyword">{{vchannel}}</span>
+        <span *ngIf="vtexts.length > 0">
+            <h3 class="videoheader">Detected Text</h3>
+            <span class="keyword" *ngFor="let txt of vtexts">{{txt['frame']}}: {{txt['text']}}</span>
+        </span>
+        <span *ngIf="vspeech">
+            <h3 class="videoheader">Detected Speech</h3>
+            <span class="keyword">{{vspeech['text']}}</span>
+        </span>
+    </span>
+</div>
+
+<app-message-bar></app-message-bar>
+
+<app-status-bar></app-status-bar>
+
+<br />&nbsp;
+<br />&nbsp;
+<br />&nbsp;

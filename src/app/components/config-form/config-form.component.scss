@@ -1,0 +1,32 @@
+.form-row {
+    display: grid;
+    grid-template-columns: auto 1fr; // Adjust 'auto' to the width you need for labels
+    align-items: center;
+    gap: 10px;  // Space between label and input
+    margin-bottom: 10px;  // Space between rows
+  }
+  
+  label {
+    text-align: right; // Aligns text to the right, optional
+  }
+  
+  input[type="text"] {
+    width: 100%; // Ensures input takes the full width of its grid area
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+
+    .cancel-button {
+        background-color: #ff7f7f;
+        color: black; 
+        margin-right: 10px; 
+    }
+
+    .save-button {
+        background-color: #7fff7f; 
+        color: black; 
+    }
+}
+  

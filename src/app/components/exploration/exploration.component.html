@@ -1,0 +1,51 @@
+
+
+<div class="queryarea">
+    <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
+    <span class="headertitle">Cluster Exploration</span>
+</div>
+
+<button (click)="showHideClusterList()">Show/Hide Entire Cluster List</button>
+<span class="spacer"></span>
+Find cluster by text:
+<mat-form-field>
+    <input type="text" placeholder="Select item" matInput [formControl]="itemCtrl" [matAutocomplete]="auto">
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="queryClusterFromSelectBox($event)" [displayWith]="displayFn">
+      <mat-option *ngFor="let item of filteredItems | async" [value]="item">
+        {{ item.name }} ({{ item.count}})
+      </mat-option>
+    </mat-autocomplete>
+</mat-form-field>
+  
+
+
+<div *ngIf="showClusterList" class="link-container">
+    <div class="link-list">
+      <p *ngFor="let c of clusters" (click)="queryCluster(c.cluster_id)">{{c.cluster_id}}: {{c.name}} ({{c.count}})</p> &nbsp;&nbsp;
+    </div>
+</div>
+
+
+<!--
+<div class="iframe-container">
+    <iframe sandbox="allow-scripts" [src]="selectedLink?.url | safe"></iframe>
+</div>
+-->
+<div *ngIf="showZoomedSummary" class="videopreview" #videopreview>
+    <button class="videosummaryheader" (click)="showVideoShots(this.summaries[this.selectedSummary])"> {{this.summaries[this.selectedSummary]}}</button><br/>
+    <img class="zoom" [src]="summariesBase + '/' + summaries[selectedSummary]" (click)="closeSummary()">
+</div>
+
+<div class="cluster">
+  <!--<img *ngFor="let img of summaries" [src]="summariesBase + '/' + img" (click)="showVideoShots(img)">-->
+  <img class="image" *ngFor="let img of summaries; let i = index" [src]="summariesBase + '/' + img" (click)="selectSummary(i)">
+</div>
+
+
+<!--<div class="cluster" [innerHTML]="selectedLink?.content"></div> -->
+
+<app-status-bar></app-status-bar>
+    
+  <br/>&nbsp;
+  <br/>&nbsp;
+  <br/>&nbsp;
