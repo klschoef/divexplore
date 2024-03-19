@@ -2,26 +2,29 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
-import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { DresConnectionService } from '../../services/dres-connection/dres-connection.service';
 import { QueryEvent, QueryEventCategory } from 'openapi/dres';
+import { MainlogService } from 'src/app/services/main-log/mainlog.service';
 
 @Component({
   selector: 'app-status-bar',
   templateUrl: './status-bar.component.html',
   styleUrls: ['./status-bar.component.scss']
 })
-export class StatusBarComponent implements VbsServiceCommunication{
+export class StatusBarComponent implements VbsServiceCommunication {
   @Output() answerFieldFocusChange = new EventEmitter<boolean>();
 
   statusTaskRemainingTime: string = '';
   statusTaskInfoText: string = '';
   topicanswer: string = '';
-  answerFieldHasFocus = false; 
+  answerFieldHasFocus = false;
 
   constructor(
-    public vbsService: VBSServerConnectionService,
+    public vbsService: DresConnectionService,
     public nodeService: NodeServerConnectionService,
-    public clipService: ClipServerConnectionService) {
+    public clipService: ClipServerConnectionService,
+    private mainlogService: MainlogService
+  ) {
   }
 
   sendTopicAnswer() {
@@ -34,7 +37,7 @@ export class StatusBarComponent implements VbsServiceCommunication{
       value: this.topicanswer
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryResultLog('interaction');
+    this.mainlogService.submitQueryResultLog('interaction');
   }
 
   getRemainingTaskTime() {
@@ -51,12 +54,12 @@ export class StatusBarComponent implements VbsServiceCommunication{
     }
   }
 
-  onAnswerInputFocus() { 
+  onAnswerInputFocus() {
     this.answerFieldHasFocus = true;
     this.answerFieldFocusChange.emit(true);
   }
 
-  onAnswerInputBlur() { 
+  onAnswerInputBlur() {
     this.answerFieldHasFocus = false
     this.answerFieldFocusChange.emit(true);
   }

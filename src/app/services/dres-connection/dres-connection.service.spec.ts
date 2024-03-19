@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { VBSServerConnectionService } from './vbsserver-connection.service';
+import { DresConnectionService } from './dres-connection.service';
 
 describe('VBSServerConnectionService', () => {
-  let service: VBSServerConnectionService;
+  let service: DresConnectionService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(VBSServerConnectionService);
+    service = TestBed.inject(DresConnectionService);
   });
 
   it('should be created', () => {

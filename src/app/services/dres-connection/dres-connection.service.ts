@@ -5,7 +5,13 @@ import { EvaluationClientService } from '../../../../openapi/dres/api/evaluation
 import { SubmissionService } from '../../../../openapi/dres/api/submission.service';
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
 //import {LogService} from '../../openapi/dres/api/log.service';
-
+import { GlobalConstants, WSServerStatus } from '../../shared/config/global-constants';
+import { NONE_TYPE } from '@angular/compiler';
+import { UrlSegment } from '@angular/router';
+import { catchError, Observable, of, tap } from 'rxjs';
+import { AppComponent } from '../../app.component';
+import { QueryComponent } from '../../components/query/query.component';
+import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
 //import * as videoDataFPS from '../assets/v3c_video_fps.json';
 
 import {
@@ -29,13 +35,8 @@ import {
   QueryEventCategory,
   StatusService
 } from '../../../../openapi/dres';
-import { GlobalConstants, WSServerStatus } from '../../shared/config/global-constants';
-import { NONE_TYPE } from '@angular/compiler';
-import { UrlSegment } from '@angular/router';
-import { catchError, Observable, of, tap } from 'rxjs';
-import { AppComponent } from '../../app.component';
-import { QueryComponent } from '../../components/query/query.component';
-import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
+import { StateService } from 'src/app/shared/state/state.service';
+
 //import { QueryResultLog } from 'openapi/dres/model/queryResultLog';
 
 interface ExtendedQueryResultLog extends QueryResultLog {
@@ -47,13 +48,13 @@ interface ExtendedQueryResultLog extends QueryResultLog {
 @Injectable({
   providedIn: 'root'
 })
-export class VBSServerConnectionService {
+export class DresConnectionService {
 
   errorMessageEmitter = new EventEmitter<string>();
   successMessageEmitter = new EventEmitter<string>();
 
   sessionId: string | undefined;
-  vbsServerState: WSServerStatus = WSServerStatus.UNSET;
+  dresServerState: WSServerStatus = WSServerStatus.UNSET;
   intervalUpdateError = false;
 
   serverRuns: Array<string> = [];
@@ -82,7 +83,8 @@ export class VBSServerConnectionService {
     private evaluationService: EvaluationService,
     private submissionService: SubmissionService,
     private logService: LogService,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private stateService: StateService
   ) {
     this.println(`VBSServerConnectionService created`);
     this.activeUsername = this.globalConstants.configUSER; //GlobalConstants.configUSER;
@@ -104,7 +106,7 @@ export class VBSServerConnectionService {
           `session: ${login.sessionId}`);
 
         // Successful login
-        this.vbsServerState = WSServerStatus.CONNECTED;
+        this.dresServerState = WSServerStatus.CONNECTED;
 
         /*
         It is better pratice, to let the browser properly handle
@@ -113,6 +115,7 @@ export class VBSServerConnectionService {
         */
         this.sessionId = login.sessionId;
         //this.println(this.sessionId!);
+        this.stateService.updateSessionId(this.sessionId!);
 
         // Wait for a second (do other things)
         setTimeout(() => {
@@ -143,7 +146,7 @@ export class VBSServerConnectionService {
 
       }, error => {
         console.log("cannot log in");
-        this.vbsServerState = WSServerStatus.DISCONNECTED;
+        this.dresServerState = WSServerStatus.DISCONNECTED;
       });
   }
 
@@ -153,7 +156,7 @@ export class VBSServerConnectionService {
         return;
       }
 
-      if (this.serverRunStates.get(runId) == 'ACTIVE' && this.vbsServerState == WSServerStatus.CONNECTED) {
+      if (this.serverRunStates.get(runId) == 'ACTIVE' && this.dresServerState == WSServerStatus.CONNECTED) {
         //console.log('requesting info for ' + runId + ' and session ' + this.sessionId!);
 
         this.evaluationClientService.getApiV2ClientEvaluationCurrentTaskByEvaluationId(runId, this.sessionId!)
@@ -323,63 +326,11 @@ export class VBSServerConnectionService {
         });
   }
 
-  submitQueryResultLog(sortType: string, page: string = '') {
-    let qrl = {
-      timestamp: Date.now(),
-      sortType: sortType,
-      resultSetAvailability: 'page ' + page,
-      results: this.queryResults,
-      events: this.queryEvents
-    } as QueryResultLog;
-    if (page === '') {
-      qrl.resultSetAvailability = 'video';
-    }
-
-    this.saveLogLocally(qrl);
-
-    this.logService.postApiV2LogResultByEvaluationId(this.serverRunIDs[this.selectedServerRun!], this.sessionId!, qrl)
-      .subscribe(
-        (response) => {
-          let info = 'QueryResultLog: ' + JSON.stringify(response);
-          //console.log(info);
-          //this.successMessageEmitter.emit(response.description);
-          this.queryResults = []; //clear all results
-          this.queryEvents = []; //clear all events
-        },
-        (error) => {
-          console.error('QueryResultLog error: ', JSON.stringify(error));
-          this.errorMessageEmitter.emit(error.error.description);
-        }
-      );
-  }
-
-
-  saveLogLocally(qrOrig: QueryResultLog) {
-    let qr = JSON.parse(JSON.stringify(qrOrig));
-    //qr.results = [];
-    qr.results = qr.results.slice(0, 10);
-
-    let qrl: ExtendedQueryResultLog = qr as unknown as ExtendedQueryResultLog;
-    qrl.serverTime = this.serverTimestamp;
-    qrl.serverTimeDiff = this.serverTimeDiff;
-
-    let LSname = 'VBS2024QueryResultLog';
-    let log = localStorage.getItem(LSname);
-    if (log) {
-      let loga = JSON.parse(log);
-      loga.push(qrl);
-      localStorage.setItem(LSname, JSON.stringify(loga));
-    } else {
-      let loga = [qrl];
-      localStorage.setItem(LSname, JSON.stringify(loga));
-    }
-  }
-
   logout(appComp: AppComponent) {
     // === Graceful logout ===
     this.userService.getApiV2Logout(this.sessionId!).subscribe((logout: SuccessStatus) => {
       if (logout.status) {
-        this.vbsServerState = WSServerStatus.DISCONNECTED;
+        this.dresServerState = WSServerStatus.DISCONNECTED;
         this.println('Successfully logged out');
       } else {
         this.println('Error during logout: ' + logout.description);

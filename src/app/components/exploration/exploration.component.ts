@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { DresConnectionService } from '../../services/dres-connection/dres-connection.service';
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -69,7 +69,7 @@ export class ExplorationComponent implements VbsServiceCommunication {
   showZoomedSummary = false;
 
   constructor(
-    public vbsService: VBSServerConnectionService,
+    public vbsService: DresConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService,
     private titleService: Title,

@@ -1,7 +1,7 @@
 import { ViewChild, ElementRef, Component, AfterViewInit, Renderer2 } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../../shared/config/global-constants';
-import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { DresConnectionService } from '../../services/dres-connection/dres-connection.service';
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
 import { GUIAction, GUIActionType } from '../../shared/interfaces/gui-action';
 import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
@@ -16,6 +16,8 @@ import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigFormComponent } from '../config-form/config-form.component';
 import { UrlRetrievalService } from 'src/app/services/url-retrieval/url-retrieval.service';
+import { StateService } from 'src/app/shared/state/state.service';
+import { MainlogService } from 'src/app/services/main-log/mainlog.service';
 
 @Component({
   selector: 'app-query',
@@ -122,14 +124,16 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   constructor(
     private globalConstants: GlobalConstantsService,
-    public vbsService: VBSServerConnectionService,
+    public vbsService: DresConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService,
     public urlRetrievalService: UrlRetrievalService,
     private renderer: Renderer2,
     private titleService: Title,
     private route: ActivatedRoute,
+    private mainLogService: MainlogService,
     private router: Router,
+    private stateService: StateService,
     public dialog: MatDialog) {
     this.queryTypeMap = new Map<string, typeof this.queryTypes>();
     this.initializeMap();
@@ -149,6 +153,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     if (selectedEvaluation) {
       console.log('selected evaluation is ' + selectedEvaluation);
       this.vbsService.selectedServerRun = parseInt(selectedEvaluation);
+      this.stateService.updateSelectedServerRun(this.vbsService.selectedServerRun);
     }
 
     this.route.paramMap.subscribe(paraMap => {
@@ -326,6 +331,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   requestTaskInfo() {
     if (this.vbsService.serverRunIDs.length > 0 && this.vbsService.selectedServerRun === undefined) {
       this.vbsService.selectedServerRun = 0;
+      this.stateService.updateSelectedServerRun(0);
     }
     if (this.vbsService.selectedServerRun !== undefined) {
       this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[this.vbsService.selectedServerRun], this);
@@ -572,7 +578,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       value: this.queryresult_videoid[this.selectedItem]
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryResultLog('interaction');
+    this.mainLogService.submitQueryResultLog('interaction');
   }
 
   closeVideoPreview() {
@@ -991,7 +997,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.nodeServerInfo = undefined;
 
     this.vbsService.queryResults = logResults;
-    this.vbsService.submitQueryResultLog('feedbackModel', this.selectedPage);
+    this.mainLogService.submitQueryResultLog('feedbackModel', this.selectedPage);
   }
 
   closeWebSocketCLIP() {
@@ -1033,10 +1039,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         timestamp: Date.now(),
         category: QueryEventCategory.OTHER,
         type: "submitFrame",
+
+
         value: videoid + ',' + frameNumber
       }
       this.vbsService.queryEvents.push(queryEvent);
-      this.vbsService.submitQueryResultLog('interaction');
+      this.mainLogService.submitQueryResultLog('interaction');
     });
   }
 }

@@ -1,7 +1,7 @@
-import { ViewChild,ElementRef,Component, AfterViewInit } from '@angular/core';
+import { ViewChild, ElementRef, Component, AfterViewInit } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { GlobalConstants, WSServerStatus, WebSocketEvent } from './shared/config/global-constants';
-import { VBSServerConnectionService } from './services/vbsserver-connection/vbsserver-connection.service';
+import { DresConnectionService } from './services/dres-connection/dres-connection.service';
 import { NodeServerConnectionService } from './services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from './services/clipserver-connection/clipserver-connection.service';
 import { Router } from '@angular/router';
@@ -14,35 +14,35 @@ import { Router } from '@angular/router';
 
 
 export class AppComponent implements AfterViewInit {
-    
+
   constructor(
-    public vbsService: VBSServerConnectionService,
+    public vbsService: DresConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService,
     private router: Router) {
-      this.nodeService.messages.subscribe(msg => {
-        if ('wsstatus' in msg) { 
-          console.log('node-notification: connected');
-        } else {
-          let result = msg.content;
-          console.log("Response from node-server: " + result[0]);
-          console.log(result[0]['shots']);
-        }
-      });
+    this.nodeService.messages.subscribe(msg => {
+      if ('wsstatus' in msg) {
+        console.log('node-notification: connected');
+      } else {
+        let result = msg.content;
+        console.log("Response from node-server: " + result[0]);
+        console.log(result[0]['shots']);
+      }
+    });
   }
 
-  
+
   ngOnInit() {
   }
 
   ngAfterViewInit(): void {
   }
 
-   /****************************************************************************
-   * Queries
-   ****************************************************************************/
+  /****************************************************************************
+  * Queries
+  ****************************************************************************/
 
-  sendToNodeServer(msg:any) {
+  sendToNodeServer(msg: any) {
     let message = {
       source: 'appcomponent',
       content: msg
@@ -55,7 +55,7 @@ export class AppComponent implements AfterViewInit {
    * WebSockets (CLIP and Node.js)
    ****************************************************************************/
 
-  handleNodeMessage(msg:any) {
+  handleNodeMessage(msg: any) {
 
   }
 
@@ -80,11 +80,11 @@ export class AppComponent implements AfterViewInit {
   }
 
   checkVBSServerConnection() {
-    if (this.vbsService.vbsServerState == WSServerStatus.UNSET || this.vbsService.vbsServerState == WSServerStatus.DISCONNECTED) {
+    if (this.vbsService.dresServerState == WSServerStatus.UNSET || this.vbsService.dresServerState == WSServerStatus.DISCONNECTED) {
       this.connectToVBSServer();
-    } else if (this.vbsService.vbsServerState == WSServerStatus.CONNECTED) {
+    } else if (this.vbsService.dresServerState == WSServerStatus.CONNECTED) {
       this.disconnectFromVBSServer();
-    } 
+    }
   }
 
   /****************************************************************************

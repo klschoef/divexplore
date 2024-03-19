@@ -1,7 +1,7 @@
 import { ViewChild, ElementRef, AfterViewInit, Component } from '@angular/core';
 import { ViewChildren, QueryList } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
+import { DresConnectionService } from '../../services/dres-connection/dres-connection.service';
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
@@ -12,6 +12,8 @@ import { Title } from '@angular/platform-browser';
 import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
 import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
+import { StateService } from 'src/app/shared/state/state.service';
+import { MainlogService } from 'src/app/services/main-log/mainlog.service';
 
 const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
 
@@ -65,13 +67,15 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
   @ViewChildren('queryResult') queryResults!: QueryList<ElementRef>;
 
   constructor(
-    public vbsService: VBSServerConnectionService,
+    public vbsService: DresConnectionService,
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService,
     private titleService: Title,
     private route: ActivatedRoute,
     private router: Router,
-    private globalConstants: GlobalConstantsService
+    private globalConstants: GlobalConstantsService,
+    private stateService: StateService,
+    private mainLogService: MainlogService
   ) { }
 
   ngOnInit() {
@@ -88,6 +92,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
     if (selectedEvaluation) {
       console.log('selected evaluation is ' + selectedEvaluation);
       this.vbsService.selectedServerRun = parseInt(selectedEvaluation);
+      this.stateService.updateSelectedServerRun(this.vbsService.selectedServerRun);
     }
 
     this.route.paramMap.subscribe(paraMap => {
@@ -143,6 +148,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
   requestTaskInfo() {
     if (this.vbsService.serverRunIDs.length > 0 && this.vbsService.selectedServerRun === undefined) {
       this.vbsService.selectedServerRun = 0;
+      this.stateService.updateSelectedServerRun(0);
     }
     if (this.vbsService.selectedServerRun !== undefined) {
       this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[this.vbsService.selectedServerRun], this);
@@ -281,7 +287,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
     }
 
     this.vbsService.queryResults = logResults;
-    this.vbsService.submitQueryResultLog('shotlist');
+    this.mainLogService.submitQueryResultLog('shotlist');
   }
 
 
@@ -306,9 +312,9 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
   }
 
   checkVBSServerConnection() {
-    if (this.vbsService.vbsServerState == WSServerStatus.UNSET || this.vbsService.vbsServerState == WSServerStatus.DISCONNECTED) {
+    if (this.vbsService.dresServerState == WSServerStatus.UNSET || this.vbsService.dresServerState == WSServerStatus.DISCONNECTED) {
       this.connectToVBSServer();
-    } else if (this.vbsService.vbsServerState == WSServerStatus.CONNECTED) {
+    } else if (this.vbsService.dresServerState == WSServerStatus.CONNECTED) {
       this.disconnectFromVBSServer();
     }
   }
@@ -364,7 +370,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       value: this.videoid! + ',' + this.currentVideoTime
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryResultLog('interaction');
+    this.mainLogService.submitQueryResultLog('interaction');
   }
 
   submitResult(index: number) {
@@ -379,7 +385,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       value: this.videoid! + ',' + index + ',' + this.framenumbers[index]
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryResultLog('interaction');
+    this.mainLogService.submitQueryResultLog('interaction');
   }
 
   sendTopicAnswer() {
@@ -394,7 +400,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       value: this.topicanswer
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryResultLog('interaction');
+    this.mainLogService.submitQueryResultLog('interaction');
   }
 
 }

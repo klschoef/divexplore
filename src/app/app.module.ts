@@ -14,7 +14,7 @@ import { ShotlistComponent } from './components/shotlist/shotlist.component';
 import { ApiModule, Configuration } from 'openapi/dres';
 import { GlobalConstants } from './shared/config/global-constants';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { VBSServerConnectionService } from './services/vbsserver-connection/vbsserver-connection.service';
+import { DresConnectionService } from './services/dres-connection/dres-connection.service';
 import { QueryComponent } from './components/query/query.component';
 import { ExplorationComponent } from './components/exploration/exploration.component';
 
@@ -66,7 +66,7 @@ import { StatusBarComponent } from './components/status-bar/status-bar.component
     ReactiveFormsModule,
     MatDialogModule
   ],
-  providers: [VBSServerConnectionService],
+  providers: [DresConnectionService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
