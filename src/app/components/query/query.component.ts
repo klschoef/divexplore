@@ -533,12 +533,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   addQueryField() {
     this.dynamicQueries.push('');
-    console.log(this.dynamicQueries); // Debugging
   }
 
   removeQueryField(index: number) {
     this.dynamicQueries.splice(index, 1);
-    console.log(this.dynamicQueries); // Debugging
   }
 
   onQueryInputFocus() {
@@ -1028,9 +1026,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     this.inputfield.nativeElement.blur();
     this.nodeServerInfo = undefined;
-
-    this.dynamicQueries = [];
-
     this.vbsService.queryResults = logResults;
     this.vbsService.submitQueryResultLog('feedbackModel', this.selectedPage);
   }

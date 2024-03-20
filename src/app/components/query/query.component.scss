@@ -4,7 +4,31 @@ input[type="text"] {
     width: 35%;
 }
 
-.queryarea input {
+.queryarea {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .top-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* Allows wrapping if the window is too narrow */
+  }
+  
+  .bottom-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 10px; /* Adds some space above the bottom row */
+  }
+  
+  /* Adjust the logo size as necessary */
+  .logo {
+    height: 50px; /* Example size, adjust as needed */
+    margin-right: 10px; /* Adds some space after the logo */
+  }
+
+  .queryarea input {
     margin-top: 14px;
 }
 
@@ -27,7 +51,20 @@ input[type="text"] {
     // Other common styles for buttons
 }
 
-.searchButton {
+.temporal-query-area {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    /* Additional styling here to visually separate this area or align the fields as desired */
+  }
+  
+  .temporal-query-field {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px; /* Space between dynamic query fields */
+  }
+  
+
+  .searchButton {
     background-color: rgb(227, 227, 158);
     color: black;
     margin-right: 40px;
@@ -50,7 +87,7 @@ input[type="text"] {
 .historyToggle, .historySelect option {
     background-color: lightgray;
 }
-
+  
 .spacer {
     margin-right: 40px;
 }
@@ -83,31 +120,6 @@ input[type="text"] {
 .gray-background {
 background-color: rgb(210, 209, 209); /* Or any shade of gray you prefer */
 }
-  
-
-/*.videopreview {
-    background-color: rgba(255,255,255,0.75);
-    display: none;
-    position: fixed; //absolute;
-    left: 4px;
-    top: 90px;
-    height: 100%;
-    width: 100%;
-    z-index: 10;
-}
-*/
-
-/*.videopreview {
-    background-color: rgba(255,255,255,0.75);
-    display: none;
-    position: fixed;
-    left: 50%; // Center horizontally
-    top: 50%;  // Center vertically
-    transform: translate(-50%, -50%); // Adjust to center precisely
-    z-index: 10;
-    width: auto;
-    height: auto;
-}*/
 
 .backdrop {
     position: fixed;

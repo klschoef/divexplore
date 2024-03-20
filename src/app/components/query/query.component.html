@@ -1,56 +1,50 @@
 <div class="queryarea">
-  <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
-  <!--<button class="backbutton" (click)="this.backInHistory()"><-</button>-->
-  <select class="gray-background" [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
-    <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
-  </select>
-  <select [(ngModel)]="selectedVideoFiltering"
-    [ngClass]="{'light-red-background': selectedVideoFiltering === 'first', 'light-blue-background': selectedVideoFiltering !== 'first'}"
-    (change)="resetPageAndPerformQuery()">
-    <option *ngFor="let d of videoFiltering" [ngValue]="d.id">{{d.name}}</option>
-  </select>
-  <select [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
-    <option *ngFor="let d of this.getQueryTypes(this.selectedDataset)" [ngValue]="d.id">{{d.name}}</option>
-  </select>
-  <!-- Original search input -->
-  <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput"
-    (keyup.enter)="performQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus />
-
-  <!-- Button to add temporal query fields -->
-  <button type="button" (click)="addQueryField()">Add Temporal Query</button>
-
-  <!-- Dynamic query inputs for temporal queries -->
-  <div *ngFor="let tempQuery of dynamicQueries; let i = index; trackBy: trackByFn" class="temporal-query-field">
-    <input type="text" [(ngModel)]="dynamicQueries[i]" placeholder="Enter Temporal Query"
-      (focus)="onTemporalInputFocus()" (blur)="onTemporalInputBlur()" autofocus>
-    <button type="button" (click)="removeQueryField(i)">Remove</button>
-  </div>
-  <!-- Unified search button -->
-  <button class="searchButton" (click)="performQuery()">Search</button>
-  <!--
-        <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus/>
-    <button class="searchButton" (click)="performNewTextQuery()">Search</button>
-    -->
-  <button class="newtab" (click)="newTab()">+Tab</button>
-  <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
-  <button class="resetButton" (click)="resetQuery()">Reset</button>
-  <button class="browseButton" (click)="browseClusters()">Xplore</button>
-
-  <div class="historySelect" #historyDiv>
-    <select [(ngModel)]="selectedHistoryEntry" value="" (change)="performHistoryQuery()">
-      <option value="-1" selected disabled>-- Search History --</option>
-      <option *ngFor="let h of history(); let i = index" [ngValue]="i">{{h}}</option>
+  <div class="top-row">
+    <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png" alt="Logo"></a>
+    <select class="gray-background" [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
+      <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
     </select>
+    <select [(ngModel)]="selectedVideoFiltering"
+      [ngClass]="{'light-red-background': selectedVideoFiltering === 'first', 'light-blue-background': selectedVideoFiltering !== 'first'}"
+      (change)="resetPageAndPerformQuery()">
+      <option *ngFor="let d of videoFiltering" [ngValue]="d.id">{{d.name}}</option>
+    </select>
+    <select [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
+      <option *ngFor="let d of this.getQueryTypes(this.selectedDataset)" [ngValue]="d.id">{{d.name}}</option>
+    </select>
+    <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput"
+      (keyup.enter)="performQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus />
+    <button type="button" (click)="addQueryField()">Add Temporal Query</button>
+    <button class="searchButton" (click)="performQuery()">Search</button>
+    <button class="newtab" (click)="newTab()">+Tab</button>
+    <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
+    <button class="resetButton" (click)="resetQuery()">Reset</button>
+    <button class="browseButton" (click)="browseClusters()">Xplore</button>
+    <button mat-icon-button (click)="showHelp()">
+      <mat-icon>help</mat-icon>
+    </button>
+    <button mat-icon-button (click)="toggleConfigDialog()">
+      <mat-icon>settings</mat-icon>
+    </button>
   </div>
-
-  <button mat-icon-button (click)="showHelp()">
-    <mat-icon>help</mat-icon>
-  </button>
-
-  <button mat-icon-button (click)="toggleConfigDialog()">
-    <mat-icon>settings</mat-icon>
-  </button>
+  <!-- Temporal Query Fields -->
+  <div class="temporal-query-area">
+    <div *ngFor="let tempQuery of dynamicQueries; let i = index; trackBy: trackByFn" class="temporal-query-field">
+      <input type="text" [(ngModel)]="dynamicQueries[i]" placeholder="Enter Temporal Query"
+        (focus)="onTemporalInputFocus()" (blur)="onTemporalInputBlur()" autofocus>
+      <button type="button" (click)="removeQueryField(i)">Remove</button>
+    </div>
+  </div>
+  <!-- Pagination Controls -->
+  <div class="bottom-row">
+    Pages:
+    <mat-button-toggle-group [(ngModel)]="selectedPage">
+      <mat-button-toggle *ngFor="let p of pages" [value]="p" (click)="performQuery()" [disabled]="totalReturnedResults == 0">{{p}}</mat-button-toggle>
+    </mat-button-toggle-group>
+    <span class="resultcount">{{totalReturnedResults}} results</span>
+  </div>
 </div>
+
 
 <!-- Config Modal -->
 <div class="modal fade" id="configModal" tabindex="-1" role="dialog" aria-labelledby="configModalLabel"
@@ -68,17 +62,6 @@
       </div>
     </div>
   </div>
-</div>
-
-
-
-<div class="queryarea">
-  Pages:
-  <mat-button-toggle-group [(ngModel)]="selectedPage">
-    <mat-button-toggle *ngFor="let p of pages" [value]="p" (click)="performQuery()"
-      [disabled]="totalReturnedResults == 0">{{p}}</mat-button-toggle>
-  </mat-button-toggle-group>
-  <span class="resultcount">{{totalReturnedResults}} results</span>
 </div>
 
 <br />
