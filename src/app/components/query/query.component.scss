@@ -162,6 +162,7 @@ background-color: rgb(210, 209, 209);
     height: auto; /* Maintains aspect ratio */
     margin: 5px; /* Adjust margin as necessary, or consider using gap property on the container */
     max-width: calc((100% / var(--columnsCount)) - 10px); /* Example dynamic width calculation using CSS variable, adjusted for gap/margin */
+    cursor: pointer;
 }
 .videopreviewimage {
     width: 100%; 
