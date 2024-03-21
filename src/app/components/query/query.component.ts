@@ -589,6 +589,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
+
+
   closeVideoPreview() {
     //this.videopreview.nativeElement.style.display = 'none';
     this.showPreview = false;
@@ -601,6 +603,19 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     if (content === 'explore') {
       this.urlRetrievalService.getExplorationUrls(this.queryresult_videoid[this.selectedItem]);
     }
+  }
+
+  createShotLink(explorationUrl: string) {
+    let videoId: string = "";
+    const url = new URL(explorationUrl);
+    const paths = url.pathname.split('/');
+    const summariesXLIndex = paths.indexOf('summariesXL');
+    console.log('paths: ' + summariesXLIndex + " Path length: " + paths.length);
+    console.log('paths: ' + paths);
+    if (summariesXLIndex !== -1 && summariesXLIndex + 1 < paths.length) {
+      videoId = paths[summariesXLIndex + 2];
+    }
+    this.showVideoShots(videoId, '1');
   }
 
   showVideoShots(videoid: string, frame: string) {

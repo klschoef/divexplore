@@ -110,7 +110,7 @@
       </div>
       <div *ngIf="currentContent === 'explore'" class="explore-scroll-container">
         <img *ngFor="let imgUrl of videoExplorePreview" [src]="imgUrl" class="exploreimage"
-          (click)="closeVideoPreview()">
+          (click)="createShotLink(imgUrl)">
       </div>
     </div>
   </div>
