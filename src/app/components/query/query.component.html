@@ -108,11 +108,17 @@
         <video #videopreview [src]="videoPlayPreview" controls></video>
         <!-- <img [src]="videoSummaryLargePreview" (click)="closeVideoPreview()"> -->
       </div>
-      <div *ngIf="currentContent === 'explore'" class="explore-scroll-container">
-        <img *ngFor="let imgUrl of videoExplorePreview" [src]="imgUrl" class="exploreimage"
+      <div *ngIf="currentContent === 'explore'" class="explore-container">
+        <div class="explore-ui-overlay">
+        <input type="range" min="1" max="5" [(ngModel)]="columnsCount">
+        <p>Columns: {{columnsCount}}</p>
+      </div>
+      <div class="explore-scroll-container">
+        <img *ngFor="let imgUrl of videoExplorePreview" [src]="imgUrl" class="exploreimage" [style.width.%]="100 / columnsCount - 2"
           (click)="createShotLink(imgUrl)">
       </div>
     </div>
+  </div>
   </div>
   <div (mouseover)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult"
     *ngFor="let item of queryresults; let i = index">

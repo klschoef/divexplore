@@ -70,6 +70,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   showButtons = -1;
   activeButton: string = 'image';
   showConfigForm = false;
+  columnsCount: number = 3;
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
@@ -588,8 +589,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.urlRetrievalService.getExplorationUrls(this.queryresult_videoid[this.selectedItem]);
     }
   }
-
-
 
   closeVideoPreview() {
     //this.videopreview.nativeElement.style.display = 'none';
