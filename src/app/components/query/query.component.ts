@@ -32,6 +32,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   // Subscriptions for handling events
   private dresErrorMessageSubscription!: Subscription;
   private dresSuccessMessageSubscription!: Subscription;
+  private urlRetrievalServiceSubscription!: Subscription;
 
   // Query-related properties
   queryinput: string = '';
@@ -54,7 +55,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   videoSummaryPreview: string = '';
   videoLargePreview: string = '';
   videoPlayPreview: string = '';
-  currentContent: 'image' | 'thumbnail' | 'video' = 'image';
+  videoExplorePreview: Array<string> = [];
+  currentContent: 'image' | 'thumbnail' | 'video' | 'explore' = 'image';
   //videoSummaryLargePreview: string = '';
 
   // UI state and navigation properties
@@ -151,6 +153,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.vbsService.selectedServerRun = parseInt(selectedEvaluation);
     }
 
+    this.urlRetrievalServiceSubscription = this.urlRetrievalService.explorationResults$.subscribe(results => {
+      if (results) {
+        console.log('qc: exploration results receive ' + results)
+        this.videoExplorePreview = results;
+      }
+    });
+
     this.route.paramMap.subscribe(paraMap => {
       this.file_sim_keyframe = paraMap.get('id')?.toString();
       if (this.file_sim_keyframe) {
@@ -179,9 +188,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     //already connected?
     if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
-      console.log('qc: node-service already connected');
+      console.log('qc: 1234 node-service already connected');
     } else {
-      console.log('qc: node-service not connected yet');
+      console.log('qc: 1234 node-service not connected yet');
     }
     if (this.clipService.connectionState == WSServerStatus.CONNECTED) {
       console.log('qc: CLIP-service already connected');
@@ -253,6 +262,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   ngOnDestroy() {
     this.dresErrorMessageSubscription.unsubscribe();
     this.dresSuccessMessageSubscription.unsubscribe();
+    this.urlRetrievalServiceSubscription.unsubscribe();
   }
 
   ngAfterViewInit(): void {
@@ -573,6 +583,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
     this.vbsService.queryEvents.push(queryEvent);
     this.vbsService.submitQueryResultLog('interaction');
+
+    if (this.currentContent === 'explore') {
+      this.urlRetrievalService.getExplorationUrls(this.queryresult_videoid[this.selectedItem]);
+    }
   }
 
   closeVideoPreview() {
@@ -580,9 +594,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.showPreview = false;
   }
 
-  setContent(content: 'image' | 'thumbnail' | 'video') {
+  setContent(content: 'image' | 'thumbnail' | 'video' | 'explore') {
     this.currentContent = content;
     this.activeButton = content;
+
+    if (content === 'explore') {
+      this.urlRetrievalService.getExplorationUrls(this.queryresult_videoid[this.selectedItem]);
+    }
   }
 
   showVideoShots(videoid: string, frame: string) {

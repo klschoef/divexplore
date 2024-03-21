@@ -88,7 +88,12 @@ export class ExplorationComponent implements VbsServiceCommunication {
             map(item => this._filterItems(item))
           );
         } else if (m.type === 'cluster') {
+          console.log("ec: cluster: " + m.results);
           this.summaries = m.results;
+        } else if (m.type === 'clusterimage') {
+          console.log("ec: cluster images: " + m.results);
+          this.summaries = m.results;
+          console.log('ec: cluster image: ' + m.results);
         }
       }
     });
@@ -103,6 +108,8 @@ export class ExplorationComponent implements VbsServiceCommunication {
       this.queryAllClusters();
     }, 1000);
   }
+
+
 
   private _filterItems(value: string): Cluster[] {
     const filterValue = value.toLowerCase();
@@ -182,6 +189,22 @@ export class ExplorationComponent implements VbsServiceCommunication {
       query: clusterid,
       clientId: "direct"
     };
+
+    if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
+      this.showClusterList = false;
+      this.sendToNodeServer(msg);
+    }
+  }
+
+  queryClusterForImage(imgID: string) {
+    let msg = {
+      dataset: 'v3c',
+      type: "clusterimage",
+      query: imgID,
+      clientId: "direct"
+    };
+
+    console.log('ec: queryClusterForImage: ' + imgID);
 
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
       this.showClusterList = false;
