@@ -45,6 +45,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   queryType: string = '';
   previousQuery: any | undefined;
   querydataset: string = '';
+  submittedStatus: { [key: string]: boolean } = {};
 
   // Metadata and summaries for video analysis
   metadata: any;
@@ -256,6 +257,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     setInterval(() => {
       this.requestTaskInfo();
     }, 1000);
+
+    const submittedFrames = JSON.parse(localStorage.getItem('submittedFrames') || '[]');
+    submittedFrames.forEach((item: string) => {
+      this.submittedStatus[item] = true;
+    });
   }
 
   ngOnDestroy() {
@@ -1021,6 +1027,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       resultnum++;
     }
 
+    console.log("Queryresult: " + this.queryresults);
+
     this.inputfield.nativeElement.blur();
     this.nodeServerInfo = undefined;
 
@@ -1045,6 +1053,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let comps = keyframe.split('_');
     let frameNumber = comps[comps.length - 1].split('.')[0]
     console.log(`${videoid} - ${keyframe} - ${frameNumber}`);
+
+    this.markFrameAsSubmitted(videoid); //TODO: Change to VBS response instead of onClick!
 
     let msg = {
       type: "videofps",
@@ -1072,5 +1082,23 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.vbsService.queryEvents.push(queryEvent);
       this.vbsService.submitQueryResultLog('interaction');
     });
+  }
+
+  markFrameAsSubmitted(videoid: string) {
+    this.submittedStatus[videoid] = true;
+
+    let submittedFrames = JSON.parse(localStorage.getItem('submittedFrames') || '[]');
+    if (!submittedFrames.includes(videoid)) {
+      submittedFrames.push(videoid);
+      localStorage.setItem('submittedFrames', JSON.stringify(submittedFrames));
+    }
+
+    console.log('Submitted frames: ', submittedFrames);
+  }
+
+  isVideoSubmitted(keyframe: string): boolean {
+    const videoid = keyframe.split('/')[0];
+    const submittedVideoIds = JSON.parse(localStorage.getItem('submittedFrames') || '[]');
+    return submittedVideoIds.includes(videoid);
   }
 }

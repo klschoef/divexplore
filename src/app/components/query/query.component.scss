@@ -4,6 +4,40 @@ input[type="text"] {
     width: 35%;
 }
 
+.queryresult img.submitted {
+    filter: grayscale(100%); /* Grayscale the submitted images */
+    position: relative;
+  }
+
+
+.queryresult img.submitted::after {
+    content: "Submitted";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Black overlay with transparency */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    transition: all 0.3s ease; /* Smooth transition for the overlay effect */
+  }
+
+  .submitted-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 0, 0, 0.75); /* Semi-transparent red background */
+    color: white; /* White text */
+    padding: 2px 5px; /* Some padding around the text */
+    font-size: 12px; /* Adjust size as needed */
+    z-index: 2; /* Ensure it's above the image but below any interactive elements */
+  }
+  
+
 .queryarea input {
     margin-top: 14px;
 }

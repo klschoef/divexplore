@@ -123,10 +123,11 @@
   <div (mouseover)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult"
     *ngFor="let item of queryresults; let i = index">
     <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}"
-      (click)="selectItemAndShowSummary(i,$event)" [ngClass]="{'blueborder': this.selectedItem == i}">
+      (click)="selectItemAndShowSummary(i,$event)" [ngClass]="{'blueborder': this.selectedItem == i, 'submitted': isVideoSubmitted(item)}">
     <div class="lefttopcorner">
       <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'"
         class="resultnum">{{getTimeInformationFor(i)}}</span>
+        <span *ngIf="isVideoSubmitted(item)" class="submitted-text">Submitted</span>
     </div>
     <div class="righttopcorner">
       <!--<span class="label" (click)="this.queryForVideo(i)">

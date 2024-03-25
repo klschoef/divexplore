@@ -23,3 +23,14 @@
 .submissionresponse {
     width: 50px;
 }
+
+.reset-submissions-button {
+    margin-left: auto;
+    padding: 5px 10px;
+    background-color: #ffcccc;
+    border: none;
+    cursor: pointer;
+    &:hover {
+      background-color: #ffb3b3;
+    }
+  }

@@ -10,13 +10,13 @@ import { QueryEvent, QueryEventCategory } from 'openapi/dres';
   templateUrl: './status-bar.component.html',
   styleUrls: ['./status-bar.component.scss']
 })
-export class StatusBarComponent implements VbsServiceCommunication{
+export class StatusBarComponent implements VbsServiceCommunication {
   @Output() answerFieldFocusChange = new EventEmitter<boolean>();
 
   statusTaskRemainingTime: string = '';
   statusTaskInfoText: string = '';
   topicanswer: string = '';
-  answerFieldHasFocus = false; 
+  answerFieldHasFocus = false;
 
   constructor(
     public vbsService: VBSServerConnectionService,
@@ -51,13 +51,17 @@ export class StatusBarComponent implements VbsServiceCommunication{
     }
   }
 
-  onAnswerInputFocus() { 
+  onAnswerInputFocus() {
     this.answerFieldHasFocus = true;
     this.answerFieldFocusChange.emit(true);
   }
 
-  onAnswerInputBlur() { 
+  onAnswerInputBlur() {
     this.answerFieldHasFocus = false
     this.answerFieldFocusChange.emit(true);
+  }
+
+  resetSubmissions() {
+    localStorage.removeItem('submittedFrames');
   }
 }
