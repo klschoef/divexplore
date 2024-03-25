@@ -94,9 +94,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   ];
 
   // Results and pagination
-  //maxresults = this.globalConstants.maxResultsToReturn;
   totalReturnedResults = 0; //how many results did our query return in total?
-  //resultsPerPage = this.globalConstants.resultsPerPage; 
   selectedPage = '1'; //user-selected page
   pages = ['1']
 
