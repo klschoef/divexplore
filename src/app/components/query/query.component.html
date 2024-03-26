@@ -19,7 +19,7 @@
   <button class="newtab" (click)="newTab()">+Tab</button>
   <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
   <button class="resetButton" (click)="resetQuery()">Reset</button>
-  <button class="browseButton" (click)="browseClusters()">Xplore</button>
+  <!-- <button class="browseButton" (click)="browseClusters()">Xplore</button> -->
 
   <div class="historySelect" #historyDiv>
     <select [(ngModel)]="selectedHistoryEntry" value="" (change)="performHistoryQuery()">

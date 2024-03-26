@@ -349,9 +349,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
 
-  browseClusters() {
-    this.router.navigate(['exploration']);
-  }
+  //browseClusters() {
+  //  this.router.navigate(['exploration']);
+  //}
 
   toggleHistorySelect() {
     this.historyDiv.nativeElement.hidden = !this.historyDiv.nativeElement.hidden;
@@ -439,6 +439,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowLeft':
+          if (this.currentContent === 'explore') {
+            this.setContent('image');
+          }
           this.handleArrowKeys(event);
           break;
         case 'ArrowUp':
@@ -503,7 +506,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       } else { // ArrowLeft
         this.selectedItem = this.selectedItem > 0 ? this.selectedItem - 1 : !this.showPreview ? this.queryresult_videoid.length - 1 : this.selectedItem;
       }
-      if (toShow) this.showVideoPreview();
+      if (toShow) {
+        this.showVideoPreview();
+        console.log("Showing new image")
+      }
     }
   }
 
