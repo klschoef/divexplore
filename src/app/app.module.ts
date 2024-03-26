@@ -25,7 +25,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MessageBarComponent } from './components/message-bar/message-bar.component';
 import { ConfigFormComponent } from './components/config-form/config-form.component';
 
-
 import { MatDialogModule } from '@angular/material/dialog';
 import { HelpSectionComponent } from './dialogues/help-section/help-section.component';
 import { ExplDialogComponent } from './features/expl-dialog/expl-dialog.component';

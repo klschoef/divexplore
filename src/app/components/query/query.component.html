@@ -121,7 +121,7 @@
   </div>
   </div>
   <div (mouseover)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult"
-    *ngFor="let item of queryresults; let i = index">
+    *ngFor="let item of displayQueryResult; let i = index">
     <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}"
       (click)="selectItemAndShowSummary(i,$event)" [ngClass]="{'blueborder': this.selectedItem == i, 'submitted': isVideoSubmitted(item)}">
     <div class="lefttopcorner">

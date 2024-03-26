@@ -1027,8 +1027,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       resultnum++;
     }
 
-    console.log("Queryresult: " + this.queryresults);
-
     this.inputfield.nativeElement.blur();
     this.nodeServerInfo = undefined;
 
@@ -1100,5 +1098,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     const videoid = keyframe.split('/')[0];
     const submittedVideoIds = JSON.parse(localStorage.getItem('submittedFrames') || '[]');
     return submittedVideoIds.includes(videoid);
+  }
+
+  get displayQueryResult() {
+    if (this.globalConstants.showSubmittedFrames) {
+      return this.queryresults;
+    } else {
+      return this.queryresults.filter(item => !this.isVideoSubmitted(item));
+    }
   }
 }
