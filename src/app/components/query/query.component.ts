@@ -468,6 +468,21 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         default:
           if (this.isNumericKey(event.key) && !this.showPreview) {
             this.gotoPage(event.key);
+          } else if (this.isNumericKey(event.key) && this.showPreview) {
+            switch (event.key) {
+              case '1':
+                this.setContent('image');
+                break;
+              case '2':
+                this.setContent('thumbnail');
+                break;
+              case '3':
+                this.setContent('video');
+                break;
+              case '4':
+                this.setContent('explore');
+                break;
+            }
           }
           break;
       }
