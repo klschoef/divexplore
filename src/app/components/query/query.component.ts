@@ -439,9 +439,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowLeft':
-          if (this.currentContent === 'explore') {
+          /* if (this.currentContent === 'explore') {
             this.setContent('image');
-          }
+          }*/
           this.handleArrowKeys(event);
           break;
         case 'ArrowUp':
@@ -629,9 +629,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.vbsService.queryEvents.push(queryEvent);
     this.vbsService.submitQueryResultLog('interaction');
 
-    if (this.currentContent === 'explore') {
-      this.urlRetrievalService.getExplorationUrls(this.queryresult_videoid[this.selectedItem]);
-    }
+    /*  if (this.currentContent === 'explore') {
+       this.urlRetrievalService.getExplorationUrls(this.queryresult_videoid[this.selectedItem]);
+     } */
   }
 
   closeVideoPreview() {

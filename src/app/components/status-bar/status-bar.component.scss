@@ -35,11 +35,11 @@
     margin-left: auto;
     padding: 5px 10px;
     border-radius: 5px;
-    background-color: red;
+    background-color: rgb(180, 0, 0);
     color: white;
     border: none;
     cursor: pointer;
     &:hover {
-      background-color: red;
+      background-color: rgb(160, 0, 0);
     }
   }
