@@ -103,7 +103,7 @@
       <img *ngIf="currentContent === 'image'" [src]="videoLargePreview" class="videopreviewimage"
         (click)="closeVideoPreview()">
       <img *ngIf="currentContent === 'thumbnail'" [src]="videoSummaryPreview" class="videopreviewimage"
-        (click)="closeVideoPreview()">
+        (click)="closeVideoPreview()" (mouseenter)="this.isOverImage=true" (mouseleave)="this.isOverImage=false">
       <div *ngIf="currentContent === 'video'" class="videopreviewimage">
         <video #videopreview [src]="videoPlayPreview" controls></video>
         <!-- <img [src]="videoSummaryLargePreview" (click)="closeVideoPreview()"> -->

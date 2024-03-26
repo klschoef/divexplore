@@ -8,7 +8,7 @@ const LOCALSTORAGE_FIELDNAME = 'diveXploreConfig';
 })
 export class ConfigService {
   private config: any;
-  
+
 
   constructor() {
     this.loadConfig();
@@ -19,7 +19,7 @@ export class ConfigService {
     this.config = localConfig ? JSON.parse(localConfig) : this.getDefaultConfig();
     console.log('Loaded config:', this.config); // Debugging statement
   }
-  
+
 
   private getDefaultConfig() {
     return {
@@ -31,9 +31,10 @@ export class ConfigService {
       config_DATA_BASE_URL_VIDEOS: LocalConfig.config_DATA_BASE_URL_VIDEOS,
       config_USER: LocalConfig.config_USER,
       config_PASS: LocalConfig.config_PASS,
-      config_RESULTS_PER_PAGE: 35, 
-      config_MAX_RESULTS_TO_RETURN: 35*40,
-      config_IMAGE_WIDTH: 236
+      config_RESULTS_PER_PAGE: 35,
+      config_MAX_RESULTS_TO_RETURN: 35 * 40,
+      config_IMAGE_WIDTH: 236,
+      config_SHOW_SUBMITTED_FRAMES: true
       // ... add other default values
     };
   }

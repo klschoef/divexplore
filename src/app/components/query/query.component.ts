@@ -72,6 +72,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   activeButton: string = 'image';
   showConfigForm = false;
   columnsCount: number = 3;
+  isOverImage: boolean = false;
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
@@ -488,6 +489,24 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         this.selectedItem = this.selectedItem > 0 ? this.selectedItem - 1 : !this.showPreview ? this.queryresult_videoid.length - 1 : this.selectedItem;
       }
       if (toShow) this.showVideoPreview();
+    }
+  }
+
+  @HostListener('wheel', ['$event'])
+  handleScrollEvent(event: WheelEvent) {
+    if (this.isOverImage) {
+      event.preventDefault();
+      if (event.deltaY < 0) { // Scrolling up
+        if (this.showPreview && this.selectedSummaryIdx > 0) {
+          this.selectedSummaryIdx -= 1;
+          this.displayVideoSummary();
+        }
+      } else if (event.deltaY > 0) { // Scrolling down
+        if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
+          this.selectedSummaryIdx += 1;
+          this.displayVideoSummary();
+        }
+      }
     }
   }
 
