@@ -29,7 +29,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { HelpSectionComponent } from './dialogues/help-section/help-section.component';
 import { ExplDialogComponent } from './features/expl-dialog/expl-dialog.component';
 import { StatusBarComponent } from './components/status-bar/status-bar.component';
-
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -63,7 +63,8 @@ import { StatusBarComponent } from './components/status-bar/status-bar.component
     MatFormFieldModule,
     FormsModule,
     ReactiveFormsModule,
-    MatDialogModule
+    MatDialogModule,
+    ScrollingModule
   ],
   providers: [VBSServerConnectionService],
   bootstrap: [AppComponent]

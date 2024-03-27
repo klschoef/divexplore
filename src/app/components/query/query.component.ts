@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigFormComponent } from '../config-form/config-form.component';
 import { UrlRetrievalService } from 'src/app/services/url-retrieval/url-retrieval.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-query',
@@ -124,6 +125,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   statusTaskRemainingTime: string = ""; //property binding
 
   constructor(
+    private cdRef: ChangeDetectorRef,
     private globalConstants: GlobalConstantsService,
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
@@ -156,7 +158,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     this.urlRetrievalServiceSubscription = this.urlRetrievalService.explorationResults$.subscribe(results => {
       if (results) {
-        console.log('qc: exploration results receive ' + results)
         this.videoExplorePreview = results;
       }
     });
@@ -189,9 +190,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     //already connected?
     if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
-      console.log('qc: 1234 node-service already connected');
+      console.log('qc: node-service already connected');
     } else {
-      console.log('qc: 1234 node-service not connected yet');
+      console.log('qc: node-service not connected yet');
     }
     if (this.clipService.connectionState == WSServerStatus.CONNECTED) {
       console.log('qc: CLIP-service already connected');
@@ -233,6 +234,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 this.summaries = msg.content[0]['summaries'];
                 this.selectedSummaryIdx = Math.floor(this.summaries.length / 2);
                 this.displayVideoSummary();
+              } else if (m.type === 'clusterimage') {
+                const resultsArray: Array<string> = m.results;
+                const updatedResults = resultsArray.map(image => this.globalConstants.summariesBaseURL + '/' + image);
+                this.videoExplorePreview = updatedResults;
               }
             } else {
               this.handleQueryResponseMessage(msg);
@@ -614,6 +619,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   /* Shows video preview on click on query-result */
   showVideoPreview() {
+    this.displayVideoSummary();
     this.requestVideoSummaries(this.queryresult_videoid[this.selectedItem]);
     //window.scrollTo(0, 0);
 
@@ -629,22 +635,47 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.vbsService.queryEvents.push(queryEvent);
     this.vbsService.submitQueryResultLog('interaction');
 
-    /*  if (this.currentContent === 'explore') {
-       this.urlRetrievalService.getExplorationUrls(this.queryresult_videoid[this.selectedItem]);
-     } */
+    if (this.currentContent === 'explore') {
+      this.loadExploreImages(this.queryresult_videoid[this.selectedItem]);
+    }
   }
 
   closeVideoPreview() {
     //this.videopreview.nativeElement.style.display = 'none';
     this.showPreview = false;
+    this.selectedSummaryIdx = 0;
+    this.videoSummaryPreview = '';
+    this.videoLargePreview = '';
+    this.videoPlayPreview = '';
+    this.videoExplorePreview = [];
   }
 
   setContent(content: 'image' | 'thumbnail' | 'video' | 'explore') {
     this.currentContent = content;
     this.activeButton = content;
 
-    if (content === 'explore') {
-      this.urlRetrievalService.getExplorationUrls(this.queryresult_videoid[this.selectedItem]);
+    /* c */
+
+    this.showVideoPreview();
+  }
+
+  loadExploreImages(videoid: string) {
+    let msg = {
+      dataset: 'v3c',
+      type: "clusterimage",
+      query: videoid,
+      clientId: "direct"
+    };
+
+    console.log('ec: queryClusterForImages: ' + videoid);
+
+    if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
+      console.log("ec: sent message to node-server: " + msg);
+      let message = {
+        source: 'appcomponent',
+        content: msg
+      };
+      this.nodeService.messages.next(message);
     }
   }
 
@@ -1010,7 +1041,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
    * WebSockets (CLIP and Node.js)
    ****************************************************************************/
   handleQueryResponseMessage(qresults: any) {
-    console.log(qresults);
+    console.log("Query-Result: " + qresults);
     //console.log('dataset=' + qresults.dataset);
 
     if (qresults.totalresults === 0) {

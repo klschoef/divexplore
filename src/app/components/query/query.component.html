@@ -114,7 +114,7 @@
         <p>Columns: {{columnsCount}}</p>
       </div>
       <div class="explore-scroll-container">
-        <img *ngFor="let imgUrl of videoExplorePreview" [src]="imgUrl" class="exploreimage" [style.width.%]="100 / columnsCount - 2"
+        <img *ngFor="let imgUrl of videoExplorePreview" loading="lazy" [src]="imgUrl" class="exploreimage" [style.width.%]="100 / columnsCount - 2"
           (click)="createShotLink(imgUrl)">
       </div>
     </div>

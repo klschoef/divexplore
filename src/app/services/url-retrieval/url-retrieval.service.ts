@@ -24,48 +24,6 @@ export class UrlRetrievalService {
   ) {
     this.baseThumbsUrl = this.globalConstants.thumbsBaseURL;
     this.baseVideosUrl = this.globalConstants.videosBaseURL;
-
-    if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
-      console.log('ec: node-service already connected');
-    } else {
-      console.log('ec: node-service not connected yet');
-    }
-  }
-
-  getExplorationUrls(videoId: string) {
-    this.explorationSubscription = this.nodeService.messages.subscribe(msg => {
-      this.nodeServerInfo = undefined;
-
-      if ('wsstatus' in msg) {
-        console.log('ec: node-service connected');
-      } else {
-        let m = JSON.parse(JSON.stringify(msg));
-        console.log(m);
-        if (m.type === 'clusterimage') {
-          const resultsArray: Array<string> = m.results
-          const updatedResults = resultsArray.map(image => this.globalConstants.summariesBaseURL + '/' + image);
-          this.explorationResultsSource.next(updatedResults);
-        }
-      }
-    });
-
-    let msg = {
-      dataset: 'v3c',
-      type: "clusterimage",
-      query: videoId,
-      clientId: "direct"
-    };
-
-    console.log('ec: queryClusterForImages: ' + videoId);
-
-    if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
-      console.log("ec: sent message to node-server: " + msg);
-      let message = {
-        source: 'appcomponent',
-        content: msg
-      };
-      this.nodeService.messages.next(message);
-    }
   }
 
   getThumbnailUrl(videoId: string, frame: string) {
