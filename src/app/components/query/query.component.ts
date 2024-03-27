@@ -75,7 +75,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   columnsCount: number = 3;
   isOverImage: boolean = false;
   displayedImages: Array<string> = [];
-  batchSize: number = 20; //how many cluster images to show in explore-preview 
+  batchSize: number = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';

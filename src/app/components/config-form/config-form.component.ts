@@ -25,7 +25,8 @@ export class ConfigFormComponent implements OnInit {
       config_RESULTS_PER_PAGE: 35,
       config_MAX_RESULTS_TO_RETURN: 1000,
       config_IMAGE_WIDTH: 236,
-      config_SHOW_SUBMITTED_FRAMES: false //Not used right now
+      config_EXPLORE_RESULTS_PER_LOAD: 15,
+      config_SHOW_SUBMITTED_FRAMES: false, //Not used right now
       // ...add other fields
     });
   }

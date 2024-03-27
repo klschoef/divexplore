@@ -59,6 +59,10 @@ export class GlobalConstantsService {
     return this.configService.getConfiguration().config_RESULTS_PER_PAGE;
   }
 
+  get exploreResultsPerLoad(): number {
+    return this.configService.getConfiguration().config_EXPLORE_RESULTS_PER_LOAD;
+  }
+
   get maxResultsToReturn(): number {
     return this.configService.getConfiguration().config_MAX_RESULTS_TO_RETURN;
   }
