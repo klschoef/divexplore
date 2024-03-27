@@ -163,6 +163,18 @@ background-color: rgb(210, 209, 209);
 }
 
 .explore-ui-overlay {
+    display: flex;  
+    justify-content: center;
+    height: 0;
+}
+
+.load-more-button {
+    margin-left: auto;
+    z-index: 10;
+    margin-top: 10px;
+}
+
+.explore-ui-slider {
     position: absolute;
     top: 0; 
     padding-top: 10px;

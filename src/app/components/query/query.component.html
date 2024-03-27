@@ -110,24 +110,28 @@
       </div>
       <div *ngIf="currentContent === 'explore'" class="explore-container">
         <div class="explore-ui-overlay">
-        <input type="range" min="1" max="5" [(ngModel)]="columnsCount">
-        <p>Columns: {{columnsCount}}</p>
-      </div>
-      <div class="explore-scroll-container">
-        <img *ngFor="let imgUrl of videoExplorePreview" loading="lazy" [src]="imgUrl" class="exploreimage" [style.width.%]="100 / columnsCount - 2"
-          (click)="createShotLink(imgUrl)">
+          <div class="explore-ui-slider">
+            <input type="range" min="1" max="5" [(ngModel)]="columnsCount">
+            <p>Columns: {{columnsCount}}</p>
+          </div>
+          <button (click)="loadMoreImages()" class="load-more-button">Load more</button>
+        </div>
+        <div class="explore-scroll-container">
+          <img *ngFor="let imgUrl of displayedImages" loading="lazy" [src]="imgUrl" class="exploreimage"
+            [style.width.%]="100 / columnsCount - 2" (click)="createShotLink(imgUrl)">
+        </div>
       </div>
     </div>
-  </div>
   </div>
   <div (mouseover)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult"
     *ngFor="let item of displayQueryResult; let i = index">
     <img src="{{keyframeBaseURL}}/{{item}}" width="{{imgWidth}}" height="{{imgHeight}}"
-      (click)="selectItemAndShowSummary(i,$event)" [ngClass]="{'blueborder': this.selectedItem == i, 'submitted': isVideoSubmitted(item)}">
+      (click)="selectItemAndShowSummary(i,$event)"
+      [ngClass]="{'blueborder': this.selectedItem == i, 'submitted': isVideoSubmitted(item)}">
     <div class="lefttopcorner">
       <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'"
         class="resultnum">{{getTimeInformationFor(i)}}</span>
-        <span *ngIf="isVideoSubmitted(item)" class="submitted-text">Submitted</span>
+      <span *ngIf="isVideoSubmitted(item)" class="submitted-text">Submitted</span>
     </div>
     <div class="righttopcorner">
       <!--<span class="label" (click)="this.queryForVideo(i)">

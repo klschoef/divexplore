@@ -74,6 +74,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   showConfigForm = false;
   columnsCount: number = 3;
   isOverImage: boolean = false;
+  displayedImages: Array<string> = [];
+  batchSize: number = 20; //how many cluster images to show in explore-preview 
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
@@ -238,6 +240,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 const resultsArray: Array<string> = m.results;
                 const updatedResults = resultsArray.map(image => this.globalConstants.summariesBaseURL + '/' + image);
                 this.videoExplorePreview = updatedResults;
+                this.displayedImages = [];
+                this.loadMoreImages();
               }
             } else {
               this.handleQueryResponseMessage(msg);
@@ -284,6 +288,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     if (this.videopreview && this.currentContent === 'video') {
       this.playVideoAtFrame();
     }
+  }
+
+  loadMoreImages() {
+    const nextBatch = this.videoExplorePreview.slice(this.displayedImages.length, this.displayedImages.length + this.batchSize);
+    this.displayedImages.push(...nextBatch);
   }
 
   playVideoAtFrame(): void {
