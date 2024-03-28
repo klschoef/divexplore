@@ -505,7 +505,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 this.setContent('video');
                 break;
               case '4':
+                this.setContent('shots');
+                break;
+              case '5':
                 this.setContent('explore');
+                break;
+              case '0':
+                this.showVideoShots(this.queryresult_videoid[this.selectedItem], this.queryresult_frame[this.selectedItem])
                 break;
             }
           }
@@ -553,7 +559,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   private isNumericKey(key: string): boolean {
-    return ['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(key);
+    return ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(key);
   }
 
   prevPage() {
