@@ -36,6 +36,7 @@ export class ConfigService {
       config_IMAGE_WIDTH: 236,
       config_SHOW_SUBMITTED_FRAMES: true,
       config_EXPLORE_RESULTS_PER_LOAD: 15,
+      config_SHOTS_RESULTS_PER_LOAD: 40
       // ... add other default values
     };
   }

@@ -18,6 +18,10 @@ import { ConfigFormComponent } from '../config-form/config-form.component';
 import { UrlRetrievalService } from 'src/app/services/url-retrieval/url-retrieval.service';
 import { ChangeDetectorRef } from '@angular/core';
 
+interface Shot {
+  keyframe: string;
+}
+
 @Component({
   selector: 'app-query',
   templateUrl: './query.component.html',
@@ -58,7 +62,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   videoLargePreview: string = '';
   videoPlayPreview: string = '';
   videoExplorePreview: Array<string> = [];
-  currentContent: 'image' | 'thumbnail' | 'video' | 'explore' = 'image';
+  shotPreview: Array<string> = [];
+  currentContent: 'image' | 'thumbnail' | 'video' | 'shots' | 'explore' = 'image';
   //videoSummaryLargePreview: string = '';
 
   // UI state and navigation properties
@@ -72,10 +77,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   showButtons = -1;
   activeButton: string = 'image';
   showConfigForm = false;
-  columnsCount: number = 3;
+  columnsCountExplore: number = 3;
+  columnsCountShots: number = 8;
   isOverImage: boolean = false;
   displayedImages: Array<string> = [];
-  batchSize: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
+  displayedShots: Array<string> = [];
+  batchSizeExplore: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
+  batchSizeShots: string = this.globalConstants.shotsResultsPerLoad; //how many shots to show in shot-preview
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
@@ -230,6 +238,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 this.videoExplorePreview = updatedResults;
                 this.displayedImages = [];
                 this.loadMoreImages();
+              } else if (m.type === 'videoinfo') {
+                const keyframes: Array<string> = m.content[0].shots.map((shot: Shot) => shot.keyframe); //get all keyframes
+                const updatedResults = keyframes.map(keyframe => this.globalConstants.thumbsBaseURL + '/' + this.queryresult_videoid[this.selectedItem] + "/" + keyframe);
+                console.log(updatedResults);
+                this.shotPreview = updatedResults;
+                this.displayedShots = [];
+                this.loadMoreShots();
               }
             } else {
               this.handleQueryResponseMessage(msg);
@@ -278,9 +293,16 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
+  loadMoreShots() {
+    const startIndex = this.displayedShots.length;
+    const endIndex = startIndex + parseInt(this.batchSizeShots);
+    const nextBatch = this.shotPreview.slice(startIndex, endIndex);
+    this.displayedShots = [...this.displayedShots, ...nextBatch];
+  }
+
   loadMoreImages() {
     const startIndex = this.displayedImages.length;
-    const endIndex = startIndex + parseInt(this.batchSize);
+    const endIndex = startIndex + parseInt(this.batchSizeExplore);
     const nextBatch = this.videoExplorePreview.slice(startIndex, endIndex);
     this.displayedImages = [...this.displayedImages, ...nextBatch];
   }
@@ -628,6 +650,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     if (this.currentContent === 'explore') {
       this.loadExploreImages(this.queryresult_videoid[this.selectedItem]);
+    } else if (this.currentContent === 'shots') {
+      this.loadShotList(this.queryresult_videoid[this.selectedItem]);
     }
   }
 
@@ -641,7 +665,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.videoExplorePreview = [];
   }
 
-  setContent(content: 'image' | 'thumbnail' | 'video' | 'explore') {
+  setContent(content: 'image' | 'thumbnail' | 'video' | 'shots' | 'explore') {
     this.currentContent = content;
     this.activeButton = content;
 
@@ -670,7 +694,20 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
-  createShotLink(explorationUrl: string) {
+  loadShotList(videoid: string) {
+    if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
+      console.log('slc: get video info from database', videoid);
+      let msg = {
+        type: "videoinfo",
+        videoid: videoid
+      };
+      this.sendToNodeServer(msg);
+    } else {
+      alert(`Node.js connection down: ${this.nodeService.connectionState}. Try reconnecting by pressing the red button!`);
+    }
+  }
+
+  exploreToShotlist(explorationUrl: string) {
     let videoId: string = "";
     const url = new URL(explorationUrl);
     const paths = url.pathname.split('/');
@@ -679,6 +716,16 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       videoId = paths[summariesXLIndex + 2];
     }
     this.showVideoShots(videoId, '1');
+  }
+
+  shotPreviewToShotList(previewurl: string) {
+    console.log("Here!")
+    const url = new URL(previewurl);
+    const paths = url.pathname.split('/');
+    const [videoid, frame_with_extension] = paths[paths.length - 1].split('_');
+    const frame_number = frame_with_extension.split('.')[0];
+
+    this.showVideoShots(videoid, frame_number);
   }
 
   showVideoShots(videoid: string, frame: string) {

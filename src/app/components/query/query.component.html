@@ -86,6 +86,10 @@
           (click)="setContent('video')">
           <mat-icon>videocam</mat-icon>
         </button>
+        <button class="top-left-button" [class.active]="activeButton === 'shots'" mat-icon-button
+          (click)="setContent('shots')">
+          <mat-icon>search</mat-icon>
+        </button>
         <button class="top-left-button" [class.active]="activeButton === 'explore'" mat-icon-button
           (click)="setContent('explore')">
           <mat-icon>explore</mat-icon>
@@ -111,14 +115,27 @@
       <div *ngIf="currentContent === 'explore'" class="explore-container">
         <div class="explore-ui-overlay">
           <div class="explore-ui-slider">
-            <input type="range" min="1" max="5" [(ngModel)]="columnsCount">
-            <p>Columns: {{columnsCount}}</p>
+            <input type="range" min="1" max="5" [(ngModel)]="columnsCountExplore">
+            <p>Columns: {{columnsCountExplore}}</p>
           </div>
           <button (click)="loadMoreImages()" class="load-more-button">Load more</button>
         </div>
         <div class="explore-scroll-container">
           <img *ngFor="let imgUrl of displayedImages" loading="lazy" [src]="imgUrl" class="exploreimage"
-            [style.width.%]="100 / columnsCount - 2" (click)="createShotLink(imgUrl)">
+            [style.width.%]="100 / columnsCountExplore - 2" (click)="exploreToShotlist(imgUrl)">
+        </div>
+      </div>
+      <div *ngIf="currentContent==='shots'" class ="shots-container">
+        <div class="shots-ui-overlay">
+          <div class="shots-ui-slider">
+            <input type="range" min="5" max="10" [(ngModel)]="columnsCountShots">
+            <p>Columns: {{columnsCountShots}}</p>
+          </div>
+          <button (click)="loadMoreShots()" class="load-more-button">Load more</button>
+        </div>
+        <div class="shots-scroll-container">
+          <img *ngFor="let shotUrl of displayedShots" loading="lazy" [src]="shotUrl" class="shotimage"
+            [style.width.%]="100 / columnsCountShots - 2" (click)="shotPreviewToShotList(shotUrl)">
         </div>
       </div>
     </div>
