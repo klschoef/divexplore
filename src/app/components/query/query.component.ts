@@ -479,8 +479,14 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
           }
           break;
         case ' ':
-          this.showPreview = !this.showPreview;
-          if (this.showPreview) this.showVideoPreview();
+          if (this.currentContent === 'explore') {
+            this.loadMoreImages();
+          } else if (this.currentContent === 'shots') {
+            this.loadMoreShots();
+          } else {
+            this.showPreview = !this.showPreview;
+            if (this.showPreview) this.showVideoPreview();
+          }
           break;
         /*
         case 's':
