@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigFormComponent } from '../config-form/config-form.component';
 import { UrlRetrievalService } from 'src/app/services/url-retrieval/url-retrieval.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-query',
@@ -32,6 +33,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   // Subscriptions for handling events
   private dresErrorMessageSubscription!: Subscription;
   private dresSuccessMessageSubscription!: Subscription;
+  private urlRetrievalServiceSubscription!: Subscription;
 
   // Query-related properties
   queryinput: string = '';
@@ -44,6 +46,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   queryType: string = '';
   previousQuery: any | undefined;
   querydataset: string = '';
+  submittedStatus: { [key: string]: boolean } = {};
 
   // Metadata and summaries for video analysis
   metadata: any;
@@ -54,7 +57,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   videoSummaryPreview: string = '';
   videoLargePreview: string = '';
   videoPlayPreview: string = '';
-  currentContent: 'image' | 'thumbnail' | 'video' = 'image';
+  videoExplorePreview: Array<string> = [];
+  currentContent: 'image' | 'thumbnail' | 'video' | 'explore' = 'image';
   //videoSummaryLargePreview: string = '';
 
   // UI state and navigation properties
@@ -68,6 +72,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   showButtons = -1;
   activeButton: string = 'image';
   showConfigForm = false;
+  columnsCount: number = 3;
+  isOverImage: boolean = false;
+  displayedImages: Array<string> = [];
+  batchSize: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
@@ -91,9 +99,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   ];
 
   // Results and pagination
-  //maxresults = this.globalConstants.maxResultsToReturn;
   totalReturnedResults = 0; //how many results did our query return in total?
-  //resultsPerPage = this.globalConstants.resultsPerPage; 
   selectedPage = '1'; //user-selected page
   pages = ['1']
 
@@ -121,6 +127,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   statusTaskRemainingTime: string = ""; //property binding
 
   constructor(
+    private cdRef: ChangeDetectorRef,
     private globalConstants: GlobalConstantsService,
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
@@ -136,8 +143,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   ngOnInit() {
-    console.log('query component (qc) initated imWidth=' + this.imgWidth + " imHeight=" + this.imgHeight);
-
     this.dresErrorMessageSubscription = this.vbsService.errorMessageEmitter.subscribe(msg => {
       this.messageBar.showErrorMessage(msg);
     })
@@ -150,6 +155,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       console.log('selected evaluation is ' + selectedEvaluation);
       this.vbsService.selectedServerRun = parseInt(selectedEvaluation);
     }
+
+    this.urlRetrievalServiceSubscription = this.urlRetrievalService.explorationResults$.subscribe(results => {
+      if (results) {
+        this.videoExplorePreview = results;
+      }
+    });
 
     this.route.paramMap.subscribe(paraMap => {
       this.file_sim_keyframe = paraMap.get('id')?.toString();
@@ -164,12 +175,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.file_sim_pathPrefix = paraMap.get('id3')?.toString();
       if (this.file_sim_pathPrefix) {
         console.log(`qc: ${this.file_sim_pathPrefix}`);
-        //this.selectedDataset = 'v3c';
-        /*if (this.file_sim_pathPrefix === 'thumbsXL') {
-          this.selectedDataset = 'v3c-s';
-        } else if (this.file_sim_pathPrefix === 'thumbsmXL') {
-          this.selectedDataset = 'marine-s';
-        }*/
       }
       if (paraMap.get('page')) {
         this.file_sim_page = paraMap.get('page')!.toString();
@@ -205,24 +210,26 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         if ("videoid" in msg) {
           this.queryresult_fps.set(m.videoid, m.fps);
         } else {
-          //console.log("qc: response from node-server: " + msg);
           if ("scores" in msg || m.type === 'ocr-text') {
             this.handleQueryResponseMessage(msg);
           } else {
             if ("type" in msg) {
               if (m.type == 'metadata') {
                 this.metadata = m.results[0];
-                //this.pages = ['1'];
-                //console.log('received metadata: ' + JSON.stringify(msg));
                 if (this.metadata?.location) {
                 }
               } else if (m.type === 'info') {
-                //console.log(m.message);
                 this.nodeServerInfo = m.message;
               } else if (m.type === 'videosummaries') {
                 this.summaries = msg.content[0]['summaries'];
                 this.selectedSummaryIdx = Math.floor(this.summaries.length / 2);
                 this.displayVideoSummary();
+              } else if (m.type === 'clusterimage') {
+                const resultsArray: Array<string> = m.results;
+                const updatedResults = resultsArray.map(image => this.globalConstants.summariesBaseURL + '/' + image);
+                this.videoExplorePreview = updatedResults;
+                this.displayedImages = [];
+                this.loadMoreImages();
               }
             } else {
               this.handleQueryResponseMessage(msg);
@@ -248,11 +255,17 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     setInterval(() => {
       this.requestTaskInfo();
     }, 1000);
+
+    const submittedFrames = JSON.parse(localStorage.getItem('submittedFrames') || '[]');
+    submittedFrames.forEach((item: string) => {
+      this.submittedStatus[item] = true;
+    });
   }
 
   ngOnDestroy() {
     this.dresErrorMessageSubscription.unsubscribe();
     this.dresSuccessMessageSubscription.unsubscribe();
+    this.urlRetrievalServiceSubscription.unsubscribe();
   }
 
   ngAfterViewInit(): void {
@@ -264,6 +277,14 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.playVideoAtFrame();
     }
   }
+
+  loadMoreImages() {
+    const startIndex = this.displayedImages.length;
+    const endIndex = startIndex + parseInt(this.batchSize);
+    const nextBatch = this.videoExplorePreview.slice(startIndex, endIndex);
+    this.displayedImages = [...this.displayedImages, ...nextBatch];
+  }
+
 
   playVideoAtFrame(): void {
     this.getFPSForItem(this.selectedItem);
@@ -333,9 +354,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
 
-  browseClusters() {
-    this.router.navigate(['exploration']);
-  }
+  //browseClusters() {
+  //  this.router.navigate(['exploration']);
+  //}
 
   toggleHistorySelect() {
     this.historyDiv.nativeElement.hidden = !this.historyDiv.nativeElement.hidden;
@@ -395,9 +416,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   asTimeLabel(frame: string, withFrames: boolean = true) {
-    console.log('TODO: need FPS in query component!')
     return frame;
-    //return formatAsTime(frame, this.fps, withFrames);
   }
 
   @HostListener('document:keyup', ['$event'])
@@ -452,6 +471,21 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         default:
           if (this.isNumericKey(event.key) && !this.showPreview) {
             this.gotoPage(event.key);
+          } else if (this.isNumericKey(event.key) && this.showPreview) {
+            switch (event.key) {
+              case '1':
+                this.setContent('image');
+                break;
+              case '2':
+                this.setContent('thumbnail');
+                break;
+              case '3':
+                this.setContent('video');
+                break;
+              case '4':
+                this.setContent('explore');
+                break;
+            }
           }
           break;
       }
@@ -472,7 +506,27 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       } else { // ArrowLeft
         this.selectedItem = this.selectedItem > 0 ? this.selectedItem - 1 : !this.showPreview ? this.queryresult_videoid.length - 1 : this.selectedItem;
       }
-      if (toShow) this.showVideoPreview();
+      if (toShow) {
+        this.showVideoPreview();
+      }
+    }
+  }
+
+  @HostListener('wheel', ['$event'])
+  handleScrollEvent(event: WheelEvent) {
+    if (this.isOverImage) {
+      event.preventDefault();
+      if (event.deltaY < 0) { // Scrolling up
+        if (this.showPreview && this.selectedSummaryIdx > 0) {
+          this.selectedSummaryIdx -= 1;
+          this.displayVideoSummary();
+        }
+      } else if (event.deltaY > 0) { // Scrolling down
+        if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
+          this.selectedSummaryIdx += 1;
+          this.displayVideoSummary();
+        }
+      }
     }
   }
 
@@ -559,10 +613,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   /* Shows video preview on click on query-result */
   showVideoPreview() {
+    this.displayVideoSummary();
     this.requestVideoSummaries(this.queryresult_videoid[this.selectedItem]);
-    //window.scrollTo(0, 0);
-
-    //console.log("show video preview for " + this.queryresult_videoid[this.selectedItem]);
 
     //query event logging
     let queryEvent: QueryEvent = {
@@ -573,16 +625,60 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
     this.vbsService.queryEvents.push(queryEvent);
     this.vbsService.submitQueryResultLog('interaction');
+
+    if (this.currentContent === 'explore') {
+      this.loadExploreImages(this.queryresult_videoid[this.selectedItem]);
+    }
   }
 
   closeVideoPreview() {
     //this.videopreview.nativeElement.style.display = 'none';
     this.showPreview = false;
+    this.selectedSummaryIdx = 0;
+    this.videoSummaryPreview = '';
+    this.videoLargePreview = '';
+    this.videoPlayPreview = '';
+    this.videoExplorePreview = [];
   }
 
-  setContent(content: 'image' | 'thumbnail' | 'video') {
+  setContent(content: 'image' | 'thumbnail' | 'video' | 'explore') {
     this.currentContent = content;
     this.activeButton = content;
+
+    /* c */
+
+    this.showVideoPreview();
+  }
+
+  loadExploreImages(videoid: string) {
+    let msg = {
+      dataset: 'v3c',
+      type: "clusterimage",
+      query: videoid,
+      clientId: "direct"
+    };
+
+    console.log('ec: queryClusterForImages: ' + videoid);
+
+    if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
+      console.log("ec: sent message to node-server: " + msg);
+      let message = {
+        source: 'appcomponent',
+        content: msg
+      };
+      this.nodeService.messages.next(message);
+    }
+  }
+
+  createShotLink(explorationUrl: string) {
+    let videoId: string = "";
+    const url = new URL(explorationUrl);
+    const paths = url.pathname.split('/');
+    const summariesXLIndex = paths.indexOf('summariesXL');
+    if (summariesXLIndex !== -1 && summariesXLIndex + 1 < paths.length) {
+      videoId = paths[summariesXLIndex + 2];
+    }
+    this.showVideoShots(videoId, '1');
   }
 
   showVideoShots(videoid: string, frame: string) {
@@ -836,7 +932,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   performHistoryQuery() {
-    console.log(`run hist: ${this.selectedHistoryEntry}`)
     let hist = localStorage.getItem('history')
     if (hist && this.selectedHistoryEntry !== "-1") {
       let queryHistory: Array<QueryType> = JSON.parse(hist);
@@ -901,7 +996,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   requestVideoSummaries(videoid: string) {
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
-      //console.log('qc: get video summaries info from database', videoid);
       let msg = {
         type: "videosummaries",
         videoid: videoid
@@ -934,9 +1028,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
    * WebSockets (CLIP and Node.js)
    ****************************************************************************/
   handleQueryResponseMessage(qresults: any) {
-    console.log(qresults);
-    //console.log('dataset=' + qresults.dataset);
-
     if (qresults.totalresults === 0) {
       this.nodeServerInfo = 'The query returned 0 results!';
     }
@@ -1014,7 +1105,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let keyframe = this.queryresults[index];
     let comps = keyframe.split('_');
     let frameNumber = comps[comps.length - 1].split('.')[0]
-    console.log(`${videoid} - ${keyframe} - ${frameNumber}`);
+
+    this.markFrameAsSubmitted(videoid); //TODO: Change to VBS response instead of onClick!
 
     let msg = {
       type: "videofps",
@@ -1028,8 +1120,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     };
 
     this.nodeService.sendMessageAndWait(message).subscribe((response) => {
-      console.log('Received video info: fps=' + response.fps + " duration=" + response.duration);
-
       this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps, response.duration);
 
       //query event logging
@@ -1042,5 +1132,29 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.vbsService.queryEvents.push(queryEvent);
       this.vbsService.submitQueryResultLog('interaction');
     });
+  }
+
+  markFrameAsSubmitted(videoid: string) {
+    this.submittedStatus[videoid] = true;
+
+    let submittedFrames = JSON.parse(localStorage.getItem('submittedFrames') || '[]');
+    if (!submittedFrames.includes(videoid)) {
+      submittedFrames.push(videoid);
+      localStorage.setItem('submittedFrames', JSON.stringify(submittedFrames));
+    }
+  }
+
+  isVideoSubmitted(keyframe: string): boolean {
+    const videoid = keyframe.split('/')[0];
+    const submittedVideoIds = JSON.parse(localStorage.getItem('submittedFrames') || '[]');
+    return submittedVideoIds.includes(videoid);
+  }
+
+  get displayQueryResult() {
+    if (this.globalConstants.showSubmittedFrames) {
+      return this.queryresults;
+    } else {
+      return this.queryresults.filter(item => !this.isVideoSubmitted(item));
+    }
   }
 }

@@ -16,7 +16,6 @@ import { GlobalConstants } from './shared/config/global-constants';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { VBSServerConnectionService } from './services/vbsserver-connection/vbsserver-connection.service';
 import { QueryComponent } from './components/query/query.component';
-import { ExplorationComponent } from './components/exploration/exploration.component';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -25,19 +24,17 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MessageBarComponent } from './components/message-bar/message-bar.component';
 import { ConfigFormComponent } from './components/config-form/config-form.component';
 
-
 import { MatDialogModule } from '@angular/material/dialog';
 import { HelpSectionComponent } from './dialogues/help-section/help-section.component';
 import { ExplDialogComponent } from './features/expl-dialog/expl-dialog.component';
 import { StatusBarComponent } from './components/status-bar/status-bar.component';
-
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
     AppComponent,
     ShotlistComponent,
     QueryComponent,
-    ExplorationComponent,
     MessageBarComponent,
     ConfigFormComponent,
     HelpSectionComponent,
@@ -64,7 +61,8 @@ import { StatusBarComponent } from './components/status-bar/status-bar.component
     MatFormFieldModule,
     FormsModule,
     ReactiveFormsModule,
-    MatDialogModule
+    MatDialogModule,
+    ScrollingModule
   ],
   providers: [VBSServerConnectionService],
   bootstrap: [AppComponent]

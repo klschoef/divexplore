@@ -55,9 +55,12 @@ export class GlobalConstantsService {
     return this.dataHost + 'summariesl/';
   }
 
-
   get resultsPerPage(): number {
     return this.configService.getConfiguration().config_RESULTS_PER_PAGE;
+  }
+
+  get exploreResultsPerLoad(): string {
+    return this.configService.getConfiguration().config_EXPLORE_RESULTS_PER_LOAD;
   }
 
   get maxResultsToReturn(): number {
@@ -66,6 +69,10 @@ export class GlobalConstantsService {
 
   get imageWidth(): number {
     return this.configService.getConfiguration().config_IMAGE_WIDTH;
+  }
+
+  get showSubmittedFrames(): boolean {
+    return this.configService.getConfiguration().config_SHOW_SUBMITTED_FRAMES;
   }
 }
 

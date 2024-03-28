@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { ShotlistComponent } from './components/shotlist/shotlist.component';
 import { AppComponent } from './app.component';
 import { QueryComponent } from './components/query/query.component';
-import { ExplorationComponent } from './components/exploration/exploration.component';
 
 //'' is default route
 const routes: Routes = [
@@ -12,8 +11,7 @@ const routes: Routes = [
   { path: 'filesimilarity/:id/:id2/:id3', component: QueryComponent },
   { path: 'filesimilarity/:id/:id2/:id3/:page', component: QueryComponent },
   { path: 'video/:id', component: ShotlistComponent },
-  { path: 'video/:id/:id2', component: ShotlistComponent },
-  { path: 'exploration', component: ExplorationComponent }
+  { path: 'video/:id/:id2', component: ShotlistComponent }
 ];
 
 // /login and /register etc.
