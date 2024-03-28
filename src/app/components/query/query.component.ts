@@ -143,8 +143,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   ngOnInit() {
-    console.log('query component (qc) initated imWidth=' + this.imgWidth + " imHeight=" + this.imgHeight);
-
     this.dresErrorMessageSubscription = this.vbsService.errorMessageEmitter.subscribe(msg => {
       this.messageBar.showErrorMessage(msg);
     })
@@ -177,12 +175,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.file_sim_pathPrefix = paraMap.get('id3')?.toString();
       if (this.file_sim_pathPrefix) {
         console.log(`qc: ${this.file_sim_pathPrefix}`);
-        //this.selectedDataset = 'v3c';
-        /*if (this.file_sim_pathPrefix === 'thumbsXL') {
-          this.selectedDataset = 'v3c-s';
-        } else if (this.file_sim_pathPrefix === 'thumbsmXL') {
-          this.selectedDataset = 'marine-s';
-        }*/
       }
       if (paraMap.get('page')) {
         this.file_sim_page = paraMap.get('page')!.toString();
@@ -218,19 +210,15 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         if ("videoid" in msg) {
           this.queryresult_fps.set(m.videoid, m.fps);
         } else {
-          //console.log("qc: response from node-server: " + msg);
           if ("scores" in msg || m.type === 'ocr-text') {
             this.handleQueryResponseMessage(msg);
           } else {
             if ("type" in msg) {
               if (m.type == 'metadata') {
                 this.metadata = m.results[0];
-                //this.pages = ['1'];
-                //console.log('received metadata: ' + JSON.stringify(msg));
                 if (this.metadata?.location) {
                 }
               } else if (m.type === 'info') {
-                //console.log(m.message);
                 this.nodeServerInfo = m.message;
               } else if (m.type === 'videosummaries') {
                 this.summaries = msg.content[0]['summaries'];
@@ -292,15 +280,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   loadMoreImages() {
     const startIndex = this.displayedImages.length;
-    const endIndex = startIndex + parseInt(this.batchSize); // Ensure this results in numeric addition
-
-    console.log(`Before slice: ${startIndex} ${endIndex}`);
+    const endIndex = startIndex + parseInt(this.batchSize);
     const nextBatch = this.videoExplorePreview.slice(startIndex, endIndex);
-
-    console.log(`After slice - Next Batch: ${nextBatch.length} Total Images: ${this.videoExplorePreview.length}`);
     this.displayedImages = [...this.displayedImages, ...nextBatch];
-
-    console.log(`After concat - Displayed Images: ${this.displayedImages.length}`);
   }
 
 
@@ -434,9 +416,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   asTimeLabel(frame: string, withFrames: boolean = true) {
-    console.log('TODO: need FPS in query component!')
     return frame;
-    //return formatAsTime(frame, this.fps, withFrames);
   }
 
   @HostListener('document:keyup', ['$event'])
@@ -462,9 +442,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowLeft':
-          /* if (this.currentContent === 'explore') {
-            this.setContent('image');
-          }*/
           this.handleArrowKeys(event);
           break;
         case 'ArrowUp':
@@ -638,9 +615,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   showVideoPreview() {
     this.displayVideoSummary();
     this.requestVideoSummaries(this.queryresult_videoid[this.selectedItem]);
-    //window.scrollTo(0, 0);
-
-    //console.log("show video preview for " + this.queryresult_videoid[this.selectedItem]);
 
     //query event logging
     let queryEvent: QueryEvent = {
@@ -701,8 +675,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     const url = new URL(explorationUrl);
     const paths = url.pathname.split('/');
     const summariesXLIndex = paths.indexOf('summariesXL');
-    console.log('paths: ' + summariesXLIndex + " Path length: " + paths.length);
-    console.log('paths: ' + paths);
     if (summariesXLIndex !== -1 && summariesXLIndex + 1 < paths.length) {
       videoId = paths[summariesXLIndex + 2];
     }
@@ -960,7 +932,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   performHistoryQuery() {
-    console.log(`run hist: ${this.selectedHistoryEntry}`)
     let hist = localStorage.getItem('history')
     if (hist && this.selectedHistoryEntry !== "-1") {
       let queryHistory: Array<QueryType> = JSON.parse(hist);
@@ -1025,7 +996,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   requestVideoSummaries(videoid: string) {
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
-      //console.log('qc: get video summaries info from database', videoid);
       let msg = {
         type: "videosummaries",
         videoid: videoid
@@ -1058,9 +1028,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
    * WebSockets (CLIP and Node.js)
    ****************************************************************************/
   handleQueryResponseMessage(qresults: any) {
-    console.log("Query-Result: " + qresults);
-    //console.log('dataset=' + qresults.dataset);
-
     if (qresults.totalresults === 0) {
       this.nodeServerInfo = 'The query returned 0 results!';
     }
@@ -1138,7 +1105,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let keyframe = this.queryresults[index];
     let comps = keyframe.split('_');
     let frameNumber = comps[comps.length - 1].split('.')[0]
-    console.log(`${videoid} - ${keyframe} - ${frameNumber}`);
 
     this.markFrameAsSubmitted(videoid); //TODO: Change to VBS response instead of onClick!
 
@@ -1154,8 +1120,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     };
 
     this.nodeService.sendMessageAndWait(message).subscribe((response) => {
-      console.log('Received video info: fps=' + response.fps + " duration=" + response.duration);
-
       this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps, response.duration);
 
       //query event logging
@@ -1178,8 +1142,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       submittedFrames.push(videoid);
       localStorage.setItem('submittedFrames', JSON.stringify(submittedFrames));
     }
-
-    console.log('Submitted frames: ', submittedFrames);
   }
 
   isVideoSubmitted(keyframe: string): boolean {

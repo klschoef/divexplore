@@ -16,7 +16,6 @@ import { GlobalConstants } from './shared/config/global-constants';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { VBSServerConnectionService } from './services/vbsserver-connection/vbsserver-connection.service';
 import { QueryComponent } from './components/query/query.component';
-import { ExplorationComponent } from './components/exploration/exploration.component';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -36,7 +35,6 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     AppComponent,
     ShotlistComponent,
     QueryComponent,
-    ExplorationComponent,
     MessageBarComponent,
     ConfigFormComponent,
     HelpSectionComponent,
