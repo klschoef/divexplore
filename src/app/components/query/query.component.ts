@@ -18,6 +18,7 @@ import { ConfigFormComponent } from '../config-form/config-form.component';
 import { UrlRetrievalService } from 'src/app/services/url-retrieval/url-retrieval.service';
 import { ChangeDetectorRef } from '@angular/core';
 
+
 interface Shot {
   keyframe: string;
 }
@@ -33,6 +34,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   @ViewChild('historyDiv') historyDiv!: ElementRef<HTMLDivElement>;
   @ViewChild('videopreview', { static: false }) videopreview!: ElementRef;
   @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
+  @ViewChild('scrollableContainer') scrollableContainer!: ElementRef<HTMLDivElement>;
 
   // Subscriptions for handling events
   private dresErrorMessageSubscription!: Subscription;
@@ -82,6 +84,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   isOverImage: boolean = false;
   displayedImages: Array<string> = [];
   displayedShots: Array<string> = [];
+  private debounceTimer?: number;
   batchSizeExplore: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
   batchSizeShots: string = this.globalConstants.shotsResultsPerLoad; //how many shots to show in shot-preview
 
@@ -464,16 +467,23 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowLeft':
+          // Handle other arrow key operations
           this.handleArrowKeys(event);
           break;
         case 'ArrowUp':
-          if (this.showPreview && this.selectedSummaryIdx > 0) {
+          if (this.currentContent === 'explore' || this.currentContent === 'shots') {
+            const element = this.scrollableContainer.nativeElement;
+            element.scrollBy(0, -100);
+          } else if (this.showPreview && this.selectedSummaryIdx > 0) {
             this.selectedSummaryIdx -= 1;
             this.displayVideoSummary();
           }
           break;
         case 'ArrowDown':
-          if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
+          if (this.currentContent === 'explore' || this.currentContent === 'shots') {
+            const element = this.scrollableContainer.nativeElement;
+            element.scrollBy(0, 100);
+          } else if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
             this.selectedSummaryIdx += 1;
             this.displayVideoSummary();
           }
@@ -488,14 +498,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
             if (this.showPreview) this.showVideoPreview();
           }
           break;
-        /*
-        case 's':
-          this.submitResult(this.selectedItem);
-          break;
-        case 'v':
-          this.showVideoShots(this.queryresult_videoid[this.selectedSummaryIdx],'1');
-          break;
-        */
         default:
           if (this.isNumericKey(event.key) && !this.showPreview) {
             this.gotoPage(event.key);
@@ -532,6 +534,20 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     if (shiftKey) {
       if (!this.showPreview) {
         key === 'ArrowRight' ? this.nextPage() : this.prevPage();
+      } else {
+        if (this.currentContent === 'explore') {
+          if (key === 'ArrowRight' && this.columnsCountExplore < 5) {
+            this.columnsCountExplore += 1;
+          } else if (key === 'ArrowLeft' && this.columnsCountExplore > 1) {
+            this.columnsCountExplore -= 1;
+          }
+        } else if (this.currentContent === 'shots') {
+          if (key === 'ArrowRight' && this.columnsCountShots < 10) {
+            this.columnsCountShots += 1;
+          } else if (key === 'ArrowLeft' && this.columnsCountShots > 5) {
+            this.columnsCountShots -= 1;
+          }
+        }
       }
     } else {
       let toShow = this.showPreview;
@@ -548,21 +564,27 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @HostListener('wheel', ['$event'])
   handleScrollEvent(event: WheelEvent) {
-    if (this.isOverImage) {
-      event.preventDefault();
-      if (event.deltaY < 0) { // Scrolling up
-        if (this.showPreview && this.selectedSummaryIdx > 0) {
-          this.selectedSummaryIdx -= 1;
-          this.displayVideoSummary();
-        }
-      } else if (event.deltaY > 0) { // Scrolling down
-        if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
-          this.selectedSummaryIdx += 1;
-          this.displayVideoSummary();
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+
+    this.debounceTimer = window.setTimeout(() => {
+      if (this.isOverImage) {
+        event.preventDefault();
+        // Your existing logic
+        if (event.deltaY < 0) { // Scrolling up
+          if (this.showPreview && this.selectedSummaryIdx > 0) {
+            this.selectedSummaryIdx -= 1;
+            this.displayVideoSummary();
+          }
+        } else if (event.deltaY > 0) { // Scrolling down
+          if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
+            this.selectedSummaryIdx += 1;
+            this.displayVideoSummary();
+          }
         }
       }
-    }
+    }, 300); // Adjust the 300ms debounce time as needed
   }
+
 
   private isNumericKey(key: string): boolean {
     return ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(key);
