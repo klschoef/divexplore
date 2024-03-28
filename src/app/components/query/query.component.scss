@@ -163,6 +163,9 @@ background-color: rgb(210, 209, 209);
 
 .shots-ui-overlay, .explore-ui-overlay {
     display: flex;  
+    position: sticky;
+    top: 32px;
+    z-index: 10;
     justify-content: center;
     height: 0;
 }
@@ -222,6 +225,9 @@ background-color: rgb(210, 209, 209);
 
 .header-container {
     display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 10;
     justify-content: space-between;
     align-items: center;
 }
