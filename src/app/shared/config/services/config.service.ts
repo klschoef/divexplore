@@ -14,7 +14,7 @@ export class ConfigService {
     this.loadConfig();
   }
 
-  private loadConfig() {
+  private loadConfig() { //Check all fields
     const localConfig = localStorage.getItem(LOCALSTORAGE_FIELDNAME);
     this.config = localConfig ? JSON.parse(localConfig) : this.getDefaultConfig();
     console.log('Loaded config:', this.config); // Debugging statement
@@ -34,7 +34,8 @@ export class ConfigService {
       config_RESULTS_PER_PAGE: 35,
       config_MAX_RESULTS_TO_RETURN: 35 * 40,
       config_IMAGE_WIDTH: 236,
-      config_SHOW_SUBMITTED_FRAMES: true
+      config_SHOW_SUBMITTED_FRAMES: true,
+      config_EXPLORE_RESULTS_PER_LOAD: 15,
       // ... add other default values
     };
   }

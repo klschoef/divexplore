@@ -75,7 +75,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   columnsCount: number = 3;
   isOverImage: boolean = false;
   displayedImages: Array<string> = [];
-  batchSize: number = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
+  batchSize: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
@@ -291,9 +291,18 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   loadMoreImages() {
-    const nextBatch = this.videoExplorePreview.slice(this.displayedImages.length, this.displayedImages.length + this.batchSize);
-    this.displayedImages.push(...nextBatch);
+    const startIndex = this.displayedImages.length;
+    const endIndex = startIndex + parseInt(this.batchSize); // Ensure this results in numeric addition
+
+    console.log(`Before slice: ${startIndex} ${endIndex}`);
+    const nextBatch = this.videoExplorePreview.slice(startIndex, endIndex);
+
+    console.log(`After slice - Next Batch: ${nextBatch.length} Total Images: ${this.videoExplorePreview.length}`);
+    this.displayedImages = [...this.displayedImages, ...nextBatch];
+
+    console.log(`After concat - Displayed Images: ${this.displayedImages.length}`);
   }
+
 
   playVideoAtFrame(): void {
     this.getFPSForItem(this.selectedItem);
@@ -522,7 +531,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       }
       if (toShow) {
         this.showVideoPreview();
-        console.log("Showing new image")
       }
     }
   }

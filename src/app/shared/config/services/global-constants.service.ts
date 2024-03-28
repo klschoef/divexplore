@@ -59,7 +59,7 @@ export class GlobalConstantsService {
     return this.configService.getConfiguration().config_RESULTS_PER_PAGE;
   }
 
-  get exploreResultsPerLoad(): number {
+  get exploreResultsPerLoad(): string {
     return this.configService.getConfiguration().config_EXPLORE_RESULTS_PER_LOAD;
   }
 
