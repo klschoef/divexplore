@@ -32,7 +32,7 @@
 
   <button class="searchButton" (click)="performNewTextQuery()">Search</button>
 
-  <button class="temporaryButton" (click)="addTemporalQuery()">Add Temporal Query</button>
+  <button *ngIf="selectedQueryType == 'textquery'" class="temporaryButton" (click)="addTemporalQuery()">Add Temporal Query</button>
   <button class="newtab" (click)="newTab()">+Tab</button>
   <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
   <button class="resetButton" (click)="resetQuery()">Reset</button>

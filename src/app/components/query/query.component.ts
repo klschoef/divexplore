@@ -812,6 +812,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   resetPageAndPerformQuery() {
     //this.selectedQueryType = 'textquery';
+    if (this.selectedQueryType !== 'textquery') {
+      this.temporalQueries = [];
+    }
     this.selectedPage = '1';
     this.performTextQuery();
   }
