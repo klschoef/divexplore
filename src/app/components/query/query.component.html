@@ -1,4 +1,6 @@
 <div class="queryarea">
+  <div class="topBar">
+
   <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
   <!--<button class="backbutton" (click)="this.backInHistory()"><-</button>-->
   <select class="gray-background" [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
@@ -12,10 +14,25 @@
   <select [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
     <option *ngFor="let d of this.getQueryTypes(this.selectedDataset)" [ngValue]="d.id">{{d.name}}</option>
   </select>
-  <input matInput type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput"
-    (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus />
+  
+  <div class="inputGroup">
+    <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" 
+           (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" placeholder="Input your query..." autofocus/>
+    <div *ngFor="let q of temporalQueries; let i = index" class="additionalQuery">
+      <div class="arrowDown">&#x25BC;</div>
+      <div class="inputWithIcon">
+        <input type="text" [(ngModel)]="q.query" id="additionalQueryInput{{i}}"
+               (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" placeholder="What should happen after?"/>
+        <span class="closeIcon" (click)="removeTemporalQuery(i)">&#x00D7;</span>
+      </div> 
+    </div>
+  </div>
+  
+  <div class="buttonGroup">
+
   <button class="searchButton" (click)="performNewTextQuery()">Search</button>
 
+  <button class="temporaryButton" (click)="addTemporalQuery()">Add Temporal Query</button>
   <button class="newtab" (click)="newTab()">+Tab</button>
   <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
   <button class="resetButton" (click)="resetQuery()">Reset</button>
@@ -35,6 +52,8 @@
   <button mat-icon-button (click)="toggleConfigDialog()">
     <mat-icon>settings</mat-icon>
   </button>
+  </div>
+</div>
 </div>
 
 <!-- Config Modal -->

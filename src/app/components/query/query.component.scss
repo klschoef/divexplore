@@ -4,8 +4,74 @@ input[type="text"] {
     width: 35%;
 }
 
+.topBar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+input::placeholder {
+    font-size: 16px; 
+    color: #888; 
+}
+
+
+.arrowDown {
+    text-align: center; 
+    color: #666; 
+    margin-top: 5px; 
+    margin-bottom: -10px; 
+    font-size: 20px; 
+}
+
+.inputWithIcon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.inputWithIcon input {
+    width: 100%;
+    padding-right: 30px; 
+}
+
+.closeIcon {
+    position: absolute;
+    font-size: 20px;
+    margin-top: 15px;
+    right: 10px; 
+    color: red; 
+    cursor: pointer; 
+}
+
+.topBar select {
+    height: 100%;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-right: 10px; 
+}
+
+.inputGroup {
+
+    display: flex;
+    flex-direction: column;
+    min-width: 300px; 
+    flex-grow: 1; 
+    margin-right: 10px; 
+}
+
+.topBar input[type="text"] {
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box; 
+}
+
+.buttonGroup {
+    margin-top: 3px;
+}
+
 .queryresult img.submitted {
-    filter: grayscale(100%); /* Grayscale the submitted images */
+    filter: grayscale(100%); 
     position: relative;
   }
 

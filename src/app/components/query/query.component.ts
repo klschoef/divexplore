@@ -23,6 +23,10 @@ interface Shot {
   keyframe: string;
 }
 
+interface temporalQueries {
+  query: string;
+}
+
 @Component({
   selector: 'app-query',
   templateUrl: './query.component.html',
@@ -69,6 +73,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   //videoSummaryLargePreview: string = '';
 
   // UI state and navigation properties
+  temporalQueries: temporalQueries[] = [];
   selectedItem = 0;
   showPreview = false;
   showHelpActive = false;
@@ -433,6 +438,14 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       let queryHistory: Array<QueryType> = [msg];
       localStorage.setItem('history', JSON.stringify(queryHistory));
     }
+  }
+
+  addTemporalQuery() {
+    this.temporalQueries.push({ query: '' });
+  }
+
+  removeTemporalQuery(index: number) {
+    this.temporalQueries.splice(index, 1);
   }
 
   newTab(): void {
@@ -881,6 +894,18 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       return;
     }
 
+    let querySubmission = this.queryinput;
+
+    if (this.temporalQueries.length > 0) {
+      //concatenate all input fields with "<"
+      let combinedQuery = querySubmission;
+
+      for (let query of this.temporalQueries) {
+        combinedQuery += "<" + query.query;
+      }
+      querySubmission = combinedQuery;
+    }
+
     this.showHelpActive = false;
     this.showPreview = false;
 
@@ -893,12 +918,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         this.selectedPage = '1';
       }
 
-      console.log('qc: query for', this.queryinput + " videofiltering=" + this.selectedVideoFiltering + " and " + this.queryType);
+      console.log('qc: query for', querySubmission + " videofiltering=" + this.selectedVideoFiltering + " and " + this.queryType);
       this.queryBaseURL = this.getBaseURL();
       let msg = {
         type: "textquery",
         clientId: "direct",
-        query: this.queryinput,
+        query: querySubmission,
         maxresults: this.globalConstants.maxResultsToReturn,
         resultsperpage: this.globalConstants.resultsPerPage,
         selectedpage: this.selectedPage,
@@ -932,7 +957,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         timestamp: Date.now(),
         category: QueryEventCategory.TEXT,
         type: this.selectedQueryType,
-        value: this.queryinput
+        value: querySubmission
       }
       this.vbsService.queryEvents.push(queryEvent);
 
