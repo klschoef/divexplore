@@ -1,4 +1,6 @@
 <div class="queryarea">
+  <div class="topBar">
+
   <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
   <!--<button class="backbutton" (click)="this.backInHistory()"><-</button>-->
   <select class="gray-background" [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
@@ -12,10 +14,25 @@
   <select [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
     <option *ngFor="let d of this.getQueryTypes(this.selectedDataset)" [ngValue]="d.id">{{d.name}}</option>
   </select>
-  <input matInput type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput"
-    (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" autofocus />
+  
+  <div class="inputGroup">
+    <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" 
+           (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" placeholder="Input your query..." autofocus/>
+    <div *ngFor="let q of temporalQueries; let i = index" class="additionalQuery">
+      <div class="arrowDown">&#x25BC;</div>
+      <div class="inputWithIcon">
+        <input type="text" [(ngModel)]="q.query" id="additionalQueryInput{{i}}"
+               (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" placeholder="What should happen after?"/>
+        <span class="closeIcon" (click)="removeTemporalQuery(i)">&#x00D7;</span>
+      </div> 
+    </div>
+  </div>
+  
+  <div class="buttonGroup">
+
   <button class="searchButton" (click)="performNewTextQuery()">Search</button>
 
+  <button class="temporaryButton" (click)="addTemporalQuery()">Add Temporal Query</button>
   <button class="newtab" (click)="newTab()">+Tab</button>
   <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
   <button class="resetButton" (click)="resetQuery()">Reset</button>
@@ -35,6 +52,8 @@
   <button mat-icon-button (click)="toggleConfigDialog()">
     <mat-icon>settings</mat-icon>
   </button>
+  </div>
+</div>
 </div>
 
 <!-- Config Modal -->
@@ -86,6 +105,10 @@
           (click)="setContent('video')">
           <mat-icon>videocam</mat-icon>
         </button>
+        <button class="top-left-button" [class.active]="activeButton === 'shots'" mat-icon-button
+          (click)="setContent('shots')">
+          <mat-icon>search</mat-icon>
+        </button>
         <button class="top-left-button" [class.active]="activeButton === 'explore'" mat-icon-button
           (click)="setContent('explore')">
           <mat-icon>explore</mat-icon>
@@ -111,14 +134,27 @@
       <div *ngIf="currentContent === 'explore'" class="explore-container">
         <div class="explore-ui-overlay">
           <div class="explore-ui-slider">
-            <input type="range" min="1" max="5" [(ngModel)]="columnsCount">
-            <p>Columns: {{columnsCount}}</p>
+            <input type="range" min="1" max="5" [(ngModel)]="columnsCountExplore">
+            <p>Columns: {{columnsCountExplore}}</p>
           </div>
           <button (click)="loadMoreImages()" class="load-more-button">Load more</button>
         </div>
-        <div class="explore-scroll-container">
+        <div #scrollableContainer class="explore-scroll-container">
           <img *ngFor="let imgUrl of displayedImages" loading="lazy" [src]="imgUrl" class="exploreimage"
-            [style.width.%]="100 / columnsCount - 2" (click)="createShotLink(imgUrl)">
+            [style.width.%]="100 / columnsCountExplore - 2" (click)="exploreToShotlist(imgUrl)">
+        </div>
+      </div>
+      <div *ngIf="currentContent==='shots'" class ="shots-container">
+        <div class="shots-ui-overlay">
+          <div class="shots-ui-slider">
+            <input type="range" min="5" max="10" [(ngModel)]="columnsCountShots">
+            <p>Columns: {{columnsCountShots}}</p>
+          </div>
+          <button (click)="loadMoreShots()" class="load-more-button">Load more</button>
+        </div>
+        <div #scrollableContainer class="shots-scroll-container">
+          <img *ngFor="let shotUrl of displayedShots" loading="lazy" [src]="shotUrl" class="shotimage"
+            [style.width.%]="100 / columnsCountShots - 2" (click)="shotPreviewToShotList(shotUrl)">
         </div>
       </div>
     </div>

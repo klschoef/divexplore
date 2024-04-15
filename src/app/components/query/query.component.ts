@@ -18,6 +18,15 @@ import { ConfigFormComponent } from '../config-form/config-form.component';
 import { UrlRetrievalService } from 'src/app/services/url-retrieval/url-retrieval.service';
 import { ChangeDetectorRef } from '@angular/core';
 
+
+interface Shot {
+  keyframe: string;
+}
+
+interface temporalQueries {
+  query: string;
+}
+
 @Component({
   selector: 'app-query',
   templateUrl: './query.component.html',
@@ -29,6 +38,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   @ViewChild('historyDiv') historyDiv!: ElementRef<HTMLDivElement>;
   @ViewChild('videopreview', { static: false }) videopreview!: ElementRef;
   @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
+  @ViewChild('scrollableContainer') scrollableContainer!: ElementRef<HTMLDivElement>;
 
   // Subscriptions for handling events
   private dresErrorMessageSubscription!: Subscription;
@@ -58,10 +68,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   videoLargePreview: string = '';
   videoPlayPreview: string = '';
   videoExplorePreview: Array<string> = [];
-  currentContent: 'image' | 'thumbnail' | 'video' | 'explore' = 'image';
+  shotPreview: Array<string> = [];
+  currentContent: 'image' | 'thumbnail' | 'video' | 'shots' | 'explore' = 'image';
   //videoSummaryLargePreview: string = '';
 
   // UI state and navigation properties
+  temporalQueries: temporalQueries[] = [];
   selectedItem = 0;
   showPreview = false;
   showHelpActive = false;
@@ -72,10 +84,14 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   showButtons = -1;
   activeButton: string = 'image';
   showConfigForm = false;
-  columnsCount: number = 3;
+  columnsCountExplore: number = 3;
+  columnsCountShots: number = 8;
   isOverImage: boolean = false;
   displayedImages: Array<string> = [];
-  batchSize: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
+  displayedShots: Array<string> = [];
+  private debounceTimer?: number;
+  batchSizeExplore: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
+  batchSizeShots: string = this.globalConstants.shotsResultsPerLoad; //how many shots to show in shot-preview
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
@@ -230,6 +246,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 this.videoExplorePreview = updatedResults;
                 this.displayedImages = [];
                 this.loadMoreImages();
+              } else if (m.type === 'videoinfo') {
+                const keyframes: Array<string> = m.content[0].shots.map((shot: Shot) => shot.keyframe); //get all keyframes
+                const updatedResults = keyframes.map(keyframe => this.globalConstants.thumbsBaseURL + '/' + this.queryresult_videoid[this.selectedItem] + "/" + keyframe);
+                console.log(updatedResults);
+                this.shotPreview = updatedResults;
+                this.displayedShots = [];
+                this.loadMoreShots();
               }
             } else {
               this.handleQueryResponseMessage(msg);
@@ -278,9 +301,16 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
+  loadMoreShots() {
+    const startIndex = this.displayedShots.length;
+    const endIndex = startIndex + parseInt(this.batchSizeShots);
+    const nextBatch = this.shotPreview.slice(startIndex, endIndex);
+    this.displayedShots = [...this.displayedShots, ...nextBatch];
+  }
+
   loadMoreImages() {
     const startIndex = this.displayedImages.length;
-    const endIndex = startIndex + parseInt(this.batchSize);
+    const endIndex = startIndex + parseInt(this.batchSizeExplore);
     const nextBatch = this.videoExplorePreview.slice(startIndex, endIndex);
     this.displayedImages = [...this.displayedImages, ...nextBatch];
   }
@@ -410,6 +440,14 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
+  addTemporalQuery() {
+    this.temporalQueries.push({ query: '' });
+  }
+
+  removeTemporalQuery(index: number) {
+    this.temporalQueries.splice(index, 1);
+  }
+
   newTab(): void {
     const currentUrl = window.location.href;
     window.open(currentUrl, '_blank');
@@ -442,32 +480,37 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowLeft':
+          // Handle other arrow key operations
           this.handleArrowKeys(event);
           break;
         case 'ArrowUp':
-          if (this.showPreview && this.selectedSummaryIdx > 0) {
+          if (this.currentContent === 'explore' || this.currentContent === 'shots') {
+            const element = this.scrollableContainer.nativeElement;
+            element.scrollBy(0, -100);
+          } else if (this.showPreview && this.selectedSummaryIdx > 0) {
             this.selectedSummaryIdx -= 1;
             this.displayVideoSummary();
           }
           break;
         case 'ArrowDown':
-          if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
+          if (this.currentContent === 'explore' || this.currentContent === 'shots') {
+            const element = this.scrollableContainer.nativeElement;
+            element.scrollBy(0, 100);
+          } else if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
             this.selectedSummaryIdx += 1;
             this.displayVideoSummary();
           }
           break;
         case ' ':
-          this.showPreview = !this.showPreview;
-          if (this.showPreview) this.showVideoPreview();
+          if (this.currentContent === 'explore') {
+            this.loadMoreImages();
+          } else if (this.currentContent === 'shots') {
+            this.loadMoreShots();
+          } else {
+            this.showPreview = !this.showPreview;
+            if (this.showPreview) this.showVideoPreview();
+          }
           break;
-        /*
-        case 's':
-          this.submitResult(this.selectedItem);
-          break;
-        case 'v':
-          this.showVideoShots(this.queryresult_videoid[this.selectedSummaryIdx],'1');
-          break;
-        */
         default:
           if (this.isNumericKey(event.key) && !this.showPreview) {
             this.gotoPage(event.key);
@@ -483,7 +526,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 this.setContent('video');
                 break;
               case '4':
+                this.setContent('shots');
+                break;
+              case '5':
                 this.setContent('explore');
+                break;
+              case '0':
+                this.showVideoShots(this.queryresult_videoid[this.selectedItem], this.queryresult_frame[this.selectedItem])
                 break;
             }
           }
@@ -498,6 +547,20 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     if (shiftKey) {
       if (!this.showPreview) {
         key === 'ArrowRight' ? this.nextPage() : this.prevPage();
+      } else {
+        if (this.currentContent === 'explore') {
+          if (key === 'ArrowRight' && this.columnsCountExplore < 5) {
+            this.columnsCountExplore += 1;
+          } else if (key === 'ArrowLeft' && this.columnsCountExplore > 1) {
+            this.columnsCountExplore -= 1;
+          }
+        } else if (this.currentContent === 'shots') {
+          if (key === 'ArrowRight' && this.columnsCountShots < 10) {
+            this.columnsCountShots += 1;
+          } else if (key === 'ArrowLeft' && this.columnsCountShots > 5) {
+            this.columnsCountShots -= 1;
+          }
+        }
       }
     } else {
       let toShow = this.showPreview;
@@ -514,24 +577,30 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @HostListener('wheel', ['$event'])
   handleScrollEvent(event: WheelEvent) {
-    if (this.isOverImage) {
-      event.preventDefault();
-      if (event.deltaY < 0) { // Scrolling up
-        if (this.showPreview && this.selectedSummaryIdx > 0) {
-          this.selectedSummaryIdx -= 1;
-          this.displayVideoSummary();
-        }
-      } else if (event.deltaY > 0) { // Scrolling down
-        if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
-          this.selectedSummaryIdx += 1;
-          this.displayVideoSummary();
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+
+    this.debounceTimer = window.setTimeout(() => {
+      if (this.isOverImage) {
+        event.preventDefault();
+        // Your existing logic
+        if (event.deltaY < 0) { // Scrolling up
+          if (this.showPreview && this.selectedSummaryIdx > 0) {
+            this.selectedSummaryIdx -= 1;
+            this.displayVideoSummary();
+          }
+        } else if (event.deltaY > 0) { // Scrolling down
+          if (this.showPreview && this.selectedSummaryIdx < this.summaries.length - 1) {
+            this.selectedSummaryIdx += 1;
+            this.displayVideoSummary();
+          }
         }
       }
-    }
+    }, 300); // Adjust the 300ms debounce time as needed
   }
 
+
   private isNumericKey(key: string): boolean {
-    return ['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(key);
+    return ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(key);
   }
 
   prevPage() {
@@ -628,6 +697,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     if (this.currentContent === 'explore') {
       this.loadExploreImages(this.queryresult_videoid[this.selectedItem]);
+    } else if (this.currentContent === 'shots') {
+      this.loadShotList(this.queryresult_videoid[this.selectedItem]);
     }
   }
 
@@ -641,7 +712,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.videoExplorePreview = [];
   }
 
-  setContent(content: 'image' | 'thumbnail' | 'video' | 'explore') {
+  setContent(content: 'image' | 'thumbnail' | 'video' | 'shots' | 'explore') {
     this.currentContent = content;
     this.activeButton = content;
 
@@ -670,7 +741,20 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
-  createShotLink(explorationUrl: string) {
+  loadShotList(videoid: string) {
+    if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
+      console.log('slc: get video info from database', videoid);
+      let msg = {
+        type: "videoinfo",
+        videoid: videoid
+      };
+      this.sendToNodeServer(msg);
+    } else {
+      alert(`Node.js connection down: ${this.nodeService.connectionState}. Try reconnecting by pressing the red button!`);
+    }
+  }
+
+  exploreToShotlist(explorationUrl: string) {
     let videoId: string = "";
     const url = new URL(explorationUrl);
     const paths = url.pathname.split('/');
@@ -679,6 +763,16 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       videoId = paths[summariesXLIndex + 2];
     }
     this.showVideoShots(videoId, '1');
+  }
+
+  shotPreviewToShotList(previewurl: string) {
+    console.log("Here!")
+    const url = new URL(previewurl);
+    const paths = url.pathname.split('/');
+    const [videoid, frame_with_extension] = paths[paths.length - 1].split('_');
+    const frame_number = frame_with_extension.split('.')[0];
+
+    this.showVideoShots(videoid, frame_number);
   }
 
   showVideoShots(videoid: string, frame: string) {
@@ -800,6 +894,18 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       return;
     }
 
+    let querySubmission = this.queryinput;
+
+    if (this.temporalQueries.length > 0) {
+      //concatenate all input fields with "<"
+      let combinedQuery = querySubmission;
+
+      for (let query of this.temporalQueries) {
+        combinedQuery += "<" + query.query;
+      }
+      querySubmission = combinedQuery;
+    }
+
     this.showHelpActive = false;
     this.showPreview = false;
 
@@ -812,12 +918,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         this.selectedPage = '1';
       }
 
-      console.log('qc: query for', this.queryinput + " videofiltering=" + this.selectedVideoFiltering + " and " + this.queryType);
+      console.log('qc: query for', querySubmission + " videofiltering=" + this.selectedVideoFiltering + " and " + this.queryType);
       this.queryBaseURL = this.getBaseURL();
       let msg = {
         type: "textquery",
         clientId: "direct",
-        query: this.queryinput,
+        query: querySubmission,
         maxresults: this.globalConstants.maxResultsToReturn,
         resultsperpage: this.globalConstants.resultsPerPage,
         selectedpage: this.selectedPage,
@@ -851,7 +957,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         timestamp: Date.now(),
         category: QueryEventCategory.TEXT,
         type: this.selectedQueryType,
-        value: this.queryinput
+        value: querySubmission
       }
       this.vbsService.queryEvents.push(queryEvent);
 
