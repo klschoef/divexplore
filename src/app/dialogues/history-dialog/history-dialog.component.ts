@@ -37,7 +37,7 @@ export class HistoryDialogComponent {
     if (hist) {
       let histj: QueryType[] = JSON.parse(hist);
       this.historyList = histj;
-      this.displayHistory = histj.map(ho => `${ho.type}: ${ho.query} (${ho.dataset})`);
+      this.displayHistory = histj.map(ho => `<i>${ho.type}:</i> <b>${ho.query}</b> <i>(${ho.dataset})</i>`);
 
       this.uniqueTypes = Array.from(new Set(histj.map(ho => ho.type)));
       this.uniqueDataset = Array.from(new Set(histj.map(ho => ho.dataset)));
@@ -49,9 +49,9 @@ export class HistoryDialogComponent {
   filterList(): void {
     this.filteredHistory = this.historyList.filter(item =>
       (this.filterType ? item.type.toLowerCase() === this.filterType.toLowerCase() : true) &&
-      (this.searchTerm ? (`${item.type}: ${item.query} (${item.dataset})`).toLowerCase().includes(this.searchTerm.toLowerCase()) : true)
+      (this.searchTerm ? (`<i>${item.type}:</i> <b>${item.query}</b> <i>(${item.dataset})</i>`).toLowerCase().includes(this.searchTerm.toLowerCase()) : true)
     );
-    this.displayHistory = this.filteredHistory.map(item => `${item.type}: ${item.query} (${item.dataset})`);
+    this.displayHistory = this.filteredHistory.map(item => `<i>${item.type}:</i> <b>${item.query}</b> <i>(${item.dataset})</i>`);
   }
 
   onInputFocus() {

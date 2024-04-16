@@ -12,7 +12,7 @@
         </select>
     </div>
     <ul>
-        <li *ngFor="let item of displayHistory; let i = index" (click)="onHistoryItemClick(filteredHistory[i])">{{ item }}</li>
+        <li *ngFor="let item of displayHistory; let i = index" (click)="onHistoryItemClick(filteredHistory[i])" [innerHTML]="item"></li>
     </ul>
 </div>
 </expl-dialog>
