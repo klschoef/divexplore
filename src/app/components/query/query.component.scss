@@ -110,6 +110,10 @@ input::placeholder {
     margin-top: 12px;
 }
 
+.historySelect {
+    width: 0;
+}
+
 .queryarea input,button {
     margin-left: 1px;
     margin-right: 1px;
@@ -143,15 +147,6 @@ input::placeholder {
     background-color: white;
 }
 
-.historySelect {
-    float: right;
-    padding-right: 20px;
-    padding-bottom: 30px;
-}
-
-.historyToggle, .historySelect option {
-    background-color: lightgray;
-}
 
 .spacer {
     margin-right: 40px;

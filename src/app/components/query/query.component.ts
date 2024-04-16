@@ -77,6 +77,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   selectedItem = 0;
   showPreview = false;
   showHelpActive = false;
+  showHistoryActive = false;
   thumbSize = 'small';
   selectedHistoryEntry: string | undefined;
   queryFieldHasFocus = false;
@@ -368,6 +369,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   showHelp() {
     this.showHelpActive = !this.showHelpActive;
+  }
+
+  showHistory() {
+    this.showHistoryActive = !this.showHistoryActive;
   }
 
   toggleConfigModal() {
@@ -910,6 +915,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
 
     this.showHelpActive = false;
+    this.showHistoryActive = false;
     this.showPreview = false;
 
     if (this.clipService.connectionState === WSServerStatus.CONNECTED ||

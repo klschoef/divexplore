@@ -1,6 +1,5 @@
 <div class="queryarea">
   <div class="topBar">
-
   <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
   <!--<button class="backbutton" (click)="this.backInHistory()"><-</button>-->
   <select class="gray-background" [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
@@ -18,6 +17,12 @@
   <div class="inputGroup">
     <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" 
            (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" placeholder="Input your query..." autofocus/>
+           <div class="historySelect" #historyDiv>
+            <select [(ngModel)]="selectedHistoryEntry" value="" (change)="performHistoryQuery()">
+              <option value="-1" selected disabled>-- Search History --</option>
+              <option *ngFor="let h of history(); let i = index" [ngValue]="i">{{h}}</option>
+            </select>
+          </div>
     <div *ngFor="let q of temporalQueries; let i = index" class="additionalQuery">
       <div class="arrowDown">&#x25BC;</div>
       <div class="inputWithIcon">
@@ -34,16 +39,9 @@
 
   <button *ngIf="selectedQueryType == 'textquery'" class="temporaryButton" (click)="addTemporalQuery()">Add Temporal Query</button>
   <button class="newtab" (click)="newTab()">+Tab</button>
-  <button class="historyToggle" (click)="toggleHistorySelect()">History</button>
+  <button class="historyToggle" (click)="toggleHistorySelect(); showHistory()">History</button>
   <button class="resetButton" (click)="resetQuery()">Reset</button>
   <!-- <button class="browseButton" (click)="browseClusters()">Xplore</button> -->
-
-  <div class="historySelect" #historyDiv>
-    <select [(ngModel)]="selectedHistoryEntry" value="" (change)="performHistoryQuery()">
-      <option value="-1" selected disabled>-- Search History --</option>
-      <option *ngFor="let h of history(); let i = index" [ngValue]="i">{{h}}</option>
-    </select>
-  </div>
 
   <button mat-icon-button (click)="showHelp()">
     <mat-icon>help</mat-icon>
@@ -73,8 +71,6 @@
     </div>
   </div>
 </div>
-
-
 
 <div class="queryarea">
   Pages:
@@ -194,6 +190,8 @@
 </div>
 
 <app-help-section *ngIf="showHelpActive" (clickOnClose)="showHelpActive = false"></app-help-section>
+
+<app-history-dialog *ngIf="showHistoryActive" (clickOnClose)="showHistoryActive = false"></app-history-dialog>
 
 <app-message-bar></app-message-bar>
 
