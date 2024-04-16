@@ -18,18 +18,23 @@
     height: auto;
     box-sizing: border-box;
   }
-  
+
   ul {
     list-style-type: none; /* Removes the bullets */
     padding: 0;
   }
   
   li {
+    cursor: pointer;
     background-color: #fff;
     border: 1px solid #ddd;
     margin-top: 8px;
     padding: 8px;
     border-radius: 4px;
+  }
+
+  li:hover {
+    background-color: #f9f9f9;
   }
   
   li:first-child {

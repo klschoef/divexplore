@@ -437,7 +437,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @HostListener('document:keyup', ['$event'])
   handleKeyboardEventUp(event: KeyboardEvent) {
-    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm) {
+    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm && !this.showHistoryActive) {
       switch (event.key) {
         case 'q':
           this.inputfield.nativeElement.select();
@@ -454,7 +454,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm) {
+    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm && !this.showHistoryActive) {
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowLeft':

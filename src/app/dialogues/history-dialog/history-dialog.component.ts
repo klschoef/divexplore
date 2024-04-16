@@ -9,6 +9,8 @@ import { QueryType } from '../../shared/config/global-constants';
 export class HistoryDialogComponent {
   @Output() clickOnClose: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
   @Output() historySelected: EventEmitter<QueryType> = new EventEmitter();
+  @Output() historyInputFieldFocusChange = new EventEmitter<boolean>();
+
   historyList: QueryType[] = [];
   displayHistory: string[] = [];
   filteredHistory: QueryType[] = [];
@@ -17,6 +19,7 @@ export class HistoryDialogComponent {
   searchTerm: string = '';
   filterType: string = '';
   filterDataset: string = '';
+  inputFieldFocus: boolean = false;
 
   constructor() { }
 
@@ -49,6 +52,16 @@ export class HistoryDialogComponent {
       (this.searchTerm ? (`${item.type}: ${item.query} (${item.dataset})`).toLowerCase().includes(this.searchTerm.toLowerCase()) : true)
     );
     this.displayHistory = this.filteredHistory.map(item => `${item.type}: ${item.query} (${item.dataset})`);
+  }
+
+  onInputFocus() {
+    this.inputFieldFocus = true;
+    this.historyInputFieldFocusChange.emit(true);
+  }
+
+  onInputBlur() {
+    this.inputFieldFocus = false
+    this.historyInputFieldFocusChange.emit(true);
   }
 }
 
