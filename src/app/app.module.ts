@@ -29,6 +29,7 @@ import { HelpSectionComponent } from './dialogues/help-section/help-section.comp
 import { ExplDialogComponent } from './features/expl-dialog/expl-dialog.component';
 import { StatusBarComponent } from './components/status-bar/status-bar.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { HistoryDialogComponent } from './dialogues/history-dialog/history-dialog.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     ConfigFormComponent,
     HelpSectionComponent,
     ExplDialogComponent,
-    StatusBarComponent
+    StatusBarComponent,
+    HistoryDialogComponent
   ],
   imports: [
     BrowserModule,

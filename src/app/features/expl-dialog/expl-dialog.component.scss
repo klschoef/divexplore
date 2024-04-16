@@ -17,6 +17,8 @@
     border-radius: var(--app-modal-border-radius, 8px);
     font-size: 12pt;
     display: flex;
+    width: 40%;
+    height: auto;
     flex-direction: column;
     max-height: calc(100% - 80px - 64px);
     margin: 32px 0;

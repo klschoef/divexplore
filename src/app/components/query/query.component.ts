@@ -35,7 +35,6 @@ interface temporalQueries {
 export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   // Component's core properties
   @ViewChild('inputfield') inputfield!: ElementRef<HTMLInputElement>;
-  @ViewChild('historyDiv') historyDiv!: ElementRef<HTMLDivElement>;
   @ViewChild('videopreview', { static: false }) videopreview!: ElementRef;
   @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
   @ViewChild('scrollableContainer') scrollableContainer!: ElementRef<HTMLDivElement>;
@@ -77,6 +76,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   selectedItem = 0;
   showPreview = false;
   showHelpActive = false;
+  showHistoryActive = false;
   thumbSize = 'small';
   selectedHistoryEntry: string | undefined;
   queryFieldHasFocus = false;
@@ -292,7 +292,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   ngAfterViewInit(): void {
-    this.historyDiv.nativeElement.hidden = true;
   }
 
   ngAfterViewChecked(): void {
@@ -370,6 +369,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.showHelpActive = !this.showHelpActive;
   }
 
+  showHistory() {
+    this.showHistoryActive = !this.showHistoryActive;
+  }
+
   toggleConfigModal() {
     this.showConfigForm = !this.showConfigForm;
   }
@@ -381,31 +384,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     if (this.vbsService.selectedServerRun !== undefined) {
       this.vbsService.getClientTaskInfo(this.vbsService.serverRunIDs[this.vbsService.selectedServerRun], this);
     }
-  }
-
-
-  //browseClusters() {
-  //  this.router.navigate(['exploration']);
-  //}
-
-  toggleHistorySelect() {
-    this.historyDiv.nativeElement.hidden = !this.historyDiv.nativeElement.hidden;
-    /*if (!this.historyDiv.nativeElement.hidden) {
-      this.historyDiv.nativeElement.focus();
-    }*/
-  }
-
-  history() {
-    let historyList = [];
-    let hist = localStorage.getItem('history')
-    if (hist) {
-      let histj: [QueryType] = JSON.parse(hist);
-      for (let i = 0; i < histj.length; i++) {
-        let ho = histj[i];
-        historyList.push(`${ho.type}: ${ho.query} (${ho.dataset})`)
-      }
-    }
-    return historyList; //JSON.parse(hist!);
   }
 
   saveToHistory(msg: QueryType) {
@@ -459,7 +437,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @HostListener('document:keyup', ['$event'])
   handleKeyboardEventUp(event: KeyboardEvent) {
-    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm) {
+    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm && !this.showHistoryActive) {
       switch (event.key) {
         case 'q':
           this.inputfield.nativeElement.select();
@@ -476,7 +454,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm) {
+    if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm && !this.showHistoryActive) {
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowLeft':
@@ -910,6 +888,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
 
     this.showHelpActive = false;
+    this.showHistoryActive = false;
     this.showPreview = false;
 
     if (this.clipService.connectionState === WSServerStatus.CONNECTED ||
@@ -1040,43 +1019,24 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
-  performHistoryQuery() {
-    let hist = localStorage.getItem('history')
-    if (hist && this.selectedHistoryEntry !== "-1") {
-      let queryHistory: Array<QueryType> = JSON.parse(hist);
-      let msg: QueryType = queryHistory[parseInt(this.selectedHistoryEntry!)];
+  performHistoryQuery(hist: QueryType): void {
+    this.queryinput = hist.query;
+    this.selectedDataset = hist.dataset;
+    this.selectedQueryType = hist.type;
+    this.selectedVideoFiltering = hist.videofiltering;
+    this.selectedPage = hist.selectedpage;
+    this.previousQuery = undefined;
+    this.file_sim_keyframe = undefined;
+    this.file_sim_pathPrefix = undefined;
+    this.performQuery(false);
 
-      if (msg.type === 'file-similarityquery') {
-        this.previousQuery = undefined;
-        this.queryinput = '';
-      } else {
-        this.queryinput = msg.query;
-        this.selectedDataset = msg.dataset;
-        this.selectedQueryType = msg.type;
-        this.selectedVideoFiltering = msg.videofiltering;
-        this.selectedPage = msg.selectedpage;
-        this.previousQuery = undefined;
-        this.file_sim_keyframe = undefined;
-        this.file_sim_pathPrefix = undefined;
-      }
-
-      this.performQuery(false);
-      //this.sendToCLIPServer(msg);
-      //this.saveToHistory(msg);
-
-      this.selectedHistoryEntry = "-1";
-      this.historyDiv.nativeElement.hidden = true;
-
-      //query event logging
-      let queryEvent: QueryEvent = {
-        timestamp: Date.now(),
-        category: QueryEventCategory.OTHER,
-        type: "historyquery",
-        value: msg.query
-      }
-      this.vbsService.queryEvents.push(queryEvent);
-
+    let queryEvent: QueryEvent = {
+      timestamp: Date.now(),
+      category: QueryEventCategory.OTHER,
+      type: "historyquery",
+      value: hist.query
     }
+    this.vbsService.queryEvents.push(queryEvent);
   }
 
   performHistoryLastQuery() {
