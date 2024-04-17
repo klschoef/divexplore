@@ -1,38 +1,36 @@
 <div class="statusbar">
-  <div class="status-indicators">
-    <span class="{{clipService.connectionState}}">CLIP</span>
-    <span class="{{nodeService.connectionState}}">Node</span>
-    <span class="{{vbsService.vbsServerState}}">DRES</span>
+  <div class="status-left">
+    <div class="status-indicators">
+      <span class="{{clipService.connectionState}}">CLIP</span>
+      <span class="{{nodeService.connectionState}}">Node</span>
+      <span class="{{vbsService.vbsServerState}}">DRES</span>
+    </div>
+    &nbsp;
+    <span>User: {{vbsService.activeUsername}}</span>
+    <span *ngIf="vbsService.vbsServerState !== 'connected'" class="loginerror">Login-Error</span>
   </div>
-  &nbsp;
-  <span>User: {{vbsService.activeUsername}}</span>
-  <span *ngIf="vbsService.vbsServerState !== 'connected'" class="loginerror">Login-Error</span>
+  <div class="status-middle">
+      <span class="whiteColor">Topic Answer:</span>
+      <input type="text" id="topicanswer" name="topicanswer" ngModel #inputfield [(ngModel)]="topicanswer"
+        (keyup.enter)="sendTopicAnswer()" autofocus (focus)="onAnswerInputFocus()" (blur)="onAnswerInputBlur()" />
+      <button class="topicanswerbutton" (click)="sendTopicAnswer()">Submit</button>
+      <span>
+        <select class="grayBackground" [(ngModel)]="this.vbsService.selectedServerRun" value="0" (change)="selectRun()">
+          <option *ngFor="let r of this.vbsService.serverRuns; let i = index" [ngValue]="i"
+            [selected]="(i === 0 && this.vbsService.selectedServerRun === undefined) || (i === this.vbsService.selectedServerRun!)">
+            {{r}}</option>
+        </select>
+      </span>
 
-  <span class="tinyspacer">&nbsp;</span>
-
-  <div class="submission-elements">
-    <span class="whiteColor">Topic Answer:</span>
-    <input type="text" id="topicanswer" name="topicanswer" ngModel #inputfield [(ngModel)]="topicanswer"
-      (keyup.enter)="sendTopicAnswer()" autofocus (focus)="onAnswerInputFocus()" (blur)="onAnswerInputBlur()" />
-    <button class="topicanswerbutton" (click)="sendTopicAnswer()">Submit</button>
-
-    <span class="spacer">&nbsp;</span>
-
-    <span>
-      <select class="grayBackground" [(ngModel)]="this.vbsService.selectedServerRun" value="0" (change)="selectRun()">
-        <option *ngFor="let r of this.vbsService.serverRuns; let i = index" [ngValue]="i"
-          [selected]="(i === 0 && this.vbsService.selectedServerRun === undefined) || (i === this.vbsService.selectedServerRun!)">
-          {{r}}</option>
-      </select>
-    </span>
+    <div class="submission-info">
+      <span>{{statusTaskInfoText}}</span>
+      <span class="remainingTimeInfo"
+        *ngIf="this.vbsService.selectedServerRun !== undefined">{{getRemainingTaskTime()}}</span>
+      <span class="submissionresponse">{{this.vbsService.submissionResponse}}</span>
+      <span>DRES RTT: {{vbsService.serverTimeDiff}} ms</span>
+    </div>
   </div>
-  &nbsp;
-  <div class="submission-info">
-    <span>{{statusTaskInfoText}}</span>
-    <span class="remainingTimeInfo"
-      *ngIf="this.vbsService.selectedServerRun !== undefined">{{getRemainingTaskTime()}}</span>
-    <span class="submissionresponse">{{this.vbsService.submissionResponse}}</span>
-    <span>DRES RTT: {{vbsService.serverTimeDiff}} ms</span>
+  <div class="status-right">
+    <button class="reset-submission-button" (click)="resetSubmissions()">Reset Submissions</button>
   </div>
-  <button class="reset-submission-button" (click)="resetSubmissions()">Reset Submissions</button>
 </div>

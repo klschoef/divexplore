@@ -18,37 +18,37 @@
         </select>
       </div>
     </div>
-    
-      <div class="inputGroup">
-        <input class="inputField" type="text" id="queryinput" name="queryinput" ngModel #inputfield
-          [(ngModel)]="queryinput" (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()"
-          (blur)="onQueryInputBlur()" placeholder="Input your query..." autofocus />
-        <div *ngFor="let q of temporalQueries; let i = index" class="additionalQuery">
-          <div class="arrowDown">&#x25BC;</div>
-          <div class="inputWithIcon">
-            <input class="inputField" type="text" [(ngModel)]="q.query" id="additionalQueryInput{{i}}"
-              (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()"
-              placeholder="What should happen after?" />
-            <span class="closeIcon" (click)="removeTemporalQuery(i)">&#x00D7;</span>
-          </div>
+
+    <div class="inputGroup">
+      <input class="inputField" type="text" id="queryinput" name="queryinput" ngModel #inputfield
+        [(ngModel)]="queryinput" (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()"
+        (blur)="onQueryInputBlur()" placeholder="Input your query..." autofocus />
+      <div *ngFor="let q of temporalQueries; let i = index" class="additionalQuery">
+        <div class="arrowDown">&#x25BC;</div>
+        <div class="inputWithIcon">
+          <input class="inputField" type="text" [(ngModel)]="q.query" id="additionalQueryInput{{i}}"
+            (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()"
+            placeholder="What should happen after?" />
+          <span class="closeIcon" (click)="removeTemporalQuery(i)">&#x00D7;</span>
         </div>
       </div>
-      <button id="searchButton" class="basicButton" (click)="performNewTextQuery()">Search</button>
+    </div>
+    <button id="searchButton" class="basicButton" (click)="performNewTextQuery()">Search</button>
 
 
-      <div class="top-bar-right">
-        <button *ngIf="selectedQueryType == 'textquery'" class="basicButton" (click)="addTemporalQuery()">Add Temporal
-          Query</button>
-        <button id="historyToggle" class="basicButton" (click)="showHistory()">History</button>
-        <button id="resetButton" class="basicButton" (click)="resetQuery()">Reset</button>
-        <button id="helpButton" mat-icon-button (click)="showHelp()">
-          <mat-icon>help</mat-icon>
-        </button>
-        <button id="configButton" mat-icon-button (click)="toggleConfigDialog()">
-          <mat-icon>settings</mat-icon>
-        </button>
-        <!-- <button class="browseButton" (click)="browseClusters()">Xplore</button> -->
-      </div>
+    <div class="top-bar-right">
+      <button *ngIf="selectedQueryType == 'textquery'" class="basicButton" (click)="addTemporalQuery()">Add Temporal
+        Query</button>
+      <button id="resetButton" class="basicButton" (click)="resetQuery()">Reset</button>
+      <button id="historyToggle" class="basicButton" (click)="showHistory()">History</button>
+      <button id="helpButton" mat-icon-button (click)="showHelp()">
+        <mat-icon>help</mat-icon>
+      </button>
+      <button id="configButton" mat-icon-button (click)="toggleConfigDialog()">
+        <mat-icon>settings</mat-icon>
+      </button>
+      <!-- <button class="browseButton" (click)="browseClusters()">Xplore</button> -->
+    </div>
   </div>
 </div>
 
@@ -81,7 +81,7 @@
     </mat-button-toggle-group>
     <span class="resultcount">{{totalReturnedResults}} results</span>
   </div>
-    <button id="newTab" class="basicButton" (click)="newTab()">+Tab</button>
+  <button id="newTab" class="basicButton" (click)="newTab()">+Tab</button>
 </div>
 
 
