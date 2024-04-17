@@ -1,51 +1,55 @@
 <div class="queryarea">
   <div class="topBar">
-  <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
-  <!--<button class="backbutton" (click)="this.backInHistory()"><-</button>-->
-  <select class="gray-background" [(ngModel)]="selectedDataset" (change)="resetPageAndPerformQuery()">
-    <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
-  </select>
-  <select [(ngModel)]="selectedVideoFiltering"
-    [ngClass]="{'light-red-background': selectedVideoFiltering === 'first', 'light-blue-background': selectedVideoFiltering !== 'first'}"
-    (change)="resetPageAndPerformQuery()">
-    <option *ngFor="let d of videoFiltering" [ngValue]="d.id">{{d.name}}</option>
-  </select>
-  <select [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
-    <option *ngFor="let d of this.getQueryTypes(this.selectedDataset)" [ngValue]="d.id">{{d.name}}</option>
-  </select>
-  
-  <div class="inputGroup">
-    <input type="text" id="queryinput" name="queryinput" ngModel #inputfield [(ngModel)]="queryinput" 
-           (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" placeholder="Input your query..." autofocus/>
-    <div *ngFor="let q of temporalQueries; let i = index" class="additionalQuery">
-      <div class="arrowDown">&#x25BC;</div>
-      <div class="inputWithIcon">
-        <input type="text" [(ngModel)]="q.query" id="additionalQueryInput{{i}}"
-               (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()" placeholder="What should happen after?"/>
-        <span class="closeIcon" (click)="removeTemporalQuery(i)">&#x00D7;</span>
-      </div> 
+    <div class="top-bar-left">
+      <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
+      <!--<button class="backbutton" (click)="this.backInHistory()"><-</button>-->
+      <div class="select-wrapper">
+        <select class="gray-background top-bar-select" [(ngModel)]="selectedDataset"
+          (change)="resetPageAndPerformQuery()">
+          <option *ngFor="let d of datasets" [ngValue]="d.id">{{d.name}}</option>
+        </select>
+        <select class="top-bar-select" [(ngModel)]="selectedVideoFiltering"
+          [ngClass]="{'light-red-background': selectedVideoFiltering === 'first', 'light-blue-background': selectedVideoFiltering !== 'first'}"
+          (change)="resetPageAndPerformQuery()">
+          <option *ngFor="let d of videoFiltering" [ngValue]="d.id">{{d.name}}</option>
+        </select>
+        <select class="top-bar-select" [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
+          <option *ngFor="let d of this.getQueryTypes(this.selectedDataset)" [ngValue]="d.id">{{d.name}}</option>
+        </select>
+      </div>
     </div>
+    
+      <div class="inputGroup">
+        <input class="inputField" type="text" id="queryinput" name="queryinput" ngModel #inputfield
+          [(ngModel)]="queryinput" (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()"
+          (blur)="onQueryInputBlur()" placeholder="Input your query..." autofocus />
+        <div *ngFor="let q of temporalQueries; let i = index" class="additionalQuery">
+          <div class="arrowDown">&#x25BC;</div>
+          <div class="inputWithIcon">
+            <input class="inputField" type="text" [(ngModel)]="q.query" id="additionalQueryInput{{i}}"
+              (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()" (blur)="onQueryInputBlur()"
+              placeholder="What should happen after?" />
+            <span class="closeIcon" (click)="removeTemporalQuery(i)">&#x00D7;</span>
+          </div>
+        </div>
+      </div>
+      <button id="searchButton" class="basicButton" (click)="performNewTextQuery()">Search</button>
+
+
+      <div class="top-bar-right">
+        <button *ngIf="selectedQueryType == 'textquery'" class="basicButton" (click)="addTemporalQuery()">Add Temporal
+          Query</button>
+        <button id="historyToggle" class="basicButton" (click)="showHistory()">History</button>
+        <button id="resetButton" class="basicButton" (click)="resetQuery()">Reset</button>
+        <button id="helpButton" mat-icon-button (click)="showHelp()">
+          <mat-icon>help</mat-icon>
+        </button>
+        <button id="configButton" mat-icon-button (click)="toggleConfigDialog()">
+          <mat-icon>settings</mat-icon>
+        </button>
+        <!-- <button class="browseButton" (click)="browseClusters()">Xplore</button> -->
+      </div>
   </div>
-  
-  <div class="buttonGroup">
-
-  <button class="searchButton" (click)="performNewTextQuery()">Search</button>
-
-  <button *ngIf="selectedQueryType == 'textquery'" class="temporaryButton" (click)="addTemporalQuery()">Add Temporal Query</button>
-  <button class="newtab" (click)="newTab()">+Tab</button>
-  <button class="historyToggle" (click)="showHistory()">History</button>
-  <button class="resetButton" (click)="resetQuery()">Reset</button>
-  <!-- <button class="browseButton" (click)="browseClusters()">Xplore</button> -->
-
-  <button mat-icon-button (click)="showHelp()">
-    <mat-icon>help</mat-icon>
-  </button>
-
-  <button mat-icon-button (click)="toggleConfigDialog()">
-    <mat-icon>settings</mat-icon>
-  </button>
-  </div>
-</div>
 </div>
 
 <!-- Config Modal -->
@@ -66,14 +70,20 @@
   </div>
 </div>
 
-<div class="queryarea">
-  Pages:
-  <mat-button-toggle-group [(ngModel)]="selectedPage">
-    <mat-button-toggle *ngFor="let p of pages" [value]="p" (click)="performQuery()"
-      [disabled]="totalReturnedResults == 0">{{p}}</mat-button-toggle>
-  </mat-button-toggle-group>
-  <span class="resultcount">{{totalReturnedResults}} results</span>
+<div class="pagination">
+  <div class="pagination-controls">
+    Pages:
+    <mat-button-toggle-group [(ngModel)]="selectedPage">
+      <mat-button-toggle *ngFor="let p of pages" [value]="p" (click)="performQuery()"
+        [disabled]="totalReturnedResults == 0">
+        {{p}}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <span class="resultcount">{{totalReturnedResults}} results</span>
+  </div>
+    <button id="newTab" class="basicButton" (click)="newTab()">+Tab</button>
 </div>
+
 
 <br />
 
@@ -134,7 +144,7 @@
             [style.width.%]="100 / columnsCountExplore - 2" (click)="exploreToShotlist(imgUrl)">
         </div>
       </div>
-      <div *ngIf="currentContent==='shots'" class ="shots-container">
+      <div *ngIf="currentContent==='shots'" class="shots-container">
         <div class="shots-ui-overlay">
           <div class="shots-ui-slider">
             <input type="range" min="5" max="10" [(ngModel)]="columnsCountShots">
@@ -185,7 +195,8 @@
 
 <app-help-section *ngIf="showHelpActive" (clickOnClose)="showHelpActive = false"></app-help-section>
 
-<app-history-dialog *ngIf="showHistoryActive" (clickOnClose)="showHistoryActive = false" (historySelected)="performHistoryQuery($event)"></app-history-dialog>
+<app-history-dialog *ngIf="showHistoryActive" (clickOnClose)="showHistoryActive = false"
+  (historySelected)="performHistoryQuery($event)"></app-history-dialog>
 
 <app-message-bar></app-message-bar>
 

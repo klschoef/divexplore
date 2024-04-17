@@ -419,7 +419,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   addTemporalQuery() {
-    this.temporalQueries.push({ query: '' });
+    if (this.temporalQueries.length < 3)
+      this.temporalQueries.push({ query: '' });
   }
 
   removeTemporalQuery(index: number) {
@@ -799,6 +800,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   resetQuery() {
     this.queryinput = '';
+    this.temporalQueries = [];
     this.inputfield.nativeElement.focus();
     this.inputfield.nativeElement.select();
     this.file_sim_keyframe = undefined
