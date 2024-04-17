@@ -162,11 +162,8 @@ input[type="text"] {
 }
 
 #resetButton {
-    background-color: rgb(242, 103, 103);
-}
-
-#resetButton {
-    background-color: rgb(242, 103, 103);
+    background-color: rgb(228, 63, 63);
+    color: white;
 }
 
 #newtab {
@@ -293,15 +290,22 @@ background-color: rgb(210, 209, 209);
 }
 
 .full-message {
-    padding: 40px;
-    background-color: #ffffe0;
+    font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+    font-size: 16px; 
     position: fixed;
-    top: 50%;
+    bottom: 50px; /* Adjust the distance from the bottom */
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     z-index: 9999;
-    font-size: 20pt;
+    background-color: rgba(0, 0, 0, 0.8); /* Add transparency */
+    color: white; /* Change text color to white */
+    padding: 16px 24px; /* Add padding */
+    border-radius: 8px; /* Add rounded corners */
+    font-size: 16px; /* Adjust font size */
+    max-width: 80%; /* Limit the width of the message */
+    text-align: center; /* Center-align the text */
   }
+  
 
   /* config-modal.component.css */
 .modal {
