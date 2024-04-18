@@ -1,6 +1,7 @@
 .statusbar {
-    background-color: #202124;
+    background-color: #222831;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     padding: 2px 0 2px 0;
@@ -22,6 +23,7 @@
     font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
     font-size: 14px;
     font-weight: 600;
+    background-color: #2ea44f;
 }
 
 .status-left {
@@ -32,7 +34,7 @@
 
 .status-middle {
     display: flex;
-    min-width: 50vw;
+    min-width: 60vw;
     vertical-align: middle;
 }
 
@@ -60,7 +62,7 @@
 }
 
 .remainingTimeInfo {
-    background-color: red;
+    background-color: rgb(228, 63, 63);
     color: white;
     font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
     font-size: 16px;  // I
