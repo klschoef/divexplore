@@ -16,6 +16,14 @@ input[type="text"] {
     display: flex;
 }
 
+#configButton {
+    padding-top: 3px;
+}
+
+#helpButton {
+    padding-top: 3px;
+}
+
 .pagination {
     display: flex;
     justify-content: space-between; 
