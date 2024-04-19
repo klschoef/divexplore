@@ -1,7 +1,8 @@
 <div class="queryarea">
   <div class="topBar">
-    <div class="top-bar-left">
+    
       <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
+      <div class="top-bar-left">
       <div class="select-wrapper">
         <select class="gray-background top-bar-select" [(ngModel)]="selectedDataset"
           (change)="resetPageAndPerformQuery()">
