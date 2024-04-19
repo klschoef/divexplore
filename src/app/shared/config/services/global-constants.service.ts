@@ -40,6 +40,10 @@ export class GlobalConstantsService {
   }
 
   get thumbsBaseURL(): string {
+    return this.dataHost + 'thumbs/';
+  }
+
+  get thumbsXLBaseURL(): string {
     return this.dataHost + 'thumbsXL/';
   }
 

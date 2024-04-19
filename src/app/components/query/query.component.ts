@@ -349,7 +349,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     this.videoSummaryPreview = this.urlRetrievalService.getPreviewSummaryUrl(summary);
     //this.videoSummaryLargePreview = this.urlRetrievalService.getPreviewSummaryLargeUrl(summary);
-    this.videoLargePreview = this.urlRetrievalService.getThumbnailUrl(videoId, frame);
+    this.videoLargePreview = this.urlRetrievalService.getThumbnailLargeUrl(videoId, frame);
     this.videoPlayPreview = this.urlRetrievalService.getVideoUrl(videoId);
   }
 

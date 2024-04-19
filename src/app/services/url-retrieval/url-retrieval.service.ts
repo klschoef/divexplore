@@ -9,6 +9,7 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class UrlRetrievalService {
   private baseThumbsUrl: string = '';
+  private baseThumbsXLUrl: string = '';
   private baseVideosUrl: string = '';
   private explorationSubscription: any;
   nodeServerInfo: string | undefined;
@@ -24,10 +25,15 @@ export class UrlRetrievalService {
   ) {
     this.baseThumbsUrl = this.globalConstants.thumbsBaseURL;
     this.baseVideosUrl = this.globalConstants.videosBaseURL;
+    this.baseThumbsXLUrl = this.globalConstants.thumbsXLBaseURL;
   }
 
   getThumbnailUrl(videoId: string, frame: string) {
     return `${this.baseThumbsUrl}${videoId}/${videoId}_${frame}.jpg`;
+  }
+
+  getThumbnailLargeUrl(videoId: string, frame: string) {
+    return `${this.baseThumbsXLUrl}${videoId}/${videoId}_${frame}.jpg`;
   }
 
   getPreviewSummaryUrl(summaries: string) {
