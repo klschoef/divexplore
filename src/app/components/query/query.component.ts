@@ -1,23 +1,18 @@
 import { ViewChild, ElementRef, Component, AfterViewInit, Renderer2 } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { GlobalConstants, WSServerStatus, WebSocketEvent, formatAsTime, QueryType, getTimestampInSeconds } from '../../shared/config/global-constants';
+import { GlobalConstants, WSServerStatus, formatAsTime, QueryType, getTimestampInSeconds } from '../../shared/config/global-constants';
 import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
-import { GUIAction, GUIActionType } from '../../shared/interfaces/gui-action';
 import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { query } from '@angular/animations';
-import { QueryEvent, QueryResultLog, QueryEventLog, QueryEventCategory, RankedAnswer, ApiClientAnswer } from 'openapi/dres';
+import { ActivatedRoute } from '@angular/router';
+import { QueryEvent, QueryEventCategory, RankedAnswer, ApiClientAnswer } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
 import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfigFormComponent } from '../config-form/config-form.component';
 import { UrlRetrievalService } from 'src/app/services/url-retrieval/url-retrieval.service';
-import { ChangeDetectorRef } from '@angular/core';
-
 
 interface Shot {
   keyframe: string;
@@ -69,7 +64,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   videoExplorePreview: Array<string> = [];
   shotPreview: Array<string> = [];
   currentContent: 'image' | 'thumbnail' | 'video' | 'shots' | 'explore' = 'image';
-  //videoSummaryLargePreview: string = '';
 
   // UI state and navigation properties
   temporalQueries: temporalQueries[] = [];
@@ -143,7 +137,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   statusTaskRemainingTime: string = ""; //property binding
 
   constructor(
-    private cdRef: ChangeDetectorRef,
     private globalConstants: GlobalConstantsService,
     public vbsService: VBSServerConnectionService,
     public nodeService: NodeServerConnectionService,
@@ -152,7 +145,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     private renderer: Renderer2,
     private titleService: Title,
     private route: ActivatedRoute,
-    private router: Router,
     public dialog: MatDialog) {
     this.queryTypeMap = new Map<string, typeof this.queryTypes>();
     this.initializeMap();
@@ -249,7 +241,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
               } else if (m.type === 'videoinfo') {
                 const keyframes: Array<string> = m.content[0].shots.map((shot: Shot) => shot.keyframe); //get all keyframes
                 const updatedResults = keyframes.map(keyframe => this.globalConstants.thumbsBaseURL + '/' + this.queryresult_videoid[this.selectedItem] + "/" + keyframe);
-                console.log(updatedResults);
                 this.shotPreview = updatedResults;
                 this.displayedShots = [];
                 this.loadMoreShots();
@@ -357,7 +348,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     this.videoSummaryPreview = this.urlRetrievalService.getPreviewSummaryUrl(summary);
     //this.videoSummaryLargePreview = this.urlRetrievalService.getPreviewSummaryLargeUrl(summary);
-    this.videoLargePreview = this.urlRetrievalService.getThumbnailUrl(videoId, frame);
+    this.videoLargePreview = this.urlRetrievalService.getThumbnailLargeUrl(videoId, frame);
     this.videoPlayPreview = this.urlRetrievalService.getVideoUrl(videoId);
   }
 
@@ -737,10 +728,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let videoId: string = "";
     const url = new URL(explorationUrl);
     const paths = url.pathname.split('/');
-    const summariesXLIndex = paths.indexOf('summariesXL');
+    const summariesXLIndex = paths.indexOf('summaries');
     if (summariesXLIndex !== -1 && summariesXLIndex + 1 < paths.length) {
       videoId = paths[summariesXLIndex + 2];
     }
+    console.log("Browsing to: " + videoId)
     this.showVideoShots(videoId, '1');
   }
 
