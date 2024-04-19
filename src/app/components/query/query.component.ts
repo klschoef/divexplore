@@ -241,7 +241,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
               } else if (m.type === 'videoinfo') {
                 const keyframes: Array<string> = m.content[0].shots.map((shot: Shot) => shot.keyframe); //get all keyframes
                 const updatedResults = keyframes.map(keyframe => this.globalConstants.thumbsBaseURL + '/' + this.queryresult_videoid[this.selectedItem] + "/" + keyframe);
-                console.log(updatedResults);
                 this.shotPreview = updatedResults;
                 this.displayedShots = [];
                 this.loadMoreShots();
