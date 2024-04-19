@@ -729,10 +729,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let videoId: string = "";
     const url = new URL(explorationUrl);
     const paths = url.pathname.split('/');
-    const summariesXLIndex = paths.indexOf('summariesXL');
+    const summariesXLIndex = paths.indexOf('summaries');
     if (summariesXLIndex !== -1 && summariesXLIndex + 1 < paths.length) {
       videoId = paths[summariesXLIndex + 2];
     }
+    console.log("Browsing to: " + videoId)
     this.showVideoShots(videoId, '1');
   }
 

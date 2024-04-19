@@ -48,6 +48,10 @@ export class GlobalConstantsService {
   }
 
   get summariesBaseURL(): string {
+    return this.dataHost + 'summaries/';
+  }
+
+  get summariesXLBaseURL(): string {
     return this.dataHost + 'summariesXL/';
   }
 
