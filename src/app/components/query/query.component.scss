@@ -135,7 +135,7 @@ input[type="text"] {
     touch-action: manipulation;
     vertical-align: middle;
     white-space: nowrap;
-    margin: 2px;
+    margin: 0 2px 0 2px;
 }
 
 .basicButton:hover {
@@ -147,8 +147,7 @@ input[type="text"] {
 #searchButton {
     background-color: #2ea44f;
     color: #fff;
-    margin-top: 15px;
-    border-radius: 0;
+    border-radius: 6px;
     font-weight: 600;
 }
 
