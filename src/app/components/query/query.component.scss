@@ -225,6 +225,19 @@ input::placeholder {
     Styles for the Query Area
 
 *************************************************************/
+
+.media-container .hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.media-container video {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+
 .queryresult img.submitted {
     filter: grayscale(100%); 
     position: relative;

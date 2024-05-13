@@ -1,5 +1,6 @@
 import { ViewChild, ElementRef, Component, AfterViewInit, Renderer2 } from '@angular/core';
 import { HostListener } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { GlobalConstants, WSServerStatus, formatAsTime, QueryType, getTimestampInSeconds } from '../../shared/config/global-constants';
 import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
@@ -33,6 +34,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   @ViewChild('videopreview', { static: false }) videopreview!: ElementRef;
   @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
   @ViewChild('scrollableContainer') scrollableContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('videoPlayer') videoPlayer!: ElementRef<HTMLVideoElement>;
+
 
   // Subscriptions for handling events
   private dresErrorMessageSubscription!: Subscription;
@@ -86,6 +89,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   private debounceTimer?: number;
   batchSizeExplore: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
   batchSizeShots: string = this.globalConstants.shotsResultsPerLoad; //how many shots to show in shot-preview
+
+  // video Preview
+  hoveredIndex: number | null = null;
+  videoAvailable: { [key: number]: boolean } = {};
+  videoSource: string = '';
+  videoLoaded = false;
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
@@ -142,6 +151,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService,
     public urlRetrievalService: UrlRetrievalService,
+    private http: HttpClient,
     private renderer: Renderer2,
     private titleService: Title,
     private route: ActivatedRoute,
@@ -289,6 +299,23 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     if (this.videopreview && this.currentContent === 'video') {
       this.playVideoAtFrame();
     }
+  }
+
+  onMouseMove(event: MouseEvent): void {
+    if (!this.videoLoaded) return; // Only interact if the video is loaded
+    const videoElement = this.videoPlayer.nativeElement;
+    const rect = videoElement.getBoundingClientRect();
+    const x = event.clientX - rect.left; // x position within the element.
+    const clickedTime = (x / videoElement.offsetWidth) * videoElement.duration;
+
+    videoElement.currentTime = clickedTime;
+  }
+
+  onMouseLeave(): void {
+  }
+
+  onMouseEnter(): void {
+    this.videoLoaded = true;
   }
 
   loadMoreShots() {
@@ -754,10 +781,46 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   mouseOverShot(i: number) {
     this.showButtons = i;
     this.getFPSForItem(i);
+    this.hoveredIndex = i;
+    this.checkVideoAvailability(i);
   }
 
   mouseLeaveShot(i: number) {
     this.showButtons = -1;
+    this.hoveredIndex = null;
+  }
+
+  getVideoSource(item: any) {
+    //currently Item looks like this: 16867/16867_176.jpg but i want just the first part '16867'
+    let parts = item.split('/');
+    let videoId = parts[0];
+
+    var videoUrl = this.globalConstants.dataHost + 'testvideos/compressed/' + videoId + '/gop_low/' + videoId + '_low_gop.mp4';
+    //currently: 16867/16867_176.jpg.mp4
+    console.log("Video URL: " + videoUrl);
+    return videoUrl;
+  }
+
+  checkVideoAvailability(index: number): void {
+    const item = this.displayQueryResult[index];
+    const videoUrl = this.getVideoSource(item);
+
+    this.http.get(videoUrl, { observe: 'response' })
+      .toPromise()
+      .then(response => {
+        // Ensure response is defined and has a status of 200
+        if (response && response.status === 200) {
+          this.videoAvailable[index] = true;
+          this.videoSource = videoUrl;
+        } else {
+          this.videoAvailable[index] = false;
+        }
+      })
+      .catch(() => {
+        // Handle errors or cases where the video is not accessible
+        this.videoAvailable[index] = false;
+      });
+
   }
 
   getFPSForItem(i: number) {
