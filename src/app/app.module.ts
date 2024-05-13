@@ -30,6 +30,7 @@ import { ExplDialogComponent } from './features/expl-dialog/expl-dialog.componen
 import { StatusBarComponent } from './components/status-bar/status-bar.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HistoryDialogComponent } from './dialogues/history-dialog/history-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -52,6 +53,7 @@ import { HistoryDialogComponent } from './dialogues/history-dialog/history-dialo
       });
     }),
     AppRoutingModule,
+    MatTooltipModule,
     HttpClientModule,
     FormsModule,
     BrowserAnimationsModule,
