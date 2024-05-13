@@ -16,6 +16,14 @@ input[type="text"] {
     display: flex;
 }
 
+#configButton {
+    padding-top: 3px;
+}
+
+#helpButton {
+    padding-top: 3px;
+}
+
 .pagination {
     display: flex;
     justify-content: space-between; 
@@ -43,8 +51,8 @@ input[type="text"] {
     width: 100%;
 }
 
-.top-bar-right, .inputGroup, #searchButton {
-    margin-top: 13px;
+.top-bar-right, .inputGroup, #searchButton, .top-bar-left {
+    margin-top: 15px;
 }
 
 .top-bar-left {
@@ -135,7 +143,7 @@ input[type="text"] {
     touch-action: manipulation;
     vertical-align: middle;
     white-space: nowrap;
-    margin: 2px;
+    margin: 0 2px 0 2px;
 }
 
 .basicButton:hover {
@@ -147,8 +155,7 @@ input[type="text"] {
 #searchButton {
     background-color: #2ea44f;
     color: #fff;
-    margin-top: 15px;
-    border-radius: 0;
+    border-radius: 6px;
     font-weight: 600;
 }
 

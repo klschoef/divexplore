@@ -1,7 +1,8 @@
 <div class="queryarea">
   <div class="topBar">
-    <div class="top-bar-left">
+    
       <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
+      <div class="top-bar-left">
       <div class="select-wrapper">
         <select class="gray-background top-bar-select" [(ngModel)]="selectedDataset"
           (change)="resetPageAndPerformQuery()">
@@ -40,10 +41,10 @@
         Query</button>
       <button id="resetButton" class="basicButton" (click)="resetQuery()">Reset</button>
       <button id="historyToggle" class="basicButton" (click)="showHistory()">History</button>
-      <button id="helpButton" mat-icon-button (click)="showHelp()">
+      <button class="basicButton" id="helpButton" mat-icon-button (click)="showHelp()">
         <mat-icon>help</mat-icon>
       </button>
-      <button id="configButton" mat-icon-button (click)="toggleConfigDialog()">
+      <button class="basicButton" id="configButton" mat-icon-button (click)="toggleConfigDialog()">
         <mat-icon>settings</mat-icon>
       </button>
     </div>
