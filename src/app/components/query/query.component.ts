@@ -303,13 +303,16 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
+  /***************** Video Scrubbing Feature Start *****************/
+
   onMouseMove(event: MouseEvent, i: number): void {
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       if (!this.isMouseOverShot) {
         console.log("Mouse over shot")
         this.mouseOverShot(event, i);
       }
 
+      const maxOffset = 10; //time before and after shot in seconds
 
       if (!this.videoAvailable[i] || this.hoveredIndex !== i || !this.videoReady[i]) return;
 
@@ -318,14 +321,16 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       if (!videoPlayer) return;
 
       const rect = videoPlayer.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
       const videoWidth = rect.width;
-      const maxOffset = 10;
-      const offsetRatio = mouseX / videoWidth;
-      const timeOffset = offsetRatio * (2 * maxOffset) - maxOffset;
-      const startTime = this.getTimeInSecondsFor(i) + timeOffset;
 
-      videoPlayer.currentTime = Math.max(0, startTime);
+      const mouseX = event.clientX - rect.left; //x position within the element.
+      const offsetRatio = mouseX / videoWidth; //ratio of mouse position within the video element
+      const timeOffset = offsetRatio * (2 * maxOffset) - maxOffset; //time offset based on the mousepos in seconds
+      const startTime = this.getTimeInSecondsFor(i) + timeOffset; //time for the video
+
+      videoPlayer.currentTime = Math.max(0, startTime); //set the time in the video (If none given, go to 0)
+    } else {
+      this.onMouseLeave();
     }
   }
 
@@ -382,7 +387,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.getFPSForItem(i);
     this.hoveredIndex = i;
 
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       this.isMouseOverShot = true;
       this.checkVideoAvailability(this.hoveredIndex!);
     }
@@ -394,6 +399,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.hoveredIndex = null;
   }
 
+  /***************** Video Scrubbing Feature End ***************************/
 
   loadMoreShots() {
     const startIndex = this.displayedShots.length;
