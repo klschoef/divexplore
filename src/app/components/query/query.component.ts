@@ -1,4 +1,4 @@
-import { ViewChild, ElementRef, Component, AfterViewInit, Renderer2 } from '@angular/core';
+import { ViewChild, ElementRef, Component, ViewChildren, QueryList, AfterViewInit, Renderer2 } from '@angular/core';
 import { HostListener } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { GlobalConstants, WSServerStatus, formatAsTime, QueryType, getTimestampInSeconds } from '../../shared/config/global-constants';
@@ -34,8 +34,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   @ViewChild('videopreview', { static: false }) videopreview!: ElementRef;
   @ViewChild(MessageBarComponent) messageBar!: MessageBarComponent;
   @ViewChild('scrollableContainer') scrollableContainer!: ElementRef<HTMLDivElement>;
-  @ViewChild('videoPlayer') videoPlayer!: ElementRef<HTMLVideoElement>;
-
+  @ViewChildren('videoPlayers') videoPlayers!: QueryList<ElementRef<HTMLVideoElement>>;
 
   // Subscriptions for handling events
   private dresErrorMessageSubscription!: Subscription;
@@ -144,6 +143,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   // Task information properties
   public statusTaskInfoText: string = ""; //property binding
   statusTaskRemainingTime: string = ""; //property binding
+
+  videoReady: boolean[] = [];
+  isMouseOverShot: boolean = false;
 
   constructor(
     private globalConstants: GlobalConstantsService,
@@ -301,22 +303,97 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
-  onMouseMove(event: MouseEvent): void {
-    if (!this.videoLoaded) return; // Only interact if the video is loaded
-    const videoElement = this.videoPlayer.nativeElement;
-    const rect = videoElement.getBoundingClientRect();
-    const x = event.clientX - rect.left; // x position within the element.
-    const clickedTime = (x / videoElement.offsetWidth) * videoElement.duration;
+  onMouseMove(event: MouseEvent, i: number): void {
+    if (event.ctrlKey) {
+      if (!this.isMouseOverShot) {
+        console.log("Mouse over shot")
+        this.mouseOverShot(event, i);
+      }
 
-    videoElement.currentTime = clickedTime;
+
+      if (!this.videoAvailable[i] || this.hoveredIndex !== i || !this.videoReady[i]) return;
+
+      const videoPlayer = (event.target as HTMLVideoElement);
+
+      if (!videoPlayer) return;
+
+      const rect = videoPlayer.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const videoWidth = rect.width;
+      const maxOffset = 10;
+      const offsetRatio = mouseX / videoWidth;
+      const timeOffset = offsetRatio * (2 * maxOffset) - maxOffset;
+      const startTime = this.getTimeInSecondsFor(i) + timeOffset;
+
+      videoPlayer.currentTime = Math.max(0, startTime);
+    }
   }
 
   onMouseLeave(): void {
+    this.hoveredIndex = null;
+    if (this.videoPlayers) {
+      this.videoSource = '';
+    }
   }
 
   onMouseEnter(): void {
     this.videoLoaded = true;
   }
+
+  getVideoSource(item: any) {
+    //currently Item looks like this: 16867/16867_176.jpg but i want just the first part '16867'
+    let parts = item.split('/');
+    let videoId = parts[0];
+
+    var videoUrl = this.globalConstants.dataHost + 'testvideos/compressed/' + videoId + '/gop_low/' + videoId + '_low_gop_no_fs.mp4';
+    //currently: 16867/16867_176.jpg.mp4
+    console.log("Video URL: " + videoUrl);
+    return videoUrl;
+  }
+
+  checkVideoAvailability(index: number): void {
+    const item = this.displayQueryResult[index];
+    const videoUrl = this.getVideoSource(item);
+
+    if (!this.videoAvailable[index]) {
+      this.http.get(videoUrl, { responseType: 'text' })
+        .subscribe({
+          next: () => {
+            this.videoAvailable[index] = true;
+            if (this.hoveredIndex === index) {
+              this.videoSource = videoUrl;
+            }
+          },
+          error: () => {
+            this.videoAvailable[index] = false;
+          }
+        });
+
+
+    } else {
+      if (this.hoveredIndex === index) {
+        this.videoSource = videoUrl;
+      }
+    }
+  }
+
+  mouseOverShot(event: MouseEvent, i: number) {
+    this.showButtons = i;
+    this.getFPSForItem(i);
+    this.hoveredIndex = i;
+
+    if (event.ctrlKey) {
+      this.isMouseOverShot = true;
+      this.checkVideoAvailability(this.hoveredIndex!);
+    }
+  }
+
+  mouseLeaveShot(i: number) {
+    this.isMouseOverShot = false;
+    this.showButtons = -1;
+    this.hoveredIndex = null;
+  }
+
 
   loadMoreShots() {
     const startIndex = this.displayedShots.length;
@@ -764,7 +841,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   shotPreviewToShotList(previewurl: string) {
-    console.log("Here!")
     const url = new URL(previewurl);
     const paths = url.pathname.split('/');
     const [videoid, frame_with_extension] = paths[paths.length - 1].split('_');
@@ -778,50 +854,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     window.open('video/' + videoid + '/' + frame, '_blank');
   }
 
-  mouseOverShot(i: number) {
-    this.showButtons = i;
-    this.getFPSForItem(i);
-    this.hoveredIndex = i;
-    this.checkVideoAvailability(i);
-  }
 
-  mouseLeaveShot(i: number) {
-    this.showButtons = -1;
-    this.hoveredIndex = null;
-  }
 
-  getVideoSource(item: any) {
-    //currently Item looks like this: 16867/16867_176.jpg but i want just the first part '16867'
-    let parts = item.split('/');
-    let videoId = parts[0];
 
-    var videoUrl = this.globalConstants.dataHost + 'testvideos/compressed/' + videoId + '/gop_low/' + videoId + '_low_gop.mp4';
-    //currently: 16867/16867_176.jpg.mp4
-    console.log("Video URL: " + videoUrl);
-    return videoUrl;
-  }
-
-  checkVideoAvailability(index: number): void {
-    const item = this.displayQueryResult[index];
-    const videoUrl = this.getVideoSource(item);
-
-    this.http.get(videoUrl, { observe: 'response' })
-      .toPromise()
-      .then(response => {
-        // Ensure response is defined and has a status of 200
-        if (response && response.status === 200) {
-          this.videoAvailable[index] = true;
-          this.videoSource = videoUrl;
-        } else {
-          this.videoAvailable[index] = false;
-        }
-      })
-      .catch(() => {
-        // Handle errors or cases where the video is not accessible
-        this.videoAvailable[index] = false;
-      });
-
-  }
 
   getFPSForItem(i: number) {
     if (this.queryresult_fps.get(this.queryresult_videoid[i]) == undefined) {
@@ -841,6 +876,16 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       return sTime;
     } else {
       return ''; //this.queryresult_frame[i];
+    }
+  }
+
+  getTimeInSecondsFor(i: number): number {
+    let fps = this.queryresult_fps.get(this.queryresult_videoid[i]);
+    if (fps !== undefined) {
+      // Calculate time in seconds based on frame and FPS
+      return parseFloat(this.queryresult_frame[i]) / fps;
+    } else {
+      return 0; // Default start time
     }
   }
 

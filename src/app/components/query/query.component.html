@@ -155,19 +155,20 @@
       </div>
     </div>
   </div>
-  <div (mouseenter)="mouseOverShot(i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult"
+  <div (mousemove)="onMouseMove($event, i)" (mouseenter)="mouseOverShot($event, i)" (mouseleave)="mouseLeaveShot(i)" class="queryresult"
     *ngFor="let item of displayQueryResult; let i = index">
     <div class="media-container">
       <img src="{{keyframeBaseURL}}/{{item}}" 
            (click)="selectItemAndShowSummary(i,$event)"
            width="{{imgWidth}}" height="{{imgHeight}}"
-           [ngClass]="{'blueborder': this.selectedItem == i, 'submitted': isVideoSubmitted(item), 'hide': hoveredIndex === i && videoAvailable[i]!=null}">
-      <video #videoPlayer crossorigin="anonymous" width="{{imgWidth}}" height="{{imgHeight}}" 
+           [ngClass]="{'blueborder': this.selectedItem == i, 'submitted': isVideoSubmitted(item), 'hide': hoveredIndex === i && videoAvailable[i] && isMouseOverShot}">
+      <video #videoPlayers width="{{imgWidth}}" height="{{imgHeight}}" 
             (click)="selectItemAndShowSummary(i,$event)"
-            (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()" (mouseenter)="onMouseEnter()"
-             *ngIf="videoAvailable[i] == true"
-             [ngClass]="{'hide': hoveredIndex !== i}" 
-             [src]="videoSource" muted>
+            (mouseleave)="onMouseLeave()" (mouseenter)="onMouseEnter()"
+            (loadedmetadata)="videoReady[i] = true" 
+            *ngIf="videoAvailable[i] == true"
+            [ngClass]="{'hide': hoveredIndex !== i && isMouseOverShot}" 
+            [src]="videoSource" muted>
       </video>
   </div>
     <div class="lefttopcorner">
