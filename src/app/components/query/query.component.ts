@@ -251,6 +251,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 this.displayedShots = [];
                 this.loadMoreShots();
               } else if (m.type === 'updatesubmissions') {
+                localStorage.removeItem('submittedFrames');
+
                 m.videoId.forEach((id: string) => {
                   this.markFrameAsSubmitted(id);
                 });

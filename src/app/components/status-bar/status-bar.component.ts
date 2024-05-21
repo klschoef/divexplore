@@ -62,6 +62,18 @@ export class StatusBarComponent implements VbsServiceCommunication {
   }
 
   resetSubmissions() {
-    localStorage.removeItem('submittedFrames');
+    let message = {
+      type: 'resetsubmission'
+    }
+    this.sendToNodeServer(message);
+  }
+
+  sendToNodeServer(msg: any) {
+    console.log("Sending to node server: " + JSON.stringify(msg));
+    let message = {
+      source: 'appcomponent',
+      content: msg
+    };
+    this.nodeService.messages.next(message);
   }
 }
