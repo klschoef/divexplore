@@ -51,6 +51,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   previousQuery: any | undefined;
   querydataset: string = '';
   submittedStatus: { [key: string]: boolean } = {};
+  submittedFrame: string = "";
 
   // Metadata and summaries for video analysis
   metadata: any;
@@ -156,6 +157,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     })
     this.dresSuccessMessageSubscription = this.vbsService.successMessageEmitter.subscribe(msg => {
       this.messageBar.showSuccessMessage(msg);
+      let message = {
+        type: 'videosubmission',
+        videoId: this.submittedFrame
+      }
+      this.sendToNodeServer(message);
     })
 
     let selectedEvaluation = localStorage.getItem('selectedEvaluation');
@@ -244,6 +250,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 this.shotPreview = updatedResults;
                 this.displayedShots = [];
                 this.loadMoreShots();
+              } else if (m.type === 'updatesubmissions') {
+                m.videoId.forEach((id: string) => {
+                  this.markFrameAsSubmitted(id);
+                });
               }
             } else {
               this.handleQueryResponseMessage(msg);
@@ -1169,7 +1179,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let comps = keyframe.split('_');
     let frameNumber = comps[comps.length - 1].split('.')[0]
 
-    this.markFrameAsSubmitted(videoid); //TODO: Change to VBS response instead of onClick!
+    this.submittedFrame = videoid;
 
     let msg = {
       type: "videofps",
