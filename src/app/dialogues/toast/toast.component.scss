@@ -1,0 +1,33 @@
+.toast-class { 
+    position: absolute;
+    top: 10%;
+    right: 0rem;  
+    margin: 2rem;  
+    display: inline-flex;  
+    min-width: 260px;    
+    min-height: 20px;  
+    max-height: 30px;  
+    box-shadow: 6px 6px 12px #00000040;  
+    background-color: white;
+  
+    flex-flow: row nowrap;  
+    align-items: center;  
+    justify-content: space-between;  
+    border-left: 6px solid black;  
+    padding: 1.5rem;  
+    border-radius: 4px;  
+    font-size: 0.9rem;
+    border-left: 6px solid #15993d;
+  }
+
+  .open-btn, .close-btn {
+    cursor: pointer;
+  }
+
+  .open-btn {
+    color: #1d7938;
+  }
+
+  .close-btn {
+    color: #b43f22;
+  }

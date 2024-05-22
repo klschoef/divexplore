@@ -88,6 +88,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   batchSizeExplore: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
   batchSizeShots: string = this.globalConstants.shotsResultsPerLoad; //how many shots to show in shot-preview
 
+  //Toast
+  showToast: boolean = false;
+  toastMessage: string = "";
+  toastLink: string = "";
+
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
   datasets = [
@@ -258,6 +263,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 });
               } else if (m.type === 'share') {
                 console.log('qc: share-url: ' + m.url);
+                let videoid = m.url.split('/')[2];
+
+                this.showToast = true;
+                this.toastMessage = "User shared video: " + videoid;
+                this.toastLink = m.url;
               }
             } else {
               this.handleQueryResponseMessage(msg);
@@ -316,6 +326,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
 
     this.sendToNodeServer(message);
+  }
+
+  handleToastClose() {
+    this.showToast = false;
   }
 
   loadMoreShots() {

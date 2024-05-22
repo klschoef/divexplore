@@ -1,0 +1,21 @@
+﻿<div *ngIf="showToast" @toastAnimation class="toast-class">  
+    <div>    
+      {{ toastMessage }}
+    </div> 
+    
+    <a
+      class="open-btn" 
+      (click)="openLink()">    
+      <small>      
+        open    
+      </small>
+    </a>
+    <a
+      class="close-btn" 
+      (click)="close()">    
+      <small>      
+        close    
+      </small>
+    </a>
+  </div>
+  

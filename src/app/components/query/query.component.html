@@ -195,6 +195,14 @@
 
 <app-message-bar></app-message-bar>
 
+<app-toast 
+  [toastMessage]="toastMessage"
+  [showToast]="showToast"
+  [toastLink]="toastLink"
+  (closeToast)="handleToastClose()">
+</app-toast>
+
+
 <app-status-bar (answerFieldFocusChange)="handleAnswerFieldFocusChange($event)"></app-status-bar>
 
 <br />&nbsp;
