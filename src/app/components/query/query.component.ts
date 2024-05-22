@@ -92,6 +92,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   showToast: boolean = false;
   toastMessage: string = "";
   toastLink: string = "";
+  toastImageSrc: string | null = null;
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
@@ -264,10 +265,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
               } else if (m.type === 'share') {
                 console.log('qc: share-url: ' + m.url);
                 let videoid = m.url.split('/')[2];
+                let frameid = m.url.split('/')[3];
 
                 this.showToast = true;
                 this.toastMessage = "User shared video: " + videoid;
                 this.toastLink = m.url;
+                this.toastImageSrc = this.urlRetrievalService.getThumbnailUrl(videoid, frameid);
               }
             } else {
               this.handleQueryResponseMessage(msg);

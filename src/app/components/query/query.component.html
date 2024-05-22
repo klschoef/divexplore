@@ -85,6 +85,14 @@
 
 <div class="queryresults-wrapper">
 
+  <app-toast 
+  [toastMessage]="toastMessage"
+  [showToast]="showToast"
+  [toastLink]="toastLink"
+  [imageSrc]="toastImageSrc"
+  (closeToast)="handleToastClose()">
+  </app-toast>
+
   <div class="backdrop" *ngIf="showPreview" (click)="closeVideoPreview()"></div>
   <div *ngIf="showPreview" class="videopreview">
     <div class="header-container">
@@ -195,12 +203,6 @@
 
 <app-message-bar></app-message-bar>
 
-<app-toast 
-  [toastMessage]="toastMessage"
-  [showToast]="showToast"
-  [toastLink]="toastLink"
-  (closeToast)="handleToastClose()">
-</app-toast>
 
 
 <app-status-bar (answerFieldFocusChange)="handleAnswerFieldFocusChange($event)"></app-status-bar>

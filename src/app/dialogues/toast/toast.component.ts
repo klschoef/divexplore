@@ -24,6 +24,7 @@ export class ToastComponent implements OnInit {
   @Input() toastMessage: string = 'User shared a video: ';
   @Input() showToast: boolean = true;
   @Input() toastLink: string = "";
+  @Input() imageSrc: string | null = null;
 
   @Output() closeToast = new EventEmitter<void>();
 
