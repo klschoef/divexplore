@@ -256,6 +256,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 m.videoId.forEach((id: string) => {
                   this.markFrameAsSubmitted(id);
                 });
+              } else if (m.type === 'share') {
+                console.log('qc: share-url: ' + m.url);
               }
             } else {
               this.handleQueryResponseMessage(msg);
@@ -301,6 +303,19 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     if (this.videopreview && this.currentContent === 'video') {
       this.playVideoAtFrame();
     }
+  }
+
+  shareVideo() {
+    let videoid = this.queryresult_videoid[this.selectedItem];
+    let frame = this.queryresult_frame[this.selectedItem];
+    let url = '/video/' + videoid + '/' + frame;
+
+    let message = {
+      type: 'share',
+      url: url
+    }
+
+    this.sendToNodeServer(message);
   }
 
   loadMoreShots() {

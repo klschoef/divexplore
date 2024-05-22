@@ -460,7 +460,7 @@ background-color: rgb(210, 209, 209);
 }
 
 .videosummaryheader {
-    flex: 0 0 75%;
+    flex: 0 0 70%;
     font-size: larger;
     font-weight: bold;
     color: black;
@@ -475,6 +475,15 @@ background-color: rgb(210, 209, 209);
     flex: 0 0 5%;
     justify-content: center;
     background-color: rgba(209, 90, 69, 0.8);
+    flex-grow: 1;
+    cursor: pointer;
+}
+
+.share-button {
+    display: flex;
+    flex: 0 0 5%;
+    justify-content: center;
+    background-color: rgba(115, 192, 14, 0.8);
     flex-grow: 1;
     cursor: pointer;
 }

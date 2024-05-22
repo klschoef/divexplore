@@ -114,7 +114,10 @@
         (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video
         {{this.queryresult_videoid[this.selectedItem]}}
         ({{this.selectedItem+1}}/{{this.queryresult_videoid.length}})</button><br />
-      <button class="close-button" (click)="closeVideoPreview()" mat-icon-button>
+        <button class="share-button" (click)="shareVideo()" mat-icon-button>
+          <mat-icon>share</mat-icon>
+        </button>
+        <button class="close-button" (click)="closeVideoPreview()" mat-icon-button>
         <mat-icon>close</mat-icon>
       </button>
     </div>
