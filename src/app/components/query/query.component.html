@@ -164,7 +164,7 @@
       [ngClass]="{'blueborder': this.selectedItem == i, 'submitted': isVideoSubmitted(item)}">
     <div class="lefttopcorner">
       <span *ngIf="showButtons === i && this.queryresult_frame[i] !== 'summary'"
-        class="resultnum">{{getTimeInformationFor(i)}}</span>
+        class="resultnum" (click)="shareVideo(i)">{{getTimeInformationFor(i)}}</span>
       <span *ngIf="isVideoSubmitted(item)" class="submitted-text">Submitted</span>
     </div>
     <div class="righttopcorner">

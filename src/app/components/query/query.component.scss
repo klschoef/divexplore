@@ -516,6 +516,7 @@ background-color: rgb(210, 209, 209);
       top: 0;
       left: 0;
       .resultnum {
+        cursor: pointer;
         font-family: 'Noto Sans', sans-serif;
         letter-spacing: normal;
         font-size: 13.333px;
@@ -574,6 +575,7 @@ background-color: rgb(210, 209, 209);
     .submitbutton {
         border-top-left-radius: 10px;
         color: white;
+        padding-left: 3px;
         font-weight: bold;
         background-color: rgba(44, 151, 75, 1);
 

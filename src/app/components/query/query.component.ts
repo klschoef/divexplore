@@ -318,10 +318,17 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
-  shareVideo() {
+  shareVideo(i: number = -1) {
+
     let videoid = this.queryresult_videoid[this.selectedItem];
     let frame = this.queryresult_frame[this.selectedItem];
     let url = '/video/' + videoid + '/' + frame;
+
+    if (i != -1) {
+      videoid = this.queryresult_videoid[i];
+      frame = this.queryresult_frame[i];
+      url = '/video/' + videoid + '/' + frame;
+    }
 
     let message = {
       type: 'share',
