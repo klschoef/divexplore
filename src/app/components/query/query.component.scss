@@ -488,7 +488,7 @@ background-color: rgb(210, 209, 209);
     cursor: pointer;
 }
 
-// New
+// Query Results
 
 .queryresult {
     position: relative;
@@ -497,8 +497,8 @@ background-color: rgb(210, 209, 209);
     transition: border-color 0.3s, box-shadow 0.3s;
     
     &:hover {
-      border-color: #007bff; // Blue border on hover
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1); // Soft shadow for depth
+      border-color: #007bff; 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
   
     img {
@@ -535,8 +535,8 @@ background-color: rgb(210, 209, 209);
   
     .leftbottomcorner, .rightbottomcorner {
       bottom: 0;
-      opacity: 1; // Ensure buttons are always visible
-      transform: translateY(0); // Remove the initial transform
+      opacity: 1;
+      transform: translateY(0); 
     }
   
     .leftbottomcorner {
@@ -567,7 +567,7 @@ background-color: rgb(210, 209, 209);
         background-color: rgba(220, 220, 220, 0.8);
 
         &:hover {
-            background-color: darken(rgba(220, 220, 220, 1), 10%); // Darker on hover
+            background-color: darken(rgba(220, 220, 220, 1), 10%); 
         }
     }
 
@@ -578,7 +578,7 @@ background-color: rgb(210, 209, 209);
         background-color: rgba(44, 151, 75, 1);
 
         &:hover {
-            background-color: darken(rgba(44, 151, 75, 1), 10%); // Darker on hover
+            background-color: darken(rgba(44, 151, 75, 1), 10%); 
         }
     }
 
@@ -593,12 +593,10 @@ background-color: rgb(210, 209, 209);
         padding: 2px;
         cursor: pointer;
         transition: background-color 0.3s;
-
-        //round of bottom left corner
         border-bottom-left-radius: 10px;
 
         &:hover {
-            background-color: darken(rgba(220, 220, 220, 0.8), 10%); // Darker on hover
+            background-color: darken(rgba(220, 220, 220, 0.8), 10%); 
         }
     }
   }
