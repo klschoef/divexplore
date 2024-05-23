@@ -84,15 +84,6 @@
 <br />
 
 <div class="queryresults-wrapper">
-
-  <app-toast 
-  [toastMessage]="toastMessage"
-  [showToast]="showToast"
-  [toastLink]="toastLink"
-  [imageSrc]="toastImageSrc"
-  (closeToast)="handleToastClose()">
-  </app-toast>
-
   <div class="backdrop" *ngIf="showPreview" (click)="closeVideoPreview()"></div>
   <div *ngIf="showPreview" class="videopreview">
     <div class="header-container">
@@ -122,7 +113,7 @@
         (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video
         {{this.queryresult_videoid[this.selectedItem]}}
         ({{this.selectedItem+1}}/{{this.queryresult_videoid.length}})</button><br />
-        <button class="share-button" (click)="shareVideo()" mat-icon-button>
+        <button class="share-button" (click)="shareVideo()" matTooltip="Share Keyframe" matTooltipPosition="above" mat-icon-button>
           <mat-icon>share</mat-icon>
         </button>
         <button class="close-button" (click)="closeVideoPreview()" mat-icon-button>
@@ -181,8 +172,8 @@
     </div>
     <div class="leftbottomcorner">
       <button *ngIf="showButtons === i" (click)="showVideoShots(this.queryresult_videoid[i],this.queryresult_frame[i])"
-        class="resultaction">Shots</button>
-      <button *ngIf="showButtons == i" (click)="performFileSimilarityQuery(item)" class="resultaction">Similar</button>
+        class="resultaction shotbutton">Shots</button>
+      <button *ngIf="showButtons == i" (click)="performFileSimilarityQuery(item)" class="resultaction similarbutton">Similar</button>
     </div>
     <div class="rightbottomcorner">
       <button *ngIf="showButtons === i && !this.isVideoResult(this.querydataset)" class="submitbutton"
@@ -203,7 +194,13 @@
 
 <app-message-bar></app-message-bar>
 
-
+<app-toast 
+[toastMessage]="toastMessage"
+[showToast]="showToast"
+[toastLink]="toastLink"
+[imageSrc]="toastImageSrc"
+(closeToast)="handleToastClose()">
+</app-toast>
 
 <app-status-bar (answerFieldFocusChange)="handleAnswerFieldFocusChange($event)"></app-status-bar>
 

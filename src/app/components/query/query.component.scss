@@ -487,3 +487,119 @@ background-color: rgb(210, 209, 209);
     flex-grow: 1;
     cursor: pointer;
 }
+
+// New
+
+.queryresult {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    
+    &:hover {
+      border-color: #007bff; // Blue border on hover
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); // Soft shadow for depth
+    }
+  
+    img {
+      width: 100%;
+      display: block;
+    }
+  
+    .lefttopcorner, .righttopcorner, .leftbottomcorner, .rightbottomcorner {
+      position: absolute;
+      padding: 0px;
+      transition: opacity 0.3s ease-in-out;
+    }
+  
+    .lefttopcorner {
+      top: 0;
+      left: 0;
+      .resultnum {
+        font-family: 'Noto Sans', sans-serif;
+        letter-spacing: normal;
+        font-size: 13.333px;
+        background-color: rgba(220, 220, 220, 0.8);
+        color: black;
+        border: 1px solid grey;
+        padding: 3px 2px;
+        transition: background-color 0.3s;
+        border-bottom-right-radius: 10px;
+      }
+    }
+  
+    .righttopcorner {
+      top: 0;
+      right: 0;
+    }
+  
+    .leftbottomcorner, .rightbottomcorner {
+      bottom: 0;
+      opacity: 1; // Ensure buttons are always visible
+      transform: translateY(0); // Remove the initial transform
+    }
+  
+    .leftbottomcorner {
+      left: 0;
+    }
+  
+    .rightbottomcorner {
+      right: 0;
+    }
+
+    .resultaction, .smalllabel, .submitbutton {
+        height: 25px;
+    }
+  
+    .resultaction, .submitbutton {
+        font-family: 'Noto Sans', sans-serif;
+        letter-spacing: normal;
+        font-size: 13.333px;
+        background-color: rgba(220, 220, 220, 0.8);
+        border: 1px solid grey;
+        padding: 3px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .resultaction {
+        color: black;
+        background-color: rgba(220, 220, 220, 0.8);
+
+        &:hover {
+            background-color: darken(rgba(220, 220, 220, 1), 10%); // Darker on hover
+        }
+    }
+
+    .submitbutton {
+        border-top-left-radius: 10px;
+        color: white;
+        font-weight: bold;
+        background-color: rgba(44, 151, 75, 1);
+
+        &:hover {
+            background-color: darken(rgba(44, 151, 75, 1), 10%); // Darker on hover
+        }
+    }
+
+    .similarbutton {
+        border-top-right-radius: 10px;
+    }
+
+    .smalllabel {
+        background-color: rgba(220, 220, 220, 0.8);
+        color: black;
+        border: 1px solid grey;
+        padding: 2px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+
+        //round of bottom left corner
+        border-bottom-left-radius: 10px;
+
+        &:hover {
+            background-color: darken(rgba(220, 220, 220, 0.8), 10%); // Darker on hover
+        }
+    }
+  }
+  
