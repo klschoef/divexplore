@@ -353,8 +353,9 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
    ****************************************************************************/
 
   submitCurrentTime() {
-    console.log('submitting time: ' + this.currentVideoTime + ' for video ' + this.videoid! + ' with fps=' + this.fps);
-    this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime), this.fps, this.vduration);
+    let currentDataSet = this.classifyVideoId(this.videoid!);
+    console.log('submitting time: ' + this.currentVideoTime + ' for video ' + this.videoid! + ' with fps=' + this.fps + " and dataset " + currentDataSet);
+    this.vbsService.submitFrame(this.videoid!, Math.round(this.currentVideoTime), this.fps, this.vduration, currentDataSet);
 
     //query event logging
     let queryEvent: QueryEvent = {
@@ -368,8 +369,9 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
   }
 
   submitResult(index: number) {
-    console.log('submitting frame: ' + this.framenumbers[index] + ' for video ' + this.videoid! + ' with fps=' + this.fps);
-    this.vbsService.submitFrame(this.videoid!, parseInt(this.framenumbers[index]), this.fps, this.vduration);
+    let currentDataSet = this.classifyVideoId(this.videoid!);
+    console.log('submitting frame: ' + this.framenumbers[index] + ' for video ' + this.videoid! + ' with fps=' + this.fps + " and dataset " + currentDataSet);
+    this.vbsService.submitFrame(this.videoid!, parseInt(this.framenumbers[index]), this.fps, this.vduration, currentDataSet);
 
     //query event logging
     let queryEvent: QueryEvent = {

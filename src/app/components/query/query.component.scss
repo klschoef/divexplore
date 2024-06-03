@@ -24,9 +24,9 @@ input[type="text"] {
     padding-top: 3px;
 }
 
-.pagination {
+.pagination { //center the pagination
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;    
     align-items: center;
     background-color: #222831;
     color: rgb(204, 204, 204);

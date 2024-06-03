@@ -356,7 +356,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.displayedImages = [...this.displayedImages, ...nextBatch];
   }
 
-
   playVideoAtFrame(): void {
     this.getFPSForItem(this.selectedItem);
 
@@ -714,7 +713,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       value: this.queryresult_videoid[this.selectedItem]
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryResultLog('interaction');
+    //this.vbsService.submitQueryResultLog('interaction');
 
     if (this.currentContent === 'explore') {
       this.loadExploreImages(this.queryresult_videoid[this.selectedItem]);
@@ -854,6 +853,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.selectedVideoFiltering = 'all';
     this.pages = ['1'];
     this.clearResultArrays();
+
+    let message = {
+      type: 'resetsubmission'
+    }
+    this.sendToNodeServer(message);
+
     let queryHistory: Array<QueryType> = [];
     localStorage.setItem('history', JSON.stringify(queryHistory));
   }
@@ -1234,8 +1239,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     };
 
     this.nodeService.sendMessageAndWait(message).subscribe((response) => {
-      this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps, response.duration);
+      this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps, response.duration, this.selectedDataset);
 
+      console.log("Submitting video " + videoid + " frame " + frameNumber + " from dataset " + this.selectedDataset + " with fps " + response.fps + " and duration " + response.duration + " seconds")
       //query event logging
       let queryEvent: QueryEvent = {
         timestamp: Date.now(),
