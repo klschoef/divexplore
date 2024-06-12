@@ -365,7 +365,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     const videoElement = this.videopreview.nativeElement;
 
-    if (videoElement.paused && !Number.isNaN(time)) {
+    if (!Number.isNaN(time) && !(videoElement.currentTime > 0)) {
+      console.log("Resetting...")
       this.renderer.setProperty(videoElement, 'currentTime', time);
       this.renderer.listen(videoElement, 'loadedmetadata', () => {
         videoElement.play();
