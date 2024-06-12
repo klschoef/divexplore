@@ -81,7 +81,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       this.messageBar.showErrorMessage(msg);
     })
     this.dresSuccessMessageSubscription = this.vbsService.successMessageEmitter.subscribe(msg => {
-      this.messageBar.showSuccessMessage(msg);
+      this.messageBar.showSuccessMessage(msg[0]);
     })
 
     let selectedEvaluation = localStorage.getItem('selectedEvaluation');

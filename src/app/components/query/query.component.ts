@@ -162,10 +162,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.messageBar.showErrorMessage(msg);
     })
     this.dresSuccessMessageSubscription = this.vbsService.successMessageEmitter.subscribe(msg => {
-      this.messageBar.showSuccessMessage(msg);
+      this.messageBar.showSuccessMessage(msg[0]);
       let message = {
         type: 'videosubmission',
-        videoId: this.submittedFrame
+        videoId: this.submittedFrame,
+        submissionResult: msg[1]
       }
       this.sendToNodeServer(message);
     })
@@ -260,7 +261,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 localStorage.removeItem('submittedFrames');
 
                 m.videoId.forEach((id: string) => {
-                  this.markFrameAsSubmitted(id);
+                  this.markFrameAsSubmitted(id, m.submissionResult);
                 });
               } else if (m.type === 'share') {
                 console.log('qc: share-url: ' + m.url);
@@ -968,8 +969,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       msg.type = this.selectedQueryType;
       msg.videofiltering = this.selectedVideoFiltering;
 
-      //this.sendToCLIPServer(msg);
-
       this.queryTimestamp = getTimestampInSeconds();
 
       if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
@@ -984,7 +983,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         this.saveToHistory(msg);
       }
 
-      //query event logging
       let queryEvent: QueryEvent = {
         timestamp: Date.now(),
         category: QueryEventCategory.TEXT,
@@ -1001,7 +999,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   performSimilarityQuery(serveridx: number) {
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
-      //alert(`search for ${i} ==> ${idx}`);
       console.log('similarity-query for ', serveridx);
       this.queryBaseURL = this.getBaseURL();
       let msg = {
@@ -1031,7 +1028,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   performFileSimilarityQuery(keyframe: string, pathprefix: string = this.datasetBase, selectedPage: string = "1") {
-    //this.router.navigate(['filesimilarity',keyframe,this.datasetBase,selectedPage]); //or navigateByUrl(`/video/${videoid}`)
     let target = '_blank';
     if (this.file_sim_keyframe === keyframe) {
       target = '_self';
@@ -1058,7 +1054,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       this.sendToNodeServer(msg);
       this.saveToHistory(msg);
 
-      //query event logging
       let queryEvent: QueryEvent = {
         timestamp: Date.now(),
         category: QueryEventCategory.BROWSING,
@@ -1175,12 +1170,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       let e = qresults.results[i].replace('.png', GlobalConstants.replacePNG2);
       let filename = e.split('/');
       let videoid = filename[0];
-      // Split the second part of the filename by underscore and take the last element
       let parts = filename[1].split('_');
       let framenumber = parts[parts.length - 1].split('.')[0];
-      //let framenumber = filename[1].split('_')[1].split('.')[0];
+
       this.queryresults.push(e);
-      //this.queryresult_serveridx.push(qresults.resultsidx[i]);
       this.queryresult_videoid.push(videoid);
       this.queryresult_frame.push(framenumber);
       this.queryresult_resultnumber.push(resultnum.toString());
@@ -1254,7 +1247,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     });
   }
 
-  markFrameAsSubmitted(videoid: string) {
+  markFrameAsSubmitted(videoid: string, submissionResult: string) {
     this.submittedStatus[videoid] = true;
 
     let submittedFrames = JSON.parse(localStorage.getItem('submittedFrames') || '[]');
@@ -1269,6 +1262,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     const submittedVideoIds = JSON.parse(localStorage.getItem('submittedFrames') || '[]');
     return submittedVideoIds.includes(videoid);
   }
+
 
   get displayQueryResult() {
     if (this.globalConstants.showSubmittedFrames) {

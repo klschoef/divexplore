@@ -128,7 +128,6 @@
         (click)="closeVideoPreview()" (mouseenter)="this.isOverImage=true" (mouseleave)="this.isOverImage=false">
       <div *ngIf="currentContent === 'video'" class="videopreviewimage">
         <video #videopreview [src]="videoPlayPreview" controls></video>
-        <!-- <img [src]="videoSummaryLargePreview" (click)="closeVideoPreview()"> -->
       </div>
       <div *ngIf="currentContent === 'explore'" class="explore-container">
         <div class="explore-ui-overlay">

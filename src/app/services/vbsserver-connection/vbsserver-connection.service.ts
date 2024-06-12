@@ -50,7 +50,7 @@ interface ExtendedQueryResultLog extends QueryResultLog {
 export class VBSServerConnectionService {
 
   errorMessageEmitter = new EventEmitter<string>();
-  successMessageEmitter = new EventEmitter<string>();
+  successMessageEmitter = new EventEmitter<string[]>();
 
   sessionId: string | undefined;
   vbsServerState: WSServerStatus = WSServerStatus.UNSET;
@@ -232,9 +232,12 @@ export class VBSServerConnectionService {
 
   handleSubmissionSuccess(status: SuccessfulSubmissionsStatus, info: string) {
     this.println('The submission was successful.');
-
     this.submissionResponse = 'Submission successfull!'
-    this.successMessageEmitter.emit(this.submissionResponse);
+
+    let emitMsg = [this.submissionResponse, JSON.stringify(status.submission)]
+
+
+    this.successMessageEmitter.emit(emitMsg);
   }
 
   private handleSubmissionError(err: any) {
