@@ -256,7 +256,7 @@ export class VBSServerConnectionService {
     return of(null);
   }
 
-  submitFrame(videoid: string, frame: number, fps: number, durationS: number) {
+  submitFrame(videoid: string, frame: number, fps: number, durationS: number, mediaItemCollectionName: string) {
 
     let mySubmission = {
       text: undefined, //text - in case the task is not targeting a particular content object but plaintext
@@ -275,8 +275,6 @@ export class VBSServerConnectionService {
       mySubmission.start = startS * 1000;
       mySubmission.end = endS * 1000;
     }
-
-    this.println('submit video=' + videoid + ' frame=' + frame + ' (fps=' + fps + '): ');
 
     this.submissionService.postApiV2SubmitByEvaluationId(this.serverRunIDs[this.selectedServerRun!], {
       answerSets: [

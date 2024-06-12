@@ -1,0 +1,15 @@
+<div *ngIf="showToast" @toastAnimation class="toast-class">
+    <div class="toast-content">
+      <div>{{ toastMessage }}</div>
+      <div class="toast-buttons">
+        <a class="open-btn" (click)="openLink()">
+          open
+        </a>
+        <a class="close-btn" (click)="close()">
+          close
+        </a>
+      </div>
+    </div>
+    <img *ngIf="imageSrc" [src]="imageSrc" class="toast-image" alt="Toast image">
+  </div>
+  

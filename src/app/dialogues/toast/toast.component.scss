@@ -1,0 +1,49 @@
+.toast-class { 
+    position: fixed; 
+    top: 10%; 
+    right: 2rem; 
+    display: flex;  
+    flex-direction: column; 
+    min-width: 260px;
+    box-shadow: 6px 6px 12px #00000040;  
+    background-color: white;
+    align-items: center;
+    justify-content: flex-start;
+    border-left: 6px solid #15993d;
+    padding: 1.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    z-index: 1000; 
+}
+
+  
+  .toast-content {
+    width: 100%; 
+    display: flex;
+    justify-content: space-between;  
+    align-items: center;
+    flex-wrap: nowrap; 
+  }
+  
+  .toast-buttons {
+    display: flex;
+    gap: 10px; 
+  }
+  
+  .toast-image {
+    width: 100%; 
+    height: auto;
+    margin-top: 10px;
+  }
+  
+.open-btn, .close-btn {
+    cursor: pointer;
+}
+
+.open-btn {
+    color: #1d7938;
+}
+
+.close-btn {
+    color: #b43f22;
+}

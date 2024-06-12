@@ -53,6 +53,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   previousQuery: any | undefined;
   querydataset: string = '';
   submittedStatus: { [key: string]: boolean } = {};
+  submittedFrame: string = "";
 
   // Metadata and summaries for video analysis
   metadata: any;
@@ -94,6 +95,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   videoAvailable: { [key: number]: boolean } = {};
   videoSource: string = '';
   videoLoaded = false;
+  //Toast
+  showToast: boolean = false;
+  toastMessage: string = "";
+  toastLink: string = "";
+  toastImageSrc: string | null = null;
 
   // Dataset and query configuration
   selectedDataset = 'v3c'; //'v3c-s';
@@ -168,6 +174,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     })
     this.dresSuccessMessageSubscription = this.vbsService.successMessageEmitter.subscribe(msg => {
       this.messageBar.showSuccessMessage(msg);
+      let message = {
+        type: 'videosubmission',
+        videoId: this.submittedFrame
+      }
+      this.sendToNodeServer(message);
     })
 
     let selectedEvaluation = localStorage.getItem('selectedEvaluation');
@@ -256,6 +267,21 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 this.shotPreview = updatedResults;
                 this.displayedShots = [];
                 this.loadMoreShots();
+              } else if (m.type === 'updatesubmissions') {
+                localStorage.removeItem('submittedFrames');
+
+                m.videoId.forEach((id: string) => {
+                  this.markFrameAsSubmitted(id);
+                });
+              } else if (m.type === 'share') {
+                console.log('qc: share-url: ' + m.url);
+                let videoid = m.url.split('/')[2];
+                let frameid = m.url.split('/')[3];
+
+                this.showToast = true;
+                this.toastMessage = "User shared video: " + videoid;
+                this.toastLink = m.url;
+                this.toastImageSrc = this.urlRetrievalService.getThumbnailUrl(videoid, frameid);
               }
             } else {
               this.handleQueryResponseMessage(msg);
@@ -401,6 +427,30 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   /***************** Video Scrubbing Feature End ***************************/
 
+  shareVideo(i: number = -1) {
+
+    let videoid = this.queryresult_videoid[this.selectedItem];
+    let frame = this.queryresult_frame[this.selectedItem];
+    let url = '/video/' + videoid + '/' + frame;
+
+    if (i != -1) {
+      videoid = this.queryresult_videoid[i];
+      frame = this.queryresult_frame[i];
+      url = '/video/' + videoid + '/' + frame;
+    }
+
+    let message = {
+      type: 'share',
+      url: url
+    }
+
+    this.sendToNodeServer(message);
+  }
+
+  handleToastClose() {
+    this.showToast = false;
+  }
+
   loadMoreShots() {
     const startIndex = this.displayedShots.length;
     const endIndex = startIndex + parseInt(this.batchSizeShots);
@@ -414,7 +464,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     const nextBatch = this.videoExplorePreview.slice(startIndex, endIndex);
     this.displayedImages = [...this.displayedImages, ...nextBatch];
   }
-
 
   playVideoAtFrame(): void {
     this.getFPSForItem(this.selectedItem);
@@ -773,7 +822,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       value: this.queryresult_videoid[this.selectedItem]
     }
     this.vbsService.queryEvents.push(queryEvent);
-    this.vbsService.submitQueryResultLog('interaction');
+    //this.vbsService.submitQueryResultLog('interaction');
 
     if (this.currentContent === 'explore') {
       this.loadExploreImages(this.queryresult_videoid[this.selectedItem]);
@@ -917,6 +966,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.selectedVideoFiltering = 'all';
     this.pages = ['1'];
     this.clearResultArrays();
+
+    let message = {
+      type: 'resetsubmission'
+    }
+    this.sendToNodeServer(message);
+
     let queryHistory: Array<QueryType> = [];
     localStorage.setItem('history', JSON.stringify(queryHistory));
   }
@@ -1283,7 +1338,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let comps = keyframe.split('_');
     let frameNumber = comps[comps.length - 1].split('.')[0]
 
-    this.markFrameAsSubmitted(videoid); //TODO: Change to VBS response instead of onClick!
+    this.submittedFrame = videoid;
 
     let msg = {
       type: "videofps",
@@ -1297,8 +1352,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     };
 
     this.nodeService.sendMessageAndWait(message).subscribe((response) => {
-      this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps, response.duration);
+      this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps, response.duration, this.selectedDataset);
 
+      console.log("Submitting video " + videoid + " frame " + frameNumber + " from dataset " + this.selectedDataset + " with fps " + response.fps + " and duration " + response.duration + " seconds")
       //query event logging
       let queryEvent: QueryEvent = {
         timestamp: Date.now(),
