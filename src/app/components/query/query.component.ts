@@ -329,8 +329,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
-  /***************** Video Scrubbing Feature Start *****************/
-
   onMouseMove(event: MouseEvent, i: number): void {
     if (event.ctrlKey || event.metaKey) {
       if (!this.isMouseOverShot) {
@@ -447,25 +445,25 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.sendToNodeServer(message);
   }
 
-  handleToastClose() {
+  handleToastClose() { //Close the toast message
     this.showToast = false;
   }
 
-  loadMoreShots() {
+  loadMoreShots() { //Load more images in Shot Preview
     const startIndex = this.displayedShots.length;
     const endIndex = startIndex + parseInt(this.batchSizeShots);
     const nextBatch = this.shotPreview.slice(startIndex, endIndex);
     this.displayedShots = [...this.displayedShots, ...nextBatch];
   }
 
-  loadMoreImages() {
+  loadMoreImages() { //Load more images in Explore Preview
     const startIndex = this.displayedImages.length;
     const endIndex = startIndex + parseInt(this.batchSizeExplore);
     const nextBatch = this.videoExplorePreview.slice(startIndex, endIndex);
     this.displayedImages = [...this.displayedImages, ...nextBatch];
   }
 
-  playVideoAtFrame(): void {
+  playVideoAtFrame(): void { //Start video preview at the selected frame
     this.getFPSForItem(this.selectedItem);
 
     let frame = parseFloat(this.queryresult_frame[this.selectedItem]);
@@ -474,7 +472,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     const videoElement = this.videopreview.nativeElement;
 
-    if (videoElement.paused && !Number.isNaN(time)) {
+    if (!Number.isNaN(time) && !(videoElement.currentTime > 0)) {
+      console.log("Resetting...")
       this.renderer.setProperty(videoElement, 'currentTime', time);
       this.renderer.listen(videoElement, 'loadedmetadata', () => {
         videoElement.play();
@@ -617,6 +616,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
             const element = this.scrollableContainer.nativeElement;
             element.scrollBy(0, -100);
           } else if (this.showPreview && this.selectedSummaryIdx > 0) {
+
             this.selectedSummaryIdx -= 1;
             this.displayVideoSummary();
           }
@@ -1080,13 +1080,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       msg.dataset = this.selectedDataset;
       msg.type = this.selectedQueryType;
       msg.videofiltering = this.selectedVideoFiltering;
-
       //this.sendToCLIPServer(msg);
 
       this.queryTimestamp = getTimestampInSeconds();
 
       if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
         this.queryType = 'database/joint';
+        console.log('qc: send to node-server: ' + msg);
         this.sendToNodeServer(msg);
       } else {
         this.queryType = 'CLIP';
@@ -1268,11 +1268,15 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     //create pages array
     this.pages = [];
-    if (qresults.num == qresults.totalresults || qresults.type === 'ocr-text' || qresults.type === 'videoid' || qresults.type === 'metadata' || qresults.type === 'speech') {
+    if (qresults.totalresults < this.globalConstants.resultsPerPage || qresults.type === 'videoid' || qresults.type === 'metadata' || qresults.type === 'speech') {
+      console.log("total results: " + this.totalReturnedResults + " results per page: " + this.globalConstants.resultsPerPage + " pages: " + this.totalReturnedResults / this.globalConstants.resultsPerPage)
+
       this.pages.push('1');
     } else {
-      for (let i = 1; i < this.totalReturnedResults / this.globalConstants.resultsPerPage; i++) {
+      console.log("total results: " + this.totalReturnedResults + " results per page: " + this.globalConstants.resultsPerPage + " pages: " + this.totalReturnedResults / this.globalConstants.resultsPerPage)
+      for (let i = 1; i <= Math.ceil(this.totalReturnedResults / this.globalConstants.resultsPerPage); i++) {
         this.pages.push(i.toString());
+        console.log("Pages: " + i)
       }
     }
     //populate images
