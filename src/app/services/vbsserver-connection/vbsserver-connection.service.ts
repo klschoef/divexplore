@@ -256,12 +256,12 @@ export class VBSServerConnectionService {
     return of(null);
   }
 
-  submitFrame(videoid: string, frame: number, fps: number, durationS: number, mediaItemCollectionName: string) {
+  submitFrame(videoid: string, frame: number, fps: number, durationS: number, collectionName: string) {
 
     let mySubmission = {
       text: undefined, //text - in case the task is not targeting a particular content object but plaintext
       mediaItemName: videoid, //'00001', // item -  item which is to be submitted
-      mediaItemCollectionName: undefined, // collection - does not usually need to be set
+      mediaItemCollectionName: collectionName, // collection - does not usually need to be set
       start: frame / fps * 1000, // 10_000, //start time in milliseconds
       end: frame / fps * 1000 //end time in milliseconds, in case an explicit time interval is to be specified
     } as ApiClientAnswer
