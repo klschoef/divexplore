@@ -377,8 +377,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let videoId = parts[0];
 
     var videoUrl = this.globalConstants.scrubVideosBaseURL + videoId + '.mp4';
-    //currently: 16867/16867_176.jpg.mp4
-    console.log("Video URL: " + videoUrl);
     return videoUrl;
   }
 
