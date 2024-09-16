@@ -35,6 +35,10 @@ export class GlobalConstantsService {
     return this.configService.getConfiguration().config_DATA_BASE_URL_VIDEOS;
   }
 
+  get scrubVideosBaseURL(): string {
+    return this.dataHost + 'scrubvideos/';
+  }
+
   get keyframeBaseURL(): string {
     return this.dataHost + 'keyframes/';
   }

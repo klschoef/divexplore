@@ -95,6 +95,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   videoAvailable: { [key: number]: boolean } = {};
   videoSource: string = '';
   videoLoaded = false;
+  preloadedVideos: Set<string> = new Set(); //used in video scrubbing
+
   //Toast
   showToast: boolean = false;
   toastMessage: string = "";
@@ -374,7 +376,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let parts = item.split('/');
     let videoId = parts[0];
 
-    var videoUrl = this.globalConstants.dataHost + 'scrubvideos/' + videoId + '.mp4';
+    var videoUrl = this.globalConstants.scrubVideosBaseURL + videoId + '.mp4';
     //currently: 16867/16867_176.jpg.mp4
     console.log("Video URL: " + videoUrl);
     return videoUrl;
@@ -382,13 +384,20 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   checkVideoAvailability(index: number): void {
     const item = this.displayQueryResult[index];
+    const videoId = item.split('/')[0];
     const videoUrl = this.getVideoSource(item);
 
-    if (!this.videoAvailable[index]) {
+    if (this.preloadedVideos.has(videoId)) {
+      this.videoAvailable[index] = true;
+      if (this.hoveredIndex === index) {
+        this.videoSource = videoUrl;
+      }
+    } else {
       this.http.get(videoUrl, { responseType: 'text' })
         .subscribe({
           next: () => {
             this.videoAvailable[index] = true;
+            this.preloadedVideos.add(videoId);
             if (this.hoveredIndex === index) {
               this.videoSource = videoUrl;
             }
@@ -397,13 +406,22 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
             this.videoAvailable[index] = false;
           }
         });
-
-
-    } else {
-      if (this.hoveredIndex === index) {
-        this.videoSource = videoUrl;
-      }
     }
+  }
+
+  preloadVideo(videoId: string) {
+    if (this.preloadedVideos.has(videoId)) return;
+
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.src = this.getVideoSource(videoId);
+
+    video.onloadedmetadata = () => {
+      this.preloadedVideos.add(videoId);
+      video.remove();  // Remove the element after preloading
+    };
+
+    document.body.appendChild(video);
   }
 
   mouseOverShot(event: MouseEvent, i: number) {
@@ -1316,6 +1334,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       }
       logResults.push(logResult)
       resultnum++;
+
+      setTimeout(() => this.preloadVideo(videoid), i * 100);
     }
 
     this.inputfield.nativeElement.blur();
