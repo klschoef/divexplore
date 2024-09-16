@@ -413,7 +413,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     if (this.preloadedVideos.has(videoId)) return;
 
     const video = document.createElement('video');
-    video.preload = 'metadata';
+    video.preload = 'auto';
     video.src = this.getVideoSource(videoId);
 
     video.onloadedmetadata = () => {
@@ -926,10 +926,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     //this.router.navigate(['video',videoid,frame]); //or navigateByUrl(`/video/${videoid}`)
     window.open('video/' + videoid + '/' + frame, '_blank');
   }
-
-
-
-
 
   getFPSForItem(i: number) {
     if (this.queryresult_fps.get(this.queryresult_videoid[i]) == undefined) {
