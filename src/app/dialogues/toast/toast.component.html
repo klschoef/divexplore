@@ -1,8 +1,8 @@
 <div *ngIf="showToast" @toastAnimation class="toast-class">
     <div class="toast-content">
       <div class="toast-text">
-        <div id="message-line-one">{{ toastMessage }}</div>
-        <div id="message-line-two">{{ toastMessageNewLine }}</div>
+        <div id="message-line-one"><u>Shared Keyframe:</u> {{ toastMessage }}</div>
+        <div id="message-line-two"><u>Query:</u> {{ toastMessageNewLine }}</div>
       </div>
     </div>
     <img *ngIf="imageSrc" [src]="imageSrc" class="toast-image" alt="Toast image">

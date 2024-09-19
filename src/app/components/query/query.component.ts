@@ -284,8 +284,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 let querystring = m.query;
 
                 this.showToast = true;
-                this.toastMessage = "User shared keyframe: " + videoid + "/" + frameid;
-                this.toastMessageNewLine = "Query: " + querystring;
+                this.toastMessage = videoid + "/" + frameid;
+                this.toastMessageNewLine = querystring;
                 this.toastLink = m.url;
                 this.toastImageSrc = this.urlRetrievalService.getThumbnailUrl(videoid, frameid);
               }
