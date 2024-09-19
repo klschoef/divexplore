@@ -1,15 +1,18 @@
 <div *ngIf="showToast" @toastAnimation class="toast-class">
     <div class="toast-content">
-      <div>{{ toastMessage }}</div>
-      <div class="toast-buttons">
-        <a class="open-btn" (click)="openLink()">
-          open
-        </a>
-        <a class="close-btn" (click)="close()">
-          close
-        </a>
+      <div class="toast-text">
+        <div id="message-line-one">{{ toastMessage }}</div>
+        <div id="message-line-two">{{ toastMessageNewLine }}</div>
       </div>
     </div>
     <img *ngIf="imageSrc" [src]="imageSrc" class="toast-image" alt="Toast image">
+    <div class="toast-buttons">
+      <button mat-flat-button id="open-btn" class="basicButton" (click)="openLink()">
+      open
+      </button>
+      <button mat-flat-button id="close-btn" class="basicButton" (click)="close()">
+      close
+      </button>
+    </div>
   </div>
   

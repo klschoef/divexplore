@@ -22,6 +22,7 @@ import { trigger, state, style, transition, animate, keyframes } from '@angular/
 
 export class ToastComponent implements OnInit {
   @Input() toastMessage: string = 'User shared a video: ';
+  @Input() toastMessageNewLine: string = 'Query: ';
   @Input() showToast: boolean = true;
   @Input() toastLink: string = "";
   @Input() imageSrc: string | null = null;

@@ -101,6 +101,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   // Toast
   showToast: boolean = false;
   toastMessage: string = "";
+  toastMessageNewLine: string = "";
   toastLink: string = "";
   toastImageSrc: string | null = null;
 
@@ -277,11 +278,14 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 });
               } else if (m.type === 'share') {
                 console.log('qc: share-url: ' + m.url);
+                console.log(m);
                 let videoid = m.url.split('/')[2];
                 let frameid = m.url.split('/')[3];
+                let querystring = m.query;
 
                 this.showToast = true;
-                this.toastMessage = "User shared video: " + videoid;
+                this.toastMessage = "User shared keyframe: " + videoid + "/" + frameid;
+                this.toastMessageNewLine = "Query: " + querystring;
                 this.toastLink = m.url;
                 this.toastImageSrc = this.urlRetrievalService.getThumbnailUrl(videoid, frameid);
               }
@@ -401,8 +405,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let videoId = parts[0];
 
     var videoUrl = this.globalConstants.scrubVideosBaseURL + videoId + '.mp4';
-    console.log('qc: scrubvideo url: ' + videoUrl);
-
     return videoUrl;
   }
 
@@ -465,9 +467,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       url = '/video/' + videoid + '/' + frame;
     }
 
+    console.log('qc: share video: ' + url + ' for video: ' + videoid + ' and frame: ' + frame + ' and query: ' + this.queryinput);
+
     let message = {
       type: 'share',
-      url: url
+      url: url,
+      query: this.queryinput
     }
 
     this.sendToNodeServer(message);
