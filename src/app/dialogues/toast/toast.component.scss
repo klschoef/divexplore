@@ -24,10 +24,41 @@
     align-items: center;
     flex-wrap: nowrap; 
   }
+
+  .basicButton {
+    appearance: none;
+    border: 1px solid rgba(27, 31, 35, .15);
+    border-radius: 6px;
+    box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-block;
+    font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+    font-size: 16px;  
+    font-weight: 400;
+    line-height: 22px;  
+    padding: 0 8px 0 8px; 
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: middle;
+    white-space: nowrap;
+    margin: 0 2px 0 2px;
+}
+
+.basicButton:hover {
+    background-color: rgb(179, 179, 179);
+    border-color: rgba(27, 31, 35, .15);
+    color: #24292e;
+}
   
   .toast-buttons {
     display: flex;
     gap: 10px; 
+    margin-top: 10px;
   }
   
   .toast-image {
@@ -36,14 +67,24 @@
     margin-top: 10px;
   }
   
-.open-btn, .close-btn {
-    cursor: pointer;
-}
+  #open-btn {
+    background-color: #2ea44f;
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+  }
 
-.open-btn {
-    color: #1d7938;
-}
+  #open-btn:hover {
+    background-color: #2c974b;
+  }
 
-.close-btn {
-    color: #b43f22;
-}
+  #close-btn {
+    background-color: rgb(228, 63, 63);
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  #close-btn:hover {
+    background-color: rgb(179, 48, 48);
+  }

@@ -117,7 +117,10 @@
         <button class="share-button" (click)="shareVideo()" matTooltip="Share Keyframe" matTooltipPosition="above" mat-icon-button>
           <mat-icon>share</mat-icon>
         </button>
-        <button class="close-button" (click)="closeVideoPreview()" mat-icon-button>
+        <button *ngIf="!this.isVideoResult(this.querydataset)" class="submit-button" (click)="submitResult(this.selectedItem)" mat-icon-button matTooltip="Submit Keyframe" matTooltipPosition="above">
+        <mat-icon>send</mat-icon>
+        </button>
+        <button class="close-button" (click)="closeVideoPreview()" mat-icon-button matTooltip="Close Window" matTooltipPosition="above">
         <mat-icon>close</mat-icon>
       </button>
     </div>
@@ -208,6 +211,7 @@
 
 <app-toast 
 [toastMessage]="toastMessage"
+[toastMessageNewLine]="toastMessageNewLine"
 [showToast]="showToast"
 [toastLink]="toastLink"
 [imageSrc]="toastImageSrc"

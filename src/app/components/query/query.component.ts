@@ -1,6 +1,5 @@
 import { ViewChild, ElementRef, Component, ViewChildren, QueryList, AfterViewInit, Renderer2 } from '@angular/core';
 import { HostListener } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { GlobalConstants, WSServerStatus, formatAsTime, QueryType, getTimestampInSeconds } from '../../shared/config/global-constants';
 import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
@@ -87,19 +86,22 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   displayedImages: Array<string> = [];
   displayedShots: Array<string> = [];
   private debounceTimer?: number;
-  batchSizeExplore: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview 
+  batchSizeExplore: string = this.globalConstants.exploreResultsPerLoad; //how many cluster images to show in explore-preview
   batchSizeShots: string = this.globalConstants.shotsResultsPerLoad; //how many shots to show in shot-preview
 
-  // video Preview
+  // Video Preview
   hoveredIndex: number | null = null;
   videoAvailable: { [key: number]: boolean } = {};
   videoSource: string = '';
   videoLoaded = false;
-  preloadedVideos: Set<string> = new Set(); //used in video scrubbing
+  preloadedVideos: Map<string, HTMLVideoElement> = new Map(); //used in video scrubbing
+  videoLoading: boolean = false;
+  isCtrlPressed: boolean = false;
 
-  //Toast
+  // Toast
   showToast: boolean = false;
   toastMessage: string = "";
+  toastMessageNewLine: string = "";
   toastLink: string = "";
   toastImageSrc: string | null = null;
 
@@ -161,7 +163,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     public nodeService: NodeServerConnectionService,
     public clipService: ClipServerConnectionService,
     public urlRetrievalService: UrlRetrievalService,
-    private http: HttpClient,
     private renderer: Renderer2,
     private titleService: Title,
     private route: ActivatedRoute,
@@ -277,11 +278,14 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 });
               } else if (m.type === 'share') {
                 console.log('qc: share-url: ' + m.url);
+                console.log(m);
                 let videoid = m.url.split('/')[2];
                 let frameid = m.url.split('/')[3];
+                let querystring = m.query;
 
                 this.showToast = true;
-                this.toastMessage = "User shared video: " + videoid;
+                this.toastMessage = videoid + "/" + frameid;
+                this.toastMessageNewLine = querystring;
                 this.toastLink = m.url;
                 this.toastImageSrc = this.urlRetrievalService.getThumbnailUrl(videoid, frameid);
               }
@@ -334,45 +338,69 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   onMouseMove(event: MouseEvent, i: number): void {
     if (event.ctrlKey || event.metaKey) {
       if (!this.isMouseOverShot) {
-        console.log("Mouse over shot")
+        console.log("Mouse over shot");
         this.mouseOverShot(event, i);
       }
 
-      const maxOffset = 10; //time before and after shot in seconds
+      const maxOffset = 10; // Time before and after shot in seconds
 
-      if (!this.videoAvailable[i] || this.hoveredIndex !== i || !this.videoReady[i]) return;
+      if (!this.videoAvailable[i] || this.hoveredIndex !== i) return;
 
       const videoPlayer = (event.target as HTMLVideoElement);
-
       if (!videoPlayer) return;
+
+      if (videoPlayer.readyState === 0) {
+        this.videoLoading = true;
+        this.isCtrlPressed = true;
+        videoPlayer.load();
+      }
 
       const rect = videoPlayer.getBoundingClientRect();
       const videoWidth = rect.width;
 
-      const mouseX = event.clientX - rect.left; //x position within the element.
-      const offsetRatio = mouseX / videoWidth; //ratio of mouse position within the video element
-      const timeOffset = offsetRatio * (2 * maxOffset) - maxOffset; //time offset based on the mousepos in seconds
-      const startTime = this.getTimeInSecondsFor(i) + timeOffset; //time for the video
+      // Calculate mouse position and offset within the video
+      const mouseX = event.clientX - rect.left;
+      console.log("MouseX:", mouseX, "VideoWidth:", videoWidth);
+      const offsetRatio = mouseX / videoWidth;
 
-      videoPlayer.currentTime = Math.max(0, startTime); //set the time in the video (If none given, go to 0)
+      // Calculate the time offset based on the mouse position
+      const timeOffset = offsetRatio * (2 * maxOffset) - maxOffset;
+      const startTime = this.getTimeInSecondsFor(i) + timeOffset;
+      console.log("Time offset:", timeOffset, "Start time:", startTime);
+
+      // Guard against invalid startTime values
+      if (isFinite(startTime) && startTime >= 0) {
+        videoPlayer.currentTime = Math.max(0, startTime); // Set the video time
+      } else {
+        console.error("Invalid startTime:", startTime);
+      }
+
+      videoPlayer.oncanplay = () => {
+        this.videoLoading = false;
+        this.isCtrlPressed = false;
+      };
     } else {
       this.onMouseLeave();
     }
   }
 
+
   onMouseLeave(): void {
     this.hoveredIndex = null;
-    if (this.videoPlayers) {
-      this.videoSource = '';
-    }
+    this.videoSource = '';
+    this.videoLoading = false;
+    this.isCtrlPressed = false;
   }
 
   onMouseEnter(): void {
     this.videoLoaded = true;
+    if (!this.isCtrlPressed) {
+      // Only hide keyframe if the video is fully loaded and ctrl is not pressed
+      this.videoSource = '';
+    }
   }
 
   getVideoSource(item: any) {
-    //currently Item looks like this: 16867/16867_176.jpg but i want just the first part '16867'
     let parts = item.split('/');
     let videoId = parts[0];
 
@@ -385,41 +413,28 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     const videoId = item.split('/')[0];
     const videoUrl = this.getVideoSource(item);
 
-    if (this.preloadedVideos.has(videoId)) {
+    if (!this.preloadedVideos.has(videoId)) {
+      const video = document.createElement('video');
+      video.preload = 'metadata'; // Preload metadata only on hover
+      video.src = videoUrl;
+
+      video.onloadedmetadata = () => {
+        this.preloadedVideos.set(videoId, video);
+        this.videoAvailable[index] = true;
+        if (this.hoveredIndex === index) {
+          this.videoSource = videoUrl;
+        }
+      };
+
+      video.onerror = () => {
+        console.error(`Failed to load video with ID: ${videoId}`);
+      };
+    } else {
       this.videoAvailable[index] = true;
       if (this.hoveredIndex === index) {
         this.videoSource = videoUrl;
       }
-    } else {
-      this.http.get(videoUrl, { responseType: 'text' })
-        .subscribe({
-          next: () => {
-            this.videoAvailable[index] = true;
-            this.preloadedVideos.add(videoId);
-            if (this.hoveredIndex === index) {
-              this.videoSource = videoUrl;
-            }
-          },
-          error: () => {
-            this.videoAvailable[index] = false;
-          }
-        });
     }
-  }
-
-  preloadVideo(videoId: string) {
-    if (this.preloadedVideos.has(videoId)) return;
-
-    const video = document.createElement('video');
-    video.preload = 'auto';
-    video.src = this.getVideoSource(videoId);
-
-    video.onloadedmetadata = () => {
-      this.preloadedVideos.add(videoId);
-      video.remove();  // Remove the element after preloading
-    };
-
-    document.body.appendChild(video);
   }
 
   mouseOverShot(event: MouseEvent, i: number) {
@@ -427,12 +442,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.getFPSForItem(i);
     this.hoveredIndex = i;
 
+    this.checkVideoAvailability(this.hoveredIndex!);
+
     if (event.ctrlKey || event.metaKey) {
       this.isMouseOverShot = true;
-      this.checkVideoAvailability(this.hoveredIndex!);
     }
   }
-
   mouseLeaveShot(i: number) {
     this.isMouseOverShot = false;
     this.showButtons = -1;
@@ -440,7 +455,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   /***************** Video Scrubbing Feature End ***************************/
-
   shareVideo(i: number = -1) {
 
     let videoid = this.queryresult_videoid[this.selectedItem];
@@ -453,9 +467,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       url = '/video/' + videoid + '/' + frame;
     }
 
+    console.log('qc: share video: ' + url + ' for video: ' + videoid + ' and frame: ' + frame + ' and query: ' + this.queryinput);
+
     let message = {
       type: 'share',
-      url: url
+      url: url,
+      query: this.queryinput
     }
 
     this.sendToNodeServer(message);
@@ -1288,7 +1305,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       console.log("total results: " + this.totalReturnedResults + " results per page: " + this.globalConstants.resultsPerPage + " pages: " + this.totalReturnedResults / this.globalConstants.resultsPerPage)
       for (let i = 1; i <= Math.ceil(this.totalReturnedResults / this.globalConstants.resultsPerPage); i++) {
         this.pages.push(i.toString());
-        console.log("Pages: " + i)
       }
     }
     //populate images
@@ -1328,8 +1344,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       }
       logResults.push(logResult)
       resultnum++;
-
-      setTimeout(() => this.preloadVideo(videoid), i * 100);
     }
 
     this.inputfield.nativeElement.blur();
