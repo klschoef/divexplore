@@ -1,6 +1,22 @@
 <div class="queryarea">
-    <div class="inputGroup">
-    <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
+    
+      <div class="upperHeader">
+        <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
+<div class="spansClass">
+    <span *ngIf="this.hasMetadata()" class="videometainfo">
+        <span class="headerinfo">{{vtitle}}</span>
+        <span class="headerkeyword">[by {{vchannel}}]</span>
+        <span class="headertitle">{{videoid}} ({{keyframes.length}} shots)</span>
+        <span class="headerlabel">{{asTimeLabel(vduration.toString(),false)}}</span>
+        <span class="headerlabel">{{fps}} fps</span>
+        <span class="headerlabel">{{vduration}} secs</span>
+    </span>
+</div>
+<span></span>
+
+      </div>
+    
+<div class="inputGroup">
     <!-- Search Bar -->
      <div class="innerInputGroup">
         <select class="top-bar-select" [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
@@ -11,19 +27,7 @@
         <button id="undoButton" class="basicButton" (click)="undoQueryAction()">Undo</button>
         
     </div>
-        <span></span>
     </div>
-      
-    <div class="spansClass">
-    <span *ngIf="this.hasMetadata()" class="videometainfo">
-        <span class="headerinfo">{{vtitle}}</span>
-        <span class="headerkeyword">[by {{vchannel}}]</span>
-        <span class="headertitle">{{videoid}} ({{keyframes.length}} shots)</span>
-        <span class="headerlabel">{{asTimeLabel(vduration.toString(),false)}}</span>
-        <span class="headerlabel">{{fps}} fps</span>
-        <span class="headerlabel">{{vduration}} secs</span>
-    </span>
-</div>
 </div>
 
 <div class="videobox" *ngIf="showVideoBox">

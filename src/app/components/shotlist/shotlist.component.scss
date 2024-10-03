@@ -74,8 +74,9 @@ button {
 
 .inputGroup {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    margin-bottom: 10px;
 }
 
 .innerInputGroup {
@@ -168,6 +169,13 @@ span.headertitle {
     justify-content: center;
     align-items: center;
     margin-bottom: 5px;
+}
+
+.upperHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .queryresult:hover {
