@@ -47,6 +47,83 @@
     align-items: center;
 }
 
+.inputGroup {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.inputField {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.top-bar-select {
+    border-radius: 6px;
+    font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid rgba(27, 31, 35, .15);
+    border-radius: 6px;
+    height: 100%;
+    padding: 8px 0px;
+    margin: 0 3px 0 3px;
+}
+
+.headerlabel:not(:first-child) {
+    border-left: 1px solid #cccccc5d; /* Add vertical line */
+  }
+
+.headerinfo {
+    font-size: 16pt;
+    font-weight: 600;
+    background-color: transparent;
+    color: white;
+}
+
+span.headertitle {
+    font-size: 14pt;
+    background-color: transparent;
+    color: white;
+    border-left: 1px solid #cccccc5d; /* Add vertical line */
+}
+
+.headerlabel {
+    font-size: 14pt;
+    background-color: transparent;
+    color: white;
+}
+
+#searchButton {
+    background-color: #2ea44f;
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+    margin: 0 4px 0 4px;
+}
+
+#undoButton {
+    background-color: #cc371d;
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.spansClass {
+    //center the text
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
 .queryresult:hover {
     cursor: pointer;
 }

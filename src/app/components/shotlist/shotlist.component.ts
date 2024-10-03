@@ -132,22 +132,20 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
           console.log("slc: response from node-service: ");
           console.log(msg);
 
-          //a result is valid if its from the same video (results look like this: "videoid/videoid_keyframeid.jpg")
           let result = m.results;
           let validResults = [];
 
+          //TODO: Don't send full new query but use -v
           for (let i = 0; i < result.length; i++) {
             if (result[i].startsWith(this.videoid!)) {
               validResults.push(result[i]);
             }
           }
 
-          // Delete all queryresults (@ViewChildren('queryResult') queryResults!: QueryList<ElementRef>;) that are not in keyframesInBoth
           let queryResults = this.queryResults.toArray();
 
           for (let i = 0; i < queryResults.length; i++) {
             let currentResults = queryResults[i].nativeElement.firstElementChild?.getAttribute('src');
-            //Extract filename and folder from currentResults. Now its like that: http://localhost:4200/assets/keyframes/v3c/00001/00001_00001.jpg and i only want that part: 00001/00001_00001.jpg
             let currentResultsVideoid = currentResults?.split("/").slice(-2).join("/");
 
             if (!validResults.includes(currentResultsVideoid!)) {
@@ -473,9 +471,6 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       } else {
         this.sendToCLIPServer(msg);
       }
-
-      this.saveToHistory(msg);
-
       //query event logging
       let queryEvent: QueryEvent = {
         timestamp: Date.now(),
@@ -488,38 +483,6 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
 
     } else {
       alert(`CLIP connection down: ${this.clipService.connectionState}. Try reconnecting by pressing the red button!`);
-    }
-  }
-
-  saveToHistory(msg: QueryType) {
-    if (msg.query === '') {
-      return;
-    }
-
-    let hist = localStorage.getItem('history')
-    if (hist) {
-      let queryHistory: Array<QueryType> = JSON.parse(hist);
-      let containedPos = -1;
-      let i = 0;
-      for (let qh of queryHistory) {
-        if (qh.query === msg.query && qh.dataset === msg.dataset) {
-          containedPos = i;
-          break;
-        }
-        i++;
-      }
-      if (containedPos >= 0) {
-        queryHistory.splice(containedPos, 1);
-        queryHistory.unshift(msg);
-        localStorage.setItem('history', JSON.stringify(queryHistory));
-      }
-      else {
-        queryHistory.unshift(msg);
-        localStorage.setItem('history', JSON.stringify(queryHistory));
-      }
-    } else {
-      let queryHistory: Array<QueryType> = [msg];
-      localStorage.setItem('history', JSON.stringify(queryHistory));
     }
   }
 

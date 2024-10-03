@@ -1,25 +1,25 @@
 <div class="queryarea">
+    <div class="inputGroup">
     <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
-    <span class="headertitle">{{videoid}} ({{keyframes.length}} shots)</span>
     <!-- Search Bar -->
-    <div class="select-wrapper">
         <select class="top-bar-select" [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
-          <option *ngFor="let d of this.getQueryTypes()" [ngValue]="d.id">{{d.name}}</option>
-        </select>
-      </div>
-      <div class="inputGroup">
-        <input class="inputField" type="text" [(ngModel)]="queryinput" placeholder="Input your query..." autofocus />
+            <option *ngFor="let d of this.getQueryTypes()" [ngValue]="d.id">{{d.name}}</option>
+          </select>
+        <input class="inputField" type="text" (keyup.enter)="performNewTextQuery()" [(ngModel)]="queryinput" placeholder="Input your query for THIS video..." autofocus />
         <button id="searchButton" class="basicButton" (click)="performNewTextQuery()">Search</button>
         <button id="undoButton" class="basicButton" (click)="undoQueryAction()">Undo</button>
       </div>
       
+    <div class="spansClass">
     <span *ngIf="this.hasMetadata()" class="videometainfo">
         <span class="headerinfo">{{vtitle}}</span>
         <span class="headerkeyword">[by {{vchannel}}]</span>
+        <span class="headertitle">{{videoid}} ({{keyframes.length}} shots)</span>
         <span class="headerlabel">{{asTimeLabel(vduration.toString(),false)}}</span>
         <span class="headerlabel">{{fps}} fps</span>
         <span class="headerlabel">{{vduration}} secs</span>
     </span>
+</div>
 </div>
 
 <div class="videobox" *ngIf="showVideoBox">
