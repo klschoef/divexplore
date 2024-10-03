@@ -2,13 +2,17 @@
     <div class="inputGroup">
     <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
     <!-- Search Bar -->
+     <div class="innerInputGroup">
         <select class="top-bar-select" [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
             <option *ngFor="let d of this.getQueryTypes()" [ngValue]="d.id">{{d.name}}</option>
           </select>
         <input class="inputField" type="text" (keyup.enter)="performNewTextQuery()" [(ngModel)]="queryinput" placeholder="Input your query for THIS video..." autofocus />
         <button id="searchButton" class="basicButton" (click)="performNewTextQuery()">Search</button>
         <button id="undoButton" class="basicButton" (click)="undoQueryAction()">Undo</button>
-      </div>
+        
+    </div>
+        <span></span>
+    </div>
       
     <div class="spansClass">
     <span *ngIf="this.hasMetadata()" class="videometainfo">
