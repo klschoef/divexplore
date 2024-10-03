@@ -878,8 +878,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.currentContent = content;
     this.activeButton = content;
 
-    /* c */
-
     this.showVideoPreview();
   }
 

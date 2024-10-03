@@ -1,6 +1,18 @@
 <div class="queryarea">
     <a routerLink="/query"><img class="logo" src="assets/diveXplore_.png"></a>
     <span class="headertitle">{{videoid}} ({{keyframes.length}} shots)</span>
+    <!-- Search Bar -->
+    <div class="select-wrapper">
+        <select class="top-bar-select" [(ngModel)]="selectedQueryType" (change)="resetPageAndPerformQuery()">
+          <option *ngFor="let d of this.getQueryTypes()" [ngValue]="d.id">{{d.name}}</option>
+        </select>
+      </div>
+      <div class="inputGroup">
+        <input class="inputField" type="text" [(ngModel)]="queryinput" placeholder="Input your query..." autofocus />
+        <button id="searchButton" class="basicButton" (click)="performNewTextQuery()">Search</button>
+        <button id="undoButton" class="basicButton" (click)="undoQueryAction()">Undo</button>
+      </div>
+      
     <span *ngIf="this.hasMetadata()" class="videometainfo">
         <span class="headerinfo">{{vtitle}}</span>
         <span class="headerkeyword">[by {{vchannel}}]</span>
@@ -66,6 +78,11 @@
         </span>
     </span>
 </div>
+
+<div *ngIf="nodeServerInfo !== undefined" class="full-message">
+    {{nodeServerInfo}}
+    <button (click)="nodeServerInfo = undefined">Close</button>
+  </div>
 
 <app-message-bar></app-message-bar>
 

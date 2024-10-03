@@ -5,16 +5,22 @@ import { VBSServerConnectionService } from '../../services/vbsserver-connection/
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
-import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } from '../../shared/config/global-constants';
-import { mdiConsoleLine } from '@mdi/js';
+import { formatAsTime, GlobalConstants, WSServerStatus } from '../../shared/config/global-constants';
 import { ApiClientAnswer, QueryEvent, QueryEventCategory, RankedAnswer } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
 import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
 import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
 
-const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
-
+export interface QueryType {
+  type: string;
+  query: string;
+  videofiltering: string;
+  maxresults: number;
+  resultsperpage: number;
+  selectedpage: string;
+  dataset: string;
+}
 
 @Component({
   selector: 'app-shotlist',
@@ -29,6 +35,16 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
   keyframes: Array<string> = [];
   timelabels: Array<string> = [];
   framenumbers: Array<string> = [];
+  revertKeyframes: Array<string> = [];
+
+  selectedDataset: string = '';
+  selectedVideoFiltering: string = '';
+  selectedQueryType: string = '';
+  queryinput: string = '';
+  nodeServerInfo: string | undefined;
+  queryBaseURL: string = '';
+  queryTimestamp: number = 0;
+  deletedKeyFrames: any[] = [];
 
   private dresErrorMessageSubscription!: Subscription;
   private dresSuccessMessageSubscription!: Subscription;
@@ -106,14 +122,57 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       this.requestDataFromDB();
     }
     this.nodeService.messages.subscribe(msg => {
+      let m = JSON.parse(JSON.stringify(msg));
       //console.log(`slc: response from node service: ${msg}`)
       if ('wsstatus' in msg) {
         //console.log('slc: node-service: connected');
         this.requestDataFromDB();
       } else {
-        let result = msg.content;
-        //console.log("slc: response from node-service: " + result[0]);
-        this.loadVideoShots(result[0]);
+        if ("scores" in msg || m.type === 'ocr-text') {
+          console.log("slc: response from node-service: ");
+          console.log(msg);
+
+          //a result is valid if its from the same video (results look like this: "videoid/videoid_keyframeid.jpg")
+          let result = m.results;
+          let validResults = [];
+
+          for (let i = 0; i < result.length; i++) {
+            if (result[i].startsWith(this.videoid!)) {
+              validResults.push(result[i]);
+            }
+          }
+
+          // Delete all queryresults (@ViewChildren('queryResult') queryResults!: QueryList<ElementRef>;) that are not in keyframesInBoth
+          let queryResults = this.queryResults.toArray();
+
+          for (let i = 0; i < queryResults.length; i++) {
+            let currentResults = queryResults[i].nativeElement.firstElementChild?.getAttribute('src');
+            //Extract filename and folder from currentResults. Now its like that: http://localhost:4200/assets/keyframes/v3c/00001/00001_00001.jpg and i only want that part: 00001/00001_00001.jpg
+            let currentResultsVideoid = currentResults?.split("/").slice(-2).join("/");
+
+            if (!validResults.includes(currentResultsVideoid!)) {
+              this.deletedKeyFrames.push({
+                element: queryResults[i].nativeElement,
+                parent: queryResults[i].nativeElement.parentNode,
+                index: i
+              });
+              queryResults[i].nativeElement.remove();
+            }
+          }
+        } else {
+          let result = msg.content;
+          //console.log("slc: response from node-service: " + result[0]);
+          this.loadVideoShots(result[0]);
+        }
+      }
+    });
+
+    this.clipService.messages.subscribe(msg => {
+      if ('wsstatus' in msg) {
+        console.log('qc: CLIP-notification: connected');
+      } else {
+        console.log("qc: response from clip-server: " + msg);
+        //this.handleQueryResponseMessage(msg);
       }
     });
 
@@ -121,6 +180,31 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
     setInterval(() => {
       this.requestTaskInfo();
     }, 1000);
+  }
+
+
+  undoQueryAction() {
+    // Sort deleted keyframes by the stored index to restore them in the correct order
+    this.deletedKeyFrames.sort((a, b) => a.index - b.index);
+
+    // Iterate through all deleted keyframes and restore them
+    while (this.deletedKeyFrames.length > 0) {
+      let lastDeleted = this.deletedKeyFrames.shift(); // Get the first deleted keyframe (since sorted by index)
+
+      // Ensure the parent exists and insert the element at its original position
+      if (lastDeleted.parent) {
+        let parentElement = lastDeleted.parent;
+
+        // If the index is valid, re-insert the element at the correct position
+        if (parentElement.children.length >= lastDeleted.index) {
+          let referenceNode = parentElement.children[lastDeleted.index];
+          parentElement.insertBefore(lastDeleted.element, referenceNode);
+        } else {
+          // If the index is out of bounds, append it at the end of the parent
+          parentElement.appendChild(lastDeleted.element);
+        }
+      }
+    }
   }
 
   ngAfterViewInit(): void {
@@ -280,6 +364,8 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       logResults.push(logResult)
     }
 
+    this.revertKeyframes = this.keyframes;
+
     this.vbsService.queryResults = logResults;
     this.vbsService.submitQueryResultLog('shotlist');
   }
@@ -328,8 +414,6 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
     if (this.videoplayer.nativeElement.paused) {
       this.videoplayer.nativeElement.play();
     }
-
-    //window.scrollTo(0, 0);
   }
 
   gotoTimeOfFrame(frame: number) {
@@ -345,8 +429,130 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
     this.answerFieldHasFocus = false
   }
 
+  /* *************************************************************************
+   * Query Logic
+   * *************************************************************************/
+
+  performNewTextQuery() {
+    let qi = this.queryinput.trim();
+
+    if (qi === '') {
+      return;
+    }
+
+    let querySubmission = this.queryinput;
+
+    if (this.clipService.connectionState === WSServerStatus.CONNECTED ||
+      this.nodeService.connectionState === WSServerStatus.CONNECTED) {
+
+      this.nodeServerInfo = "processing query, please wait...";
+
+      console.log('qc: query for', querySubmission + " and " + this.selectedQueryType);
+      this.queryBaseURL = this.getBaseURL();
+      let msg = {
+        type: "textquery",
+        clientId: "direct",
+        query: querySubmission,
+        maxresults: 1000,
+        resultsperpage: 1000,
+        selectedpage: '1',
+        dataset: this.selectedDataset,
+        videofiltering: this.selectedVideoFiltering
+      };
+      //this.previousQuery = msg;
+
+      msg.dataset = this.selectedDataset;
+      msg.type = this.selectedQueryType;
+      msg.videofiltering = this.selectedVideoFiltering;
+
+      this.queryTimestamp = this.getTimestampInSeconds();
+
+      if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
+        console.log('qc: send to node-server: ' + msg);
+        this.sendToNodeServer(msg);
+      } else {
+        this.sendToCLIPServer(msg);
+      }
+
+      this.saveToHistory(msg);
+
+      //query event logging
+      let queryEvent: QueryEvent = {
+        timestamp: Date.now(),
+        category: QueryEventCategory.TEXT,
+        type: this.selectedQueryType,
+        value: querySubmission
+      }
+      this.vbsService.queryEvents.push(queryEvent);
 
 
+    } else {
+      alert(`CLIP connection down: ${this.clipService.connectionState}. Try reconnecting by pressing the red button!`);
+    }
+  }
+
+  saveToHistory(msg: QueryType) {
+    if (msg.query === '') {
+      return;
+    }
+
+    let hist = localStorage.getItem('history')
+    if (hist) {
+      let queryHistory: Array<QueryType> = JSON.parse(hist);
+      let containedPos = -1;
+      let i = 0;
+      for (let qh of queryHistory) {
+        if (qh.query === msg.query && qh.dataset === msg.dataset) {
+          containedPos = i;
+          break;
+        }
+        i++;
+      }
+      if (containedPos >= 0) {
+        queryHistory.splice(containedPos, 1);
+        queryHistory.unshift(msg);
+        localStorage.setItem('history', JSON.stringify(queryHistory));
+      }
+      else {
+        queryHistory.unshift(msg);
+        localStorage.setItem('history', JSON.stringify(queryHistory));
+      }
+    } else {
+      let queryHistory: Array<QueryType> = [msg];
+      localStorage.setItem('history', JSON.stringify(queryHistory));
+    }
+  }
+
+  getTimestampInSeconds() {
+    return Math.floor(Date.now() / 1000);
+  }
+
+  getBaseURL() {
+    return this.globalConstants.thumbsBaseURL;
+  }
+
+  resetPageAndPerformQuery() {
+    this.vbsService.queryResults = [];
+    this.vbsService.queryEvents = [];
+    this.performNewTextQuery();
+  }
+
+  getQueryTypes() {
+    return [
+      { id: 'textquery', name: 'Free-Text' },
+      { id: 'ocr-text', name: 'OCR-Text' },
+      { id: 'speech', name: 'Speech' }
+    ];
+  }
+
+  sendToCLIPServer(msg: any) {
+    let message = {
+      source: 'appcomponent',
+      content: msg
+    };
+    this.clipService.messages.next(message);
+    this.queryTimestamp = this.getTimestampInSeconds();
+  }
 
   /****************************************************************************
    * Submission to VBS Server
