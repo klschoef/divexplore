@@ -39,7 +39,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
 
   selectedDataset: string = '';
   selectedVideoFiltering: string = '';
-  selectedQueryType: string = '';
+  selectedQueryType: string = 'textquery';
   queryinput: string = '';
   nodeServerInfo: string | undefined;
   queryBaseURL: string = '';
@@ -123,9 +123,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
     }
     this.nodeService.messages.subscribe(msg => {
       let m = JSON.parse(JSON.stringify(msg));
-      //console.log(`slc: response from node service: ${msg}`)
       if ('wsstatus' in msg) {
-        //console.log('slc: node-service: connected');
         this.requestDataFromDB();
       } else {
         if ("scores" in msg || m.type === 'ocr-text') {
@@ -142,11 +140,17 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
             }
           }
 
+          for (let i = 0; i < validResults.length; i++) {
+            validResults[i] = validResults[i].replace('.png', '.jpg');
+          }
+
           let queryResults = this.queryResults.toArray();
 
           for (let i = 0; i < queryResults.length; i++) {
             let currentResults = queryResults[i].nativeElement.firstElementChild?.getAttribute('src');
             let currentResultsVideoid = currentResults?.split("/").slice(-2).join("/");
+
+            console.log("slc: currentResultsVideoid: " + currentResultsVideoid);
 
             if (!validResults.includes(currentResultsVideoid!)) {
               this.deletedKeyFrames.push({
@@ -159,7 +163,6 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
           }
         } else {
           let result = msg.content;
-          //console.log("slc: response from node-service: " + result[0]);
           this.loadVideoShots(result[0]);
         }
       }
@@ -432,6 +435,8 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
    * *************************************************************************/
 
   performNewTextQuery() {
+    let dataset = this.classifyVideoId(this.videoid!);
+
     let qi = this.queryinput.trim();
 
     if (qi === '') {
@@ -454,14 +459,14 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
         maxresults: 1000,
         resultsperpage: 1000,
         selectedpage: '1',
-        dataset: this.selectedDataset,
-        videofiltering: this.selectedVideoFiltering
+        dataset: dataset,
+        videofiltering: 'all'
       };
       //this.previousQuery = msg;
 
-      msg.dataset = this.selectedDataset;
+      msg.dataset = dataset;
       msg.type = this.selectedQueryType;
-      msg.videofiltering = this.selectedVideoFiltering;
+      msg.videofiltering = 'all';
 
       this.queryTimestamp = this.getTimestampInSeconds();
 
@@ -503,8 +508,8 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
   getQueryTypes() {
     return [
       { id: 'textquery', name: 'Free-Text' },
-      { id: 'ocr-text', name: 'OCR-Text' },
-      { id: 'speech', name: 'Speech' }
+      { id: 'ocr-text', name: 'OCR-Text' }
+      //{ id: 'speech', name: 'Speech' } // Speech is not implemented on a per keyframe basis as of now
     ];
   }
 
