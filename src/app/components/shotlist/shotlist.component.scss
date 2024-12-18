@@ -23,6 +23,11 @@ button {
     margin: 0 3px 0 3px;
 }
 
+.headerkeyword {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
 .video {
     position: absolute;
     bottom: 60px;
@@ -41,7 +46,6 @@ button {
 }
 
 .videosubmitinfo {
-    //background-color: rgba(0,139,139,0.8);
     color: rgba(0,110,0,0.8);
     font-size: 14pt;
     font-weight: bold;
@@ -56,7 +60,6 @@ button {
     padding: 16px;
     margin: 0px;
     background-color: rgba(0,0,0,0.9);
-    /*box-shadow: 5px 5px 10px rgba(0,0,0,0.5);*/
 }
 
 .videoheader {

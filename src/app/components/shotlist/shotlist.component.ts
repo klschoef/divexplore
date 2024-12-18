@@ -111,7 +111,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       this.framenumber = paraMap.get('id2')?.toString();
       this.titleService.setTitle('v' + this.videoid);
       console.log(`slc: ${this.videoid} ${this.framenumber}`);
-      this.keyframeBaseURL = this.globalConstants.thumbsBaseURL; //GlobalConstants.thumbsBaseURL;
+      this.keyframeBaseURL = this.globalConstants.thumbsXLBaseURL; //GlobalConstants.thumbsBaseURL;
       this.videoBaseURL = this.globalConstants.videosBaseURL; //GlobalConstants.videosBaseURL;
       this.datasetBase = 'keyframes'; //'thumbsXL';
 
@@ -496,7 +496,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
   }
 
   getBaseURL() {
-    return this.globalConstants.thumbsBaseURL;
+    return this.globalConstants.thumbsXLBaseURL;
   }
 
   resetPageAndPerformQuery() {

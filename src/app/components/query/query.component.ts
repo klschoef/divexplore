@@ -266,7 +266,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 this.loadMoreImages();
               } else if (m.type === 'videoinfo') {
                 const keyframes: Array<string> = m.content[0].shots.map((shot: Shot) => shot.keyframe); //get all keyframes
-                const updatedResults = keyframes.map(keyframe => this.globalConstants.thumbsBaseURL + '/' + this.queryresult_videoid[this.selectedItem] + "/" + keyframe);
+                const updatedResults = keyframes.map(keyframe => this.globalConstants.thumbsXLBaseURL + '/' + this.queryresult_videoid[this.selectedItem] + "/" + keyframe);
                 this.shotPreview = updatedResults;
                 this.displayedShots = [];
                 this.loadMoreShots();
@@ -790,7 +790,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   getBaseURLFromKey(selDat: string) {
-    return this.globalConstants.thumbsBaseURL; // GlobalConstants.thumbsBaseURL;
+    return this.globalConstants.thumbsXLBaseURL; // GlobalConstants.thumbsBaseURL;
   }
 
   getBaseURL() {
