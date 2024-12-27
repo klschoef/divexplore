@@ -35,6 +35,10 @@ export class GlobalConstantsService {
     return this.configService.getConfiguration().config_DATA_BASE_URL_VIDEOS;
   }
 
+  get imageFileExtension(): string {
+    return this.configService.getConfiguration().config_IMAGE_FILE_EXTENSION;
+  }
+
   get scrubVideosBaseURL(): string {
     return this.dataHost + 'scrubvideos/';
   }

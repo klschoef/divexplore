@@ -1178,7 +1178,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     if (this.file_sim_keyframe === keyframe) {
       target = '_self';
     }
-    window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg', GlobalConstants.replaceJPG_back2)) + '/' + this.selectedDataset + '/' + encodeURIComponent(this.datasetBase) + '/' + selectedPage, target);
+
+    let keyframe_file_ending = keyframe.split('.')[0] + '.' + this.globalConstants.imageFileExtension;
+
+    window.open('filesimilarity/' + encodeURIComponent(keyframe_file_ending) + '/' + this.selectedDataset + '/' + encodeURIComponent(this.datasetBase) + '/' + selectedPage, target);
   }
 
   sendFileSimilarityQuery(keyframe: string, pathprefix: string) {
