@@ -338,7 +338,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   onMouseMove(event: MouseEvent, i: number): void {
     if (event.ctrlKey || event.metaKey) {
       if (!this.isMouseOverShot) {
-        console.log("Mouse over shot");
         this.mouseOverShot(event, i);
       }
 
@@ -360,13 +359,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
       // Calculate mouse position and offset within the video
       const mouseX = event.clientX - rect.left;
-      console.log("MouseX:", mouseX, "VideoWidth:", videoWidth);
+      //console.log("MouseX:", mouseX, "VideoWidth:", videoWidth);
       const offsetRatio = mouseX / videoWidth;
 
       // Calculate the time offset based on the mouse position
       const timeOffset = offsetRatio * (2 * maxOffset) - maxOffset;
       const startTime = this.getTimeInSecondsFor(i) + timeOffset;
-      console.log("Time offset:", timeOffset, "Start time:", startTime);
+      //console.log("Time offset:", timeOffset, "Start time:", startTime);
 
       // Guard against invalid startTime values
       if (isFinite(startTime) && startTime >= 0) {
@@ -384,18 +383,18 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
-
   onMouseLeave(): void {
-    this.hoveredIndex = null;
-    this.videoSource = '';
-    this.videoLoading = false;
-    this.isCtrlPressed = false;
+    if (!this.isCtrlPressed) {
+      this.hoveredIndex = null;
+      this.videoSource = '';
+      this.videoLoading = false;
+      this.isMouseOverShot = false;
+    }
   }
 
   onMouseEnter(): void {
     this.videoLoaded = true;
     if (!this.isCtrlPressed) {
-      // Only hide keyframe if the video is fully loaded and ctrl is not pressed
       this.videoSource = '';
     }
   }
@@ -408,6 +407,12 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     return videoUrl;
   }
 
+  setVideoSource(videoUrl: string, video: HTMLVideoElement): void {
+    this.videoSource = videoUrl;
+    video.currentTime = 0;
+    video.load();
+  }
+
   checkVideoAvailability(index: number): void {
     const item = this.displayQueryResult[index];
     const videoId = item.split('/')[0];
@@ -415,29 +420,36 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     if (!this.preloadedVideos.has(videoId)) {
       const video = document.createElement('video');
-      video.preload = 'metadata'; // Preload metadata only on hover
+      video.preload = 'metadata';
       video.src = videoUrl;
 
       video.onloadedmetadata = () => {
         this.preloadedVideos.set(videoId, video);
         this.videoAvailable[index] = true;
+
         if (this.hoveredIndex === index) {
-          this.videoSource = videoUrl;
+          this.setVideoSource(videoUrl, video);
         }
       };
 
       video.onerror = () => {
         console.error(`Failed to load video with ID: ${videoId}`);
+        this.videoAvailable[index] = false;
       };
     } else {
-      this.videoAvailable[index] = true;
-      if (this.hoveredIndex === index) {
-        this.videoSource = videoUrl;
+      const preloadedVideo = this.preloadedVideos.get(videoId);
+      if (preloadedVideo) {
+        this.videoAvailable[index] = true;
+        if (this.hoveredIndex === index) {
+          this.setVideoSource(videoUrl, preloadedVideo);
+        }
       }
     }
   }
 
   mouseOverShot(event: MouseEvent, i: number) {
+    if (this.hoveredIndex === i) return;
+
     this.showButtons = i;
     this.getFPSForItem(i);
     this.hoveredIndex = i;
@@ -446,8 +458,19 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     if (event.ctrlKey || event.metaKey) {
       this.isMouseOverShot = true;
+      const videoId = this.displayQueryResult[i].split('/')[0];
+      const videoPlayer = this.preloadedVideos.get(videoId);
+
+      if (videoPlayer) {
+        this.setVideoSource(videoPlayer.src, videoPlayer);
+        videoPlayer.play();
+      } else {
+        console.warn(`Video player not ready for ID: ${videoId}`);
+      }
     }
   }
+
+
   mouseLeaveShot(i: number) {
     this.isMouseOverShot = false;
     this.showButtons = -1;
