@@ -97,6 +97,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   preloadedVideos: Map<string, HTMLVideoElement> = new Map(); //used in video scrubbing
   videoLoading: boolean = false;
   isCtrlPressed: boolean = false;
+  shotsInfo: { [videoId: string]: any } = {};
 
   // Toast
   showToast: boolean = false;
@@ -265,7 +266,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
                 this.displayedImages = [];
                 this.loadMoreImages();
               } else if (m.type === 'videoinfo') {
-                const keyframes: Array<string> = m.content[0].shots.map((shot: Shot) => shot.keyframe); //get all keyframes
+                const shots = m.content[0].shots;
+                this.shotsInfo[m.content[0].videoid] = shots;
+                this.queryresult_fps.set(m.content[0].videoid, m.content[0].fps);
+                const keyframes: Array<string> = m.content[0].shots.map((shot: Shot) => shot.keyframe);
                 const updatedResults = keyframes.map(keyframe => this.globalConstants.thumbsBaseURL + '/' + this.queryresult_videoid[this.selectedItem] + "/" + keyframe);
                 this.shotPreview = updatedResults;
                 this.displayedShots = [];
@@ -341,8 +345,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         this.mouseOverShot(event, i);
       }
 
-      const maxOffset = 10; // Time before and after shot in seconds
-
       if (!this.videoAvailable[i] || this.hoveredIndex !== i) return;
 
       const videoPlayer = (event.target as HTMLVideoElement);
@@ -354,22 +356,40 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         videoPlayer.load();
       }
 
+      const videoId = this.queryresult_videoid[i];
+
+      // Check if shots data is already loaded for this videoId
+      if (!this.shotsInfo[videoId]) {
+        console.log("Shots info not available for", videoId);
+        console.log(this.shotsInfo);
+        return; // Or handle the case where data is not yet available
+      }
+
+      const shots = this.shotsInfo[videoId];
+
+      // Find the matching shot based on the keyframe (if necessary)
+      const keyframe = this.queryresult_frame[i];
+      const matchingShot = shots.find((shot: Shot) => shot.keyframe.includes(keyframe));
+
+      if (!matchingShot) {
+        console.error("Matching shot not found for keyframe:", keyframe);
+        return;
+      }
+
+      const videofps = this.queryresult_fps.get(videoId)!;
+
       const rect = videoPlayer.getBoundingClientRect();
       const videoWidth = rect.width;
 
-      // Calculate mouse position and offset within the video
+      // Calculate the mouse position and offset within the video
       const mouseX = event.clientX - rect.left;
-      //console.log("MouseX:", mouseX, "VideoWidth:", videoWidth);
-      const offsetRatio = mouseX / videoWidth;
-
-      // Calculate the time offset based on the mouse position
-      const timeOffset = offsetRatio * (2 * maxOffset) - maxOffset;
-      const startTime = this.getTimeInSecondsFor(i) + timeOffset;
-      //console.log("Time offset:", timeOffset, "Start time:", startTime);
+      const offsetRatio = mouseX / videoWidth; // Range: 0 (left) to 1 (right)
+      const startFrame = matchingShot.from + offsetRatio * (matchingShot.to - matchingShot.from);
+      const startTime = startFrame / videofps;
 
       // Guard against invalid startTime values
       if (isFinite(startTime) && startTime >= 0) {
-        videoPlayer.currentTime = Math.max(0, startTime); // Set the video time
+        videoPlayer.currentTime = Math.max(0, startTime);
       } else {
         console.error("Invalid startTime:", startTime);
       }
@@ -453,6 +473,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.showButtons = i;
     this.getFPSForItem(i);
     this.hoveredIndex = i;
+
+    if (this.shotsInfo[this.queryresult_videoid[i]] === undefined) {
+      console.log("Shots info not available for", this.queryresult_videoid[i]);
+      this.loadShotList(this.queryresult_videoid[i]);
+    }
 
     this.checkVideoAvailability(this.hoveredIndex!);
 
@@ -928,7 +953,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   loadShotList(videoid: string) {
     if (this.nodeService.connectionState === WSServerStatus.CONNECTED) {
-      console.log('slc: get video info from database', videoid);
       let msg = {
         type: "videoinfo",
         videoid: videoid

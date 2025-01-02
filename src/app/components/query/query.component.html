@@ -105,10 +105,11 @@
           (click)="setContent('shots')">
           <mat-icon>search</mat-icon>
         </button>
+        <!-- !!!!!!!!!!!!!!! Exploration Temporary disabled !!!!!!!!!!!!!!! 
         <button class="top-left-button" [class.active]="activeButton === 'explore'" mat-icon-button matTooltip="Explore View" matTooltipPosition="above"
           (click)="setContent('explore')">
           <mat-icon>explore</mat-icon>
-        </button>
+        </button> -->
       </div>
       <button class="videosummaryheader" matTooltip="Go to Shotlist" matTooltipPosition="above"
         (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video
@@ -133,6 +134,7 @@
         <video #videopreview [src]="videoPlayPreview" controls></video>
         <!-- <img [src]="videoSummaryLargePreview" (click)="closeVideoPreview()"> -->
       </div>
+      <!--  !!!!!!!!!!!!!!! Exploration Temporary disabled !!!!!!!!!!!!!!!
       <div *ngIf="currentContent === 'explore'" class="explore-container">
         <div class="explore-ui-overlay">
           <div class="explore-ui-slider">
@@ -146,6 +148,7 @@
             [style.width.%]="100 / columnsCountExplore - 2" (click)="exploreToShotlist(imgUrl)">
         </div>
       </div>
+      -->
       <div *ngIf="currentContent==='shots'" class="shots-container">
         <div class="shots-ui-overlay">
           <div class="shots-ui-slider">
