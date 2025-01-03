@@ -1422,6 +1422,15 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     this.submittedFrame = videoid;
 
+    if (this.currentContent === 'video' && this.showPreview) { //Check if currently in video preview (to submit time instead of frame)
+      let videoElement = this.videopreview.nativeElement;
+      let currentTime = videoElement.currentTime;
+      let fps = this.queryresult_fps.get(videoid);
+      let frame = Math.floor(currentTime * fps!);
+
+      frameNumber = frame.toString();
+    }
+
     let msg = {
       type: "videofps",
       synchronous: true,
@@ -1436,7 +1445,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.nodeService.sendMessageAndWait(message).subscribe((response) => {
       this.vbsService.submitFrame(videoid, parseInt(frameNumber), response.fps, response.duration, this.selectedDataset);
 
-      console.log("Submitting video " + videoid + " frame " + frameNumber + " from dataset " + this.selectedDataset + " with fps " + response.fps + " and duration " + response.duration + " seconds")
       //query event logging
       let queryEvent: QueryEvent = {
         timestamp: Date.now(),
