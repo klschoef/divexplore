@@ -51,7 +51,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
   vtags = [];
   vcategories = [];
   vtexts = [];
-  vspeech: any | undefined;
+  vspeech: any = [];
 
   topicanswer: string = '';
   answerFieldHasFocus = false;
@@ -249,7 +249,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       this.vtags = videoinfo['tags'];
       this.vcategories = videoinfo['categories'];
       this.vtexts = videoinfo['texts'];
-      this.vspeech = videoinfo['speech'];
+      this.vspeech = videoinfo['asr'];
     }
     this.keyframes = [];
     this.framenumbers = [];

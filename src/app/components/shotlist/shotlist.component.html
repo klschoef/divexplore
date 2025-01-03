@@ -58,11 +58,11 @@
         <span class="keyword">{{vchannel}}</span>
         <span *ngIf="vtexts.length > 0">
             <h3 class="videoheader">Detected Text</h3>
-            <span class="keyword" *ngFor="let txt of vtexts">{{txt['frame']}}: {{txt['text']}}</span>
+            <span class="keyword" *ngFor="let txt of vtexts">{{txt['text']}}</span>
         </span>
-        <span *ngIf="vspeech">
+        <span *ngIf="vspeech.length > 0">
             <h3 class="videoheader">Detected Speech</h3>
-            <span class="keyword">{{vspeech['text']}}</span>
+            <span class="keyword" *ngFor="let txt of vspeech">{{txt['speech']}}</span>
         </span>
     </span>
 </div>
