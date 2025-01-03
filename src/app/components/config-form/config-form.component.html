@@ -1,35 +1,23 @@
 <form [formGroup]="configForm" (ngSubmit)="onSave()">
 
     <div class="form-row">
-      <label for="clipServerHost">Clip Server Host:</label>
+      <label for="clipServerHost">CLIP Server Host:</label>
       <input id="clipServerHost" type="text" size="40" formControlName="config_CLIP_SERVER_HOST">
     </div>
     <div class="form-row">
-      <label for="clipServerPort">Clip Server Port:</label>
+      <label for="clipServerPort">CLIP Server Port:</label>
       <input id="clipServerPort" type="text" size="10" formControlName="config_CLIP_SERVER_PORT">
     </div>
 
     <br/>
     <div class="form-row">
-      <label for="nodeServerHost">Node Server Host:</label>
+      <label for="nodeServerHost">Query Server Host:</label>
       <input id="nodeServerHost" type="text" size="40" formControlName="config_NODE_SERVER_HOST">
     </div>
     <div class="form-row">
-      <label for="nodeServerPort">Node Server Port:</label>
+      <label for="nodeServerPort">Query Server Port:</label>
       <input id="nodeServerPort" type="text" size="10" formControlName="config_NODE_SERVER_PORT">
     </div>
-
-    <br/>
-    <div class="form-row">
-        <label for="dataBaseUrl">Images Base URL:</label>
-        <input id="dataBaseUrl" type="text" size="40" formControlName="config_DATA_BASE_URL">
-      </div>
-
-    <br/>
-      <div class="form-row">
-        <label for="dataBaseUrlVideos">Videos Base URL:</label>
-        <input id="dataBaseUrlVideos" type="text" size="40" formControlName="config_DATA_BASE_URL_VIDEOS">
-      </div>
 
     <br/>
       <div class="form-row">
@@ -40,6 +28,17 @@
       <div class="form-row">
         <label for="password">DRES Password:</label>
         <input id="password" type="text" size="20" formControlName="config_PASS">
+      </div>
+
+      <br/>
+    <div class="form-row">
+        <label for="dataBaseUrl">Images Base URL:</label>
+        <input id="dataBaseUrl" type="text" size="40" formControlName="config_DATA_BASE_URL">
+      </div>
+
+      <div class="form-row">
+        <label for="dataBaseUrlVideos">Videos Base URL:</label>
+        <input id="dataBaseUrlVideos" type="text" size="40" formControlName="config_DATA_BASE_URL_VIDEOS">
       </div>
 
       <div class="form-row">
