@@ -133,10 +133,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   pages = ['1']
 
   // Helper properties for file similarity and node server info
-  file_sim_keyframe: string | undefined
-  file_sim_pathPrefix: string | undefined
-  file_sim_page: string = "1"
+  file_sim_keyframe: string | undefined;
+  file_sim_pathPrefix: string | undefined;
+  file_sim_page: string = "1";
   nodeServerInfo: string | undefined;
+  isSimilarityQuery = false;
 
   // Display ratios and base URLs
   imgWidth = this.globalConstants.imageWidth;
@@ -215,6 +216,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         this.file_sim_page = paraMap.get('page')!.toString();
         this.selectedPage = this.file_sim_page;
       }
+
+      if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
+        this.isSimilarityQuery = true;
+      }
+      //console.log('file similarity: ' + this.file_sim_keyframe + " - " + this.selectedDataset + " - " + this.file_sim_pathPrefix );
     });
 
     //already connected?
@@ -223,22 +229,37 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     } else {
       console.log('qc: node-service not connected yet');
     }
-    if (this.clipService.connectionState == WSServerStatus.CONNECTED) {
-      console.log('qc: CLIP-service already connected');
+
+    /*
+    //removed here (moved to subscribe callback) because Node server is not always connected yet
+    if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
       if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
+        console.log('perfoming similarity query');
         this.sendFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
       } else {
+        console.log('perfoming history last query');
         this.performHistoryLastQuery();
       }
     } else {
-      console.log('qc: CLIP-service not connected yet');
-    }
+      console.log('qc: Node server not connected yet');
+      //console.log('qc: CLIP-service not connected yet');
+    }*/
 
     this.nodeService.messages.subscribe(msg => {
       this.nodeServerInfo = undefined;
 
       if ('wsstatus' in msg) {
         console.log('qc: node-notification: connected');
+        if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
+          console.log('perfoming similarity query');
+          this.sendFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
+        } else {
+          //TODO: what is a historyLastQuery?
+          /*
+          console.log('perfoming history last query');
+          this.performHistoryLastQuery();
+          */
+        }
       } else {
         //let result = msg.content;
         let m = JSON.parse(JSON.stringify(msg));

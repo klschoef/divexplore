@@ -42,12 +42,18 @@ input[type="text"] {
 }
 
 //Top Bar
-.topBar {
+.topBar, .topBarSim {
     display: flex;
     vertical-align: middle;
     flex-wrap: wrap;
     flex-direction: row;
     justify-content: flex-start;
+    width: 100%;
+}
+
+.topBarSim h2 {
+    text-align: center;
+    align-items: center;
     width: 100%;
 }
 

@@ -1,5 +1,10 @@
 <div class="queryarea">
-  <div class="topBar">
+
+  <div class="topBarSim" *ngIf="isSimilarityQuery">
+    <h2>Similarity Search for {{this.file_sim_keyframe}}</h2>
+  </div>
+
+  <div class="topBar" *ngIf="!isSimilarityQuery">
     
       <a routerLink="/query" (click)="reloadComponent()"><img class="logo" src="assets/diveXplore_.png"></a>
       <div class="top-bar-left">
