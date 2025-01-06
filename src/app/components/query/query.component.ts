@@ -707,6 +707,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     if (!this.queryFieldHasFocus && !this.answerFieldHasFocus && !this.showConfigForm && !this.showHistoryActive) {
+      event.preventDefault();
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowLeft':
@@ -731,6 +732,15 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
             this.selectedSummaryIdx += 1;
             this.displayVideoSummary();
           }
+          break;
+        case 'Tab':
+          const contents: Array<'image' | 'thumbnail' | 'video' | 'shots' | 'explore'> = ['image', 'thumbnail', 'video', 'shots'];
+          let currentIndex = contents.indexOf(this.currentContent as 'image' | 'thumbnail' | 'video' | 'shots' | 'explore'); // Ensure the type matches
+          currentIndex = (currentIndex + 1) % contents.length; // Move to the next content, looping back to the start
+          const nextContent = contents[currentIndex];
+          console.log(currentIndex, nextContent);
+          this.setContent(nextContent);
+          this.currentContent = nextContent;
           break;
         case ' ':
           if (this.currentContent === 'explore') {
@@ -765,6 +775,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
               case '0':
                 this.showVideoShots(this.queryresult_videoid[this.selectedItem], this.queryresult_frame[this.selectedItem])
                 break;
+
             }
           }
           break;

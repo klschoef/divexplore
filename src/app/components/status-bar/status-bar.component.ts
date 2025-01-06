@@ -58,7 +58,7 @@ export class StatusBarComponent implements VbsServiceCommunication {
 
   onAnswerInputBlur() {
     this.answerFieldHasFocus = false
-    this.answerFieldFocusChange.emit(true);
+    this.answerFieldFocusChange.emit(false);
   }
 
   resetSubmissions() {
