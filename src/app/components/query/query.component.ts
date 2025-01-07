@@ -160,6 +160,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   videoReady: boolean[] = [];
   isMouseOverShot: boolean = false;
 
+  suggestions: string[] = [
+    'Bleeding', 'Grasper', 'Needlepassing', 'Thread-fragment', 'Bipolar-forceps',
+    'SuctionIrrigator', 'Clip', 'Needle-holder', 'Hook', 'Sealer-divider', 'Ovary',
+    'Irrigator', 'Rest', 'Uterus', 'Morcellator', 'Thread', 'Scissors', 'Needle'
+  ];
+  filteredSuggestions: string[] = [];
+
   constructor(
     private globalConstants: GlobalConstantsService,
     public vbsService: VBSServerConnectionService,
@@ -914,8 +921,36 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
+  filterSuggestions(): void {
+    if (this.queryinput) {
+      this.filteredSuggestions = this.suggestions.filter((action) =>
+        action.toLowerCase().includes(this.queryinput.toLowerCase())
+      );
+    } else {
+      this.filteredSuggestions = [];
+    }
+  }
+
+  onInputChange(): void {
+    if (this.selectedDataset === 'lhe' && this.selectedQueryType === 'predictions') {
+      this.filterSuggestions();
+    }
+  }
+
+  selectSuggestion(suggestion: string) {
+    // Set the query input to the selected suggestion
+    this.queryinput = suggestion;
+
+    // Clear the filtered suggestions list after selecting a suggestion
+    this.filteredSuggestions = [];
+  }
+
+
   onQueryInputFocus() {
     this.queryFieldHasFocus = true;
+    if (this.selectedDataset === 'lhe' && this.selectedQueryType === 'predictions') {
+      this.filterSuggestions();
+    }
   }
 
   onQueryInputBlur() {
@@ -1424,7 +1459,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     for (let i = 0; i < qresults.results.length; i++) {
       let e = qresults.results[i].replace('.png', GlobalConstants.replacePNG2);
-      console.log('qc: result ' + e);
       let filename = e.split('/');
       let videoid = filename[0];
       // Split the second part of the filename by underscore and take the last element

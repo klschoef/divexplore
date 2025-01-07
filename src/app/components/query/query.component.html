@@ -30,8 +30,15 @@
 
     <div class="inputGroup">
       <input class="inputField" type="text" id="queryinput" name="queryinput" ngModel #inputfield
-        [(ngModel)]="queryinput" (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()"
+        [(ngModel)]="queryinput" (ngModelChange)="onInputChange()" (keyup.enter)="performNewTextQuery()" (focus)="onQueryInputFocus()"
         (blur)="onQueryInputBlur()" placeholder="Input your query..." autofocus />
+
+        <div *ngIf="filteredSuggestions.length > 0" class="autocomplete-suggestions">
+          <div *ngFor="let suggestion of filteredSuggestions" class="suggestion-item" (click)="selectSuggestion(suggestion)">
+            {{ suggestion }}
+          </div>
+        </div>
+        
       <div *ngFor="let q of temporalQueries; let i = index" class="additionalQuery">
         <div class="arrowDown">&#x25BC;</div>
         <div class="inputWithIcon">
