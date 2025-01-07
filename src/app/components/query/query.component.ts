@@ -119,7 +119,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     { id: 'ocr-text', name: 'OCR-Text' },
     { id: 'metadata', name: 'Metadata' },
     { id: 'speech', name: 'Speech' },
-    { id: 'videoid', name: 'VideoId' }
+    { id: 'videoid', name: 'VideoId' },
+    { id: 'predictions', name: 'Predictions' }
   ];
   selectedVideoFiltering = 'all';
   videoFiltering = [
@@ -595,13 +596,21 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   private initializeMap(): void {
-    // Add the array to the map for 'v3c'
-    this.queryTypeMap.set('v3c', [...this.queryTypes]);
+    //filter out predictions for v3c
+    const filteredQueryTypesForV3C = this.queryTypes.filter(
+      qt => !['predictions'].includes(qt.id)
+    );
+    this.queryTypeMap.set('v3c', filteredQueryTypesForV3C);
 
-    // Filter and add the array for 'mvk' and 'lhe'
-    const filteredQueryTypes = this.queryTypes.filter(qt => !['metadata', 'speech'].includes(qt.id));
-    this.queryTypeMap.set('mvk', filteredQueryTypes);
-    this.queryTypeMap.set('lhe', filteredQueryTypes);
+    const filteredQueryTypesForMVK = this.queryTypes.filter(
+      qt => !['metadata', 'speech', 'predictions'].includes(qt.id)
+    );
+    this.queryTypeMap.set('mvk', filteredQueryTypesForMVK);
+
+    const filteredQueryTypesForLHE = this.queryTypes.filter(
+      qt => !['metadata', 'speech'].includes(qt.id)
+    );
+    this.queryTypeMap.set('lhe', filteredQueryTypesForLHE);
   }
 
   public getQueryTypes(key: string): typeof this.queryTypes {
@@ -1415,6 +1424,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     for (let i = 0; i < qresults.results.length; i++) {
       let e = qresults.results[i].replace('.png', GlobalConstants.replacePNG2);
+      console.log('qc: result ' + e);
       let filename = e.split('/');
       let videoid = filename[0];
       // Split the second part of the filename by underscore and take the last element
