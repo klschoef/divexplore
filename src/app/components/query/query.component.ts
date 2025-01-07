@@ -162,7 +162,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   suggestions: string[] = [
     'Bleeding', 'Grasper', 'Needlepassing', 'Thread-fragment', 'Bipolar-forceps',
-    'SuctionIrrigator', 'Clip', 'Needle-holder', 'Hook', 'Sealer-divider', 'Ovary',
+    'SuctionIrrigation', 'Clip', 'Needle-holder', 'Hook', 'Sealer-divider', 'Ovary',
     'Irrigator', 'Rest', 'Uterus', 'Morcellator', 'Thread', 'Scissors', 'Needle'
   ];
   filteredSuggestions: string[] = [];
