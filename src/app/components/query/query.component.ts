@@ -96,7 +96,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   videoLoaded = false;
   preloadedVideos: Map<string, HTMLVideoElement> = new Map(); //used in video scrubbing
   videoLoading: boolean = false;
-  isCtrlPressed: boolean = false;
+  isShiftPressed: boolean = false;
   shotsInfo: { [videoId: string]: any } = {};
 
   // Toast
@@ -361,7 +361,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   onMouseMove(event: MouseEvent, i: number): void {
-    if (event.ctrlKey || event.metaKey) {
+    if (event.shiftKey) {
       if (!this.isMouseOverShot) {
         this.mouseOverShot(event, i);
       }
@@ -373,7 +373,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
       if (videoPlayer.readyState === 0) {
         this.videoLoading = true;
-        this.isCtrlPressed = true;
+        this.isShiftPressed = true;
         videoPlayer.load();
       }
 
@@ -417,7 +417,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
       videoPlayer.oncanplay = () => {
         this.videoLoading = false;
-        this.isCtrlPressed = false;
+        this.isShiftPressed = false;
       };
     } else {
       this.onMouseLeave();
@@ -425,7 +425,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   onMouseLeave(): void {
-    if (!this.isCtrlPressed) {
+    if (!this.isShiftPressed) {
       this.hoveredIndex = null;
       this.videoSource = '';
       this.videoLoading = false;
@@ -435,7 +435,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   onMouseEnter(): void {
     this.videoLoaded = true;
-    if (!this.isCtrlPressed) {
+    if (!this.isShiftPressed) {
       this.videoSource = '';
     }
   }
@@ -502,7 +502,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     this.checkVideoAvailability(this.hoveredIndex!);
 
-    if (event.ctrlKey || event.metaKey) {
+    if (event.shiftKey) {
       this.isMouseOverShot = true;
       const videoId = this.displayQueryResult[i].split('/')[0];
       const videoPlayer = this.preloadedVideos.get(videoId);
