@@ -122,7 +122,7 @@
       </div>
       <button class="videosummaryheader" matTooltip="Go to Shotlist" matTooltipPosition="above"
         (click)="showVideoShots(this.queryresult_videoid[this.selectedItem],this.queryresult_frame[this.selectedItem])">Video
-        {{this.queryresult_videoid[this.selectedItem]}}
+        {{this.queryresult_videoid[this.selectedItem] + " - Frame " + this.queryresult_frame[this.selectedItem] + " - Second " + this.getTimeInSecondsFor(this.selectedItem)}}
         ({{this.selectedItem+1}}/{{this.queryresult_videoid.length}})
         &nbsp; (click this bar to open shot view)
       </button><br />
