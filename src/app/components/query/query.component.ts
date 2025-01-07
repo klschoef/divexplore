@@ -762,6 +762,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
             if (this.showPreview) this.showVideoPreview();
           }
           break;
+        case 's':
+          if (this.showPreview && this.currentContent != 'video') {
+            this.submitResult(this.selectedItem);
+          }
+          break;
         default:
           if (this.isNumericKey(event.key) && !this.showPreview) {
             this.gotoPage(event.key);
