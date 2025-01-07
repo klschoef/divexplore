@@ -567,16 +567,27 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   playVideoAtFrame(): void { //Start video preview at the selected frame
     this.getFPSForItem(this.selectedItem);
+    let videoId = this.queryresult_videoid[this.selectedItem];
+
+    if (this.shotsInfo[videoId] === undefined) {
+      console.log("Shots info not available for", videoId);
+      this.loadShotList(videoId);
+    }
 
     let frame = parseFloat(this.queryresult_frame[this.selectedItem]);
+    let keyframe = this.queryresult_frame[this.selectedItem];
     let fps = this.queryresult_fps.get(this.queryresult_videoid[this.selectedItem])!;
     let time = frame / fps;
+
+    const shots = this.shotsInfo[videoId];
+    const matchingShot = shots.find((shot: Shot) => shot.keyframe.includes(keyframe));
+    const startFrame = matchingShot.from / fps;
 
     const videoElement = this.videopreview.nativeElement;
 
     if (!Number.isNaN(time) && !(videoElement.currentTime > 0)) {
       console.log("Resetting...")
-      this.renderer.setProperty(videoElement, 'currentTime', time);
+      this.renderer.setProperty(videoElement, 'currentTime', startFrame);
       this.renderer.listen(videoElement, 'loadedmetadata', () => {
         videoElement.play();
       });
@@ -588,7 +599,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.queryTypeMap.set('v3c', [...this.queryTypes]);
 
     // Filter and add the array for 'mvk' and 'lhe'
-    const filteredQueryTypes = this.queryTypes.filter(qt => !['ocr-text', 'metadata', 'speech'].includes(qt.id));
+    const filteredQueryTypes = this.queryTypes.filter(qt => !['metadata', 'speech'].includes(qt.id));
     this.queryTypeMap.set('mvk', filteredQueryTypes);
     this.queryTypeMap.set('lhe', filteredQueryTypes);
   }
@@ -605,7 +616,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     let videoId = this.queryresult_videoid[this.selectedItem];
     let frame = this.queryresult_frame[this.selectedItem];
     let summary = this.summaries[this.selectedSummaryIdx];
-
     this.videoSummaryPreview = this.urlRetrievalService.getPreviewSummaryUrl(summary);
     //this.videoSummaryLargePreview = this.urlRetrievalService.getPreviewSummaryLargeUrl(summary);
     this.videoLargePreview = this.urlRetrievalService.getThumbnailLargeUrl(videoId, frame);
