@@ -273,6 +273,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         let m = JSON.parse(JSON.stringify(msg));
         if ("videoid" in msg) {
           this.queryresult_fps.set(m.videoid, m.fps);
+          console.log('fps received');
+          this.loadScrubbingVideo();
         } else {
           if ("scores" in msg || m.type === 'ocr-text') {
             this.handleQueryResponseMessage(msg);
@@ -368,33 +370,59 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
-  onMouseMove(event: MouseEvent, i: number): void {
-    if (event.shiftKey) {
-      if (!this.isMouseOverShot) {
-        this.mouseOverShot(event, i);
+  loadScrubbingVideo() {
+    if (this.hoveredIndex != null && this.isShiftPressed) { 
+      console.log("loading scrubbing video " + this.hoveredIndex)
+      var video = document.getElementById("scrubbingVideo"+this.hoveredIndex) as HTMLVideoElement;
+      if (video != null) {
+        video.src = this.getVideoSource(this.hoveredIndex)
+        video.load();
+      } else {
+        console.log("video element not loaded");
       }
+    }
+  }
 
-      if (!this.videoAvailable[i] || this.hoveredIndex !== i) return;
+  unloadScrubbingVideo() {
+    if (this.hoveredIndex != null) { 
+      console.log("unloading scrubbing video " + this.hoveredIndex)
+      var video = document.getElementById("scrubbingVideo"+this.hoveredIndex) as HTMLVideoElement;
+      if (video != null) {
+        video.src = "";
+      } else {
+        console.log("video element not loaded");
+      }
+    }
+  }
+
+  onMouseMove(event: MouseEvent, i: number): void {
+    if (event.shiftKey && this.hoveredIndex == i) {
+      /*if (!this.isMouseOverShot) {
+        this.mouseOverShot(event, i);
+      }*/
+
+      //if (!this.videoAvailable[i] || this.hoveredIndex !== i) return;
+      //if (!this.videoAvailable[i]) return;
 
       const videoPlayer = (event.target as HTMLVideoElement);
       if (!videoPlayer) return;
 
-      if (videoPlayer.readyState === 0) {
+      /*if (videoPlayer.readyState === 0) {
         this.videoLoading = true;
         this.isShiftPressed = true;
         videoPlayer.load();
-      }
+      }*/
 
       const videoId = this.queryresult_videoid[i];
 
       // Check if shots data is already loaded for this videoId
-      if (!this.shotsInfo[videoId]) {
+      const shots = this.shotsInfo[videoId];
+      if (!shots) {
         console.log("Shots info not available for", videoId);
         console.log(this.shotsInfo);
         return; // Or handle the case where data is not yet available
       }
 
-      const shots = this.shotsInfo[videoId];
 
       // Find the matching shot based on the keyframe (if necessary)
       const keyframe = this.queryresult_frame[i];
@@ -423,34 +451,35 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         console.error("Invalid startTime:", startTime);
       }
 
-      videoPlayer.oncanplay = () => {
+      /*videoPlayer.oncanplay = () => {
         this.videoLoading = false;
         this.isShiftPressed = false;
-      };
-    } else {
+      };*/
+    } /*else {
       this.onMouseLeave();
-    }
+    }*/
   }
 
   onMouseLeave(): void {
-    if (!this.isShiftPressed) {
+    /*if (!this.isShiftPressed) {
       this.hoveredIndex = null;
       this.videoSource = '';
       this.videoLoading = false;
       this.isMouseOverShot = false;
-    }
+    }*/
   }
 
   onMouseEnter(): void {
-    this.videoLoaded = true;
+    /*this.videoLoaded = true;
     if (!this.isShiftPressed) {
       this.videoSource = '';
-    }
+    }*/
   }
 
   getVideoSource(item: any) {
-    let parts = item.split('/');
-    let videoId = parts[0];
+    let videoId = this.queryresult_videoid[item];
+    //let parts = item.split('/');
+    //let videoId = parts[0];
 
     var videoUrl = this.globalConstants.scrubVideosBaseURL + videoId + '.mp4';
     return videoUrl;
@@ -501,27 +530,26 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
     this.showButtons = i;
     this.getFPSForItem(i);
-    this.hoveredIndex = i;
 
+    if (event.shiftKey) {
+      if (this.hoveredIndex != null) {
+        this.unloadScrubbingVideo();
+      }
+      this.hoveredIndex = i;
+
+      if (this.queryresult_fps.get(this.queryresult_videoid[i]) != undefined) {
+        this.loadScrubbingVideo();
+      }
+    } else {
+      this.hoveredIndex = i;
+    }
+    
     if (this.shotsInfo[this.queryresult_videoid[i]] === undefined) {
       console.log("Shots info not available for", this.queryresult_videoid[i]);
       this.loadShotList(this.queryresult_videoid[i]);
     }
-
-    this.checkVideoAvailability(this.hoveredIndex!);
-
-    if (event.shiftKey) {
-      this.isMouseOverShot = true;
-      const videoId = this.displayQueryResult[i].split('/')[0];
-      const videoPlayer = this.preloadedVideos.get(videoId);
-
-      if (videoPlayer) {
-        this.setVideoSource(videoPlayer.src, videoPlayer);
-        videoPlayer.play();
-      } else {
-        console.warn(`Video player not ready for ID: ${videoId}`);
-      }
-    }
+    
+    
   }
 
 
@@ -723,6 +751,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         case 'e':
           this.inputfield.nativeElement.focus();
           break;
+        case 'Shift':
+          this.isShiftPressed = false;
+          this.unloadScrubbingVideo();
+          break;
         case 'Escape':
           this.closeVideoPreview();
           break;
@@ -782,6 +814,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
           if (this.showPreview && this.currentContent != 'video') {
             this.submitResult(this.selectedItem);
           }
+          break;
+        case 'Shift':
+          this.isShiftPressed = true;
+          this.loadScrubbingVideo();
           break;
         default:
           if (this.isNumericKey(event.key) && !this.showPreview) {
