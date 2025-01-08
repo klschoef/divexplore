@@ -32,6 +32,11 @@ export class HistoryDialogComponent {
     this.historySelected.emit(item);
   }
 
+  resetHistory(): void {
+    let queryHistory: Array<QueryType> = [];
+    localStorage.setItem('history', JSON.stringify(queryHistory));
+  }
+
   loadHistory(): void {
     let hist = localStorage.getItem('history');
     if (hist) {

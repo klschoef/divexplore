@@ -371,9 +371,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   loadScrubbingVideo() {
-    if (this.hoveredIndex != null && this.isShiftPressed) { 
+    if (this.hoveredIndex != null && this.isShiftPressed) {
       console.log("loading scrubbing video " + this.hoveredIndex)
-      var video = document.getElementById("scrubbingVideo"+this.hoveredIndex) as HTMLVideoElement;
+      var video = document.getElementById("scrubbingVideo" + this.hoveredIndex) as HTMLVideoElement;
       if (video != null) {
         video.src = this.getVideoSource(this.hoveredIndex)
         video.load();
@@ -384,9 +384,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   unloadScrubbingVideo() {
-    if (this.hoveredIndex != null) { 
+    if (this.hoveredIndex != null) {
       console.log("unloading scrubbing video " + this.hoveredIndex)
-      var video = document.getElementById("scrubbingVideo"+this.hoveredIndex) as HTMLVideoElement;
+      var video = document.getElementById("scrubbingVideo" + this.hoveredIndex) as HTMLVideoElement;
       if (video != null) {
         video.src = "";
       } else {
@@ -543,13 +543,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     } else {
       this.hoveredIndex = i;
     }
-    
+
     if (this.shotsInfo[this.queryresult_videoid[i]] === undefined) {
       console.log("Shots info not available for", this.queryresult_videoid[i]);
       this.loadShotList(this.queryresult_videoid[i]);
     }
-    
-    
+
+
   }
 
 
@@ -1174,9 +1174,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       type: 'resetsubmission'
     }
     this.sendToNodeServer(message);
-
-    let queryHistory: Array<QueryType> = [];
-    localStorage.setItem('history', JSON.stringify(queryHistory));
   }
 
 

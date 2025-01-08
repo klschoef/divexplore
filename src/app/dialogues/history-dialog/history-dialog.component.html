@@ -14,5 +14,6 @@
     <ul>
         <li *ngFor="let item of displayHistory; let i = index" (click)="onHistoryItemClick(filteredHistory[i])" [innerHTML]="item"></li>
     </ul>
+    <button class="reset-button" (click)="resetHistory()">Reset History</button>
 </div>
 </expl-dialog>

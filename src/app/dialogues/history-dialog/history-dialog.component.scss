@@ -36,6 +36,16 @@
   li:hover {
     background-color: #f9f9f9;
   }
+
+  .reset-button {
+    margin-left: 10px;
+    padding: 8px 10px;
+    color: #fff;
+    border: 1px solid #c23939;
+    border-radius: 4px;
+    background-color: #c23939;
+    cursor: pointer;
+  }
   
   li:first-child {
     margin-top: 0;
