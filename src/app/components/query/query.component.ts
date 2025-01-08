@@ -159,6 +159,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   videoReady: boolean[] = [];
   isMouseOverShot: boolean = false;
+  scrubbingVideoLoaded = false;
 
   suggestions: string[] = [
     'Bleeding', 'Grasper', 'Needlepassing', 'Thread-fragment', 'Bipolar-forceps',
@@ -371,14 +372,16 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   loadScrubbingVideo() {
+    this.scrubbingVideoLoaded = false;
     if (this.hoveredIndex != null && this.isShiftPressed) {
       console.log("loading scrubbing video " + this.hoveredIndex)
       var video = document.getElementById("scrubbingVideo" + this.hoveredIndex) as HTMLVideoElement;
       if (video != null) {
+        this.scrubbingVideoLoaded = true;
         video.src = this.getVideoSource(this.hoveredIndex)
         video.load();
       } else {
-        console.log("video element not loaded");
+        console.log("video element " + this.hoveredIndex + " not loaded");
       }
     }
   }
@@ -390,13 +393,22 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       if (video != null) {
         video.src = "";
       } else {
-        console.log("video element not loaded");
+        console.log("video element " + this.hoveredIndex +" not loaded");
       }
     }
   }
 
   onMouseMove(event: MouseEvent, i: number): void {
+    //this.hoveredIndex = i;
     if (event.shiftKey && this.hoveredIndex == i) {
+
+      var video = document.getElementById("scrubbingVideo" + this.hoveredIndex) as HTMLVideoElement;
+      if (this.scrubbingVideoLoaded == false && video != null) {
+        this.scrubbingVideoLoaded = true;
+        video.src = this.getVideoSource(this.hoveredIndex)
+        video.load();
+      }
+
       /*if (!this.isMouseOverShot) {
         this.mouseOverShot(event, i);
       }*/
