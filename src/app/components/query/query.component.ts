@@ -353,6 +353,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     }
   }
 
+  /***************** Video Scrubbing Feature Start ***************************/
+
   loadScrubbingVideo() {
     this.scrubbingVideoLoaded = false;
     if (this.hoveredIndex != null && this.isShiftPressed) {
@@ -485,6 +487,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   }
 
   /***************** Video Scrubbing Feature End ***************************/
+
   shareVideo(i: number = -1) {
 
     let videoid = this.queryresult_videoid[this.selectedItem];
