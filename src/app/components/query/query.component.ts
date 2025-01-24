@@ -229,30 +229,13 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
         this.isSimilarityQuery = true;
       }
-      //console.log('file similarity: ' + this.file_sim_keyframe + " - " + this.selectedDataset + " - " + this.file_sim_pathPrefix );
     });
 
-    //already connected?
     if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
       console.log('qc: node-service already connected');
     } else {
       console.log('qc: node-service not connected yet');
     }
-
-    /*
-    //removed here (moved to subscribe callback) because Node server is not always connected yet
-    if (this.nodeService.connectionState == WSServerStatus.CONNECTED) {
-      if (this.file_sim_keyframe && this.file_sim_pathPrefix) {
-        console.log('perfoming similarity query');
-        this.sendFileSimilarityQuery(this.file_sim_keyframe, this.file_sim_pathPrefix);
-      } else {
-        console.log('perfoming history last query');
-        this.performHistoryLastQuery();
-      }
-    } else {
-      console.log('qc: Node server not connected yet');
-      //console.log('qc: CLIP-service not connected yet');
-    }*/
 
     this.nodeService.messages.subscribe(msg => {
       this.nodeServerInfo = undefined;
@@ -274,7 +257,6 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
         let m = JSON.parse(JSON.stringify(msg));
         if ("videoid" in msg) {
           this.queryresult_fps.set(m.videoid, m.fps);
-          console.log('fps received');
           this.loadScrubbingVideo();
         } else {
           if ("scores" in msg || m.type === 'ocr-text') {
@@ -374,11 +356,10 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   loadScrubbingVideo() {
     this.scrubbingVideoLoaded = false;
     if (this.hoveredIndex != null && this.isShiftPressed) {
-      console.log("loading scrubbing video " + this.hoveredIndex)
-      var video = document.getElementById("scrubbingVideo" + this.hoveredIndex) as HTMLVideoElement;
-      if (video != null) {
+      const video = document.getElementById("scrubbingVideo" + this.hoveredIndex) as HTMLVideoElement;
+      if (video) {
         this.scrubbingVideoLoaded = true;
-        video.src = this.getVideoSource(this.hoveredIndex)
+        video.src = this.getVideoSource(this.hoveredIndex);
         video.load();
       } else {
         console.log("video element " + this.hoveredIndex + " not loaded");
@@ -388,113 +369,59 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   unloadScrubbingVideo() {
     if (this.hoveredIndex != null) {
-      console.log("unloading scrubbing video " + this.hoveredIndex)
-      var video = document.getElementById("scrubbingVideo" + this.hoveredIndex) as HTMLVideoElement;
-      if (video != null) {
+      const video = document.getElementById("scrubbingVideo" + this.hoveredIndex) as HTMLVideoElement;
+      if (video) {
         video.src = "";
       } else {
-        console.log("video element " + this.hoveredIndex +" not loaded");
+        console.log("video element " + this.hoveredIndex + " not loaded");
       }
     }
   }
 
   onMouseMove(event: MouseEvent, i: number): void {
-    //this.hoveredIndex = i;
     if (event.shiftKey && this.hoveredIndex == i) {
-
-      var video = document.getElementById("scrubbingVideo" + this.hoveredIndex) as HTMLVideoElement;
-      if (this.scrubbingVideoLoaded == false && video != null) {
+      const video = document.getElementById("scrubbingVideo" + this.hoveredIndex) as HTMLVideoElement;
+      if (!this.scrubbingVideoLoaded && video) {
         this.scrubbingVideoLoaded = true;
-        video.src = this.getVideoSource(this.hoveredIndex)
+        video.src = this.getVideoSource(this.hoveredIndex);
         video.load();
       }
-
-      /*if (!this.isMouseOverShot) {
-        this.mouseOverShot(event, i);
-      }*/
-
-      //if (!this.videoAvailable[i] || this.hoveredIndex !== i) return;
-      //if (!this.videoAvailable[i]) return;
 
       const videoPlayer = (event.target as HTMLVideoElement);
       if (!videoPlayer) return;
 
-      /*if (videoPlayer.readyState === 0) {
-        this.videoLoading = true;
-        this.isShiftPressed = true;
-        videoPlayer.load();
-      }*/
-
       const videoId = this.queryresult_videoid[i];
-
-      // Check if shots data is already loaded for this videoId
       const shots = this.shotsInfo[videoId];
       if (!shots) {
         console.log("Shots info not available for", videoId);
-        console.log(this.shotsInfo);
-        return; // Or handle the case where data is not yet available
+        return;
       }
 
-
-      // Find the matching shot based on the keyframe (if necessary)
       const keyframe = this.queryresult_frame[i];
       const matchingShot = shots.find((shot: Shot) => shot.keyframe.includes(keyframe));
-
       if (!matchingShot) {
         console.error("Matching shot not found for keyframe:", keyframe);
         return;
       }
 
       const videofps = this.queryresult_fps.get(videoId)!;
-
       const rect = videoPlayer.getBoundingClientRect();
-      const videoWidth = rect.width;
-
-      // Calculate the mouse position and offset within the video
       const mouseX = event.clientX - rect.left;
-      const offsetRatio = mouseX / videoWidth; // Range: 0 (left) to 1 (right)
+      const offsetRatio = mouseX / rect.width;
       const startFrame = matchingShot.from + offsetRatio * (matchingShot.to - matchingShot.from);
       const startTime = startFrame / videofps;
 
-      // Guard against invalid startTime values
       if (isFinite(startTime) && startTime >= 0) {
         videoPlayer.currentTime = Math.max(0, startTime);
       } else {
         console.error("Invalid startTime:", startTime);
       }
-
-      /*videoPlayer.oncanplay = () => {
-        this.videoLoading = false;
-        this.isShiftPressed = false;
-      };*/
-    } /*else {
-      this.onMouseLeave();
-    }*/
-  }
-
-  onMouseLeave(): void {
-    /*if (!this.isShiftPressed) {
-      this.hoveredIndex = null;
-      this.videoSource = '';
-      this.videoLoading = false;
-      this.isMouseOverShot = false;
-    }*/
-  }
-
-  onMouseEnter(): void {
-    /*this.videoLoaded = true;
-    if (!this.isShiftPressed) {
-      this.videoSource = '';
-    }*/
+    }
   }
 
   getVideoSource(item: any) {
-    let videoId = this.queryresult_videoid[item];
-    //let parts = item.split('/');
-    //let videoId = parts[0];
-
-    var videoUrl = this.globalConstants.scrubVideosBaseURL + videoId + '.mp4';
-    return videoUrl;
+    const videoId = this.queryresult_videoid[item];
+    return this.globalConstants.scrubVideosBaseURL + videoId + '.mp4';
   }
 
   setVideoSource(videoUrl: string, video: HTMLVideoElement): void {
@@ -516,10 +443,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       video.onloadedmetadata = () => {
         this.preloadedVideos.set(videoId, video);
         this.videoAvailable[index] = true;
-
-        if (this.hoveredIndex === index) {
-          this.setVideoSource(videoUrl, video);
-        }
+        if (this.hoveredIndex === index) this.setVideoSource(videoUrl, video);
       };
 
       video.onerror = () => {
@@ -528,11 +452,8 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
       };
     } else {
       const preloadedVideo = this.preloadedVideos.get(videoId);
-      if (preloadedVideo) {
-        this.videoAvailable[index] = true;
-        if (this.hoveredIndex === index) {
-          this.setVideoSource(videoUrl, preloadedVideo);
-        }
+      if (preloadedVideo && this.hoveredIndex === index) {
+        this.setVideoSource(videoUrl, preloadedVideo);
       }
     }
   }
@@ -544,29 +465,21 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.getFPSForItem(i);
 
     if (event.shiftKey) {
-      if (this.hoveredIndex != null) {
-        this.unloadScrubbingVideo();
-      }
+      if (this.hoveredIndex != null) this.unloadScrubbingVideo();
       this.hoveredIndex = i;
-
-      if (this.queryresult_fps.get(this.queryresult_videoid[i]) != undefined) {
+      if (this.queryresult_fps.get(this.queryresult_videoid[i]) !== undefined) {
         this.loadScrubbingVideo();
       }
     } else {
       this.hoveredIndex = i;
     }
 
-    if (this.shotsInfo[this.queryresult_videoid[i]] === undefined) {
-      console.log("Shots info not available for", this.queryresult_videoid[i]);
+    if (!this.shotsInfo[this.queryresult_videoid[i]]) {
       this.loadShotList(this.queryresult_videoid[i]);
     }
-
-
   }
 
-
   mouseLeaveShot(i: number) {
-    this.isMouseOverShot = false;
     this.showButtons = -1;
     this.hoveredIndex = null;
   }

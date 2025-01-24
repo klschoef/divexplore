@@ -1,19 +1,18 @@
 import { ViewChild, ElementRef, AfterViewInit, Component } from '@angular/core';
 import { ViewChildren, QueryList } from '@angular/core';
-import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { VBSServerConnectionService } from '../../services/vbsserver-connection/vbsserver-connection.service';
 import { VbsServiceCommunication } from '../../shared/interfaces/vbs-task-interface';
 import { NodeServerConnectionService } from '../../services/nodeserver-connection/nodeserver-connection.service';
 import { ClipServerConnectionService } from '../../services/clipserver-connection/clipserver-connection.service';
-import { formatAsTime, getTimestampInSeconds, GlobalConstants, WSServerStatus } from '../../shared/config/global-constants';
-import { mdiConsoleLine } from '@mdi/js';
+import { formatAsTime, GlobalConstants, WSServerStatus } from '../../shared/config/global-constants';
 import { ApiClientAnswer, QueryEvent, QueryEventCategory, RankedAnswer } from 'openapi/dres';
 import { Title } from '@angular/platform-browser';
 import { MessageBarComponent } from '../message-bar/message-bar.component';
 import { Subscription } from 'rxjs';
 import { GlobalConstantsService } from '../../shared/config/services/global-constants.service';
 
-const regExpBase = new RegExp('^\\d+$'); //i for case-insensitive (not important in this example anyway)
+const regExpBase = new RegExp('^\\d+$');
 
 
 @Component({
@@ -33,8 +32,8 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
   private dresErrorMessageSubscription!: Subscription;
   private dresSuccessMessageSubscription!: Subscription;
 
-  public statusTaskInfoText: string = ""; //property binding
-  statusTaskRemainingTime: string = ""; //property binding
+  public statusTaskInfoText: string = "";
+  statusTaskRemainingTime: string = "";
 
   imgWidth = this.globalConstants.imageWidth;
   imgHeight = this.globalConstants.imageWidth / GlobalConstants.imgRatio;
@@ -95,8 +94,8 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       this.framenumber = paraMap.get('id2')?.toString();
       this.titleService.setTitle('v' + this.videoid);
       console.log(`slc: ${this.videoid} ${this.framenumber}`);
-      this.keyframeBaseURL = this.globalConstants.thumbsBaseURL; //GlobalConstants.thumbsBaseURL;
-      this.videoBaseURL = this.globalConstants.videosBaseURL; //GlobalConstants.videosBaseURL;
+      this.keyframeBaseURL = this.globalConstants.thumbsBaseURL;
+      this.videoBaseURL = this.globalConstants.videosBaseURL;
       this.datasetBase = 'keyframes'; //'thumbsXL';
 
     });
@@ -106,18 +105,14 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
       this.requestDataFromDB();
     }
     this.nodeService.messages.subscribe(msg => {
-      //console.log(`slc: response from node service: ${msg}`)
       if ('wsstatus' in msg) {
-        //console.log('slc: node-service: connected');
         this.requestDataFromDB();
       } else {
         let result = msg.content;
-        //console.log("slc: response from node-service: " + result[0]);
         this.loadVideoShots(result[0]);
       }
     });
 
-    //repeatedly retrieve task info
     setInterval(() => {
       this.requestTaskInfo();
     }, 1000);
@@ -178,9 +173,7 @@ export class ShotlistComponent implements AfterViewInit, VbsServiceCommunication
   }
 
   performFileSimilarityQuery(keyframe: string) {
-    //this.router.navigate(['filesimilarity',keyframe,this.datasetBase]); //or navigateByUrl(`/video/${videoid}`)
     let dataset = this.classifyVideoId(this.videoid!);
-    //console.log(this.videoid + " --> " + dataset);
     window.open('filesimilarity/' + encodeURIComponent(keyframe.replace('.jpg', GlobalConstants.replaceJPG_back2)) + '/' + dataset + '/' + encodeURIComponent(this.datasetBase), '_blank');
   }
 
