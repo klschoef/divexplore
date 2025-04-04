@@ -27,7 +27,7 @@ export class ConfigFormComponent implements OnInit {
       config_IMAGE_WIDTH: 236,
       config_EXPLORE_RESULTS_PER_LOAD: 15,
       config_SHOTS_RESULTS_PER_LOAD: 40,
-      config_IMAGE_FILE_EXTENSION: 'png',
+      config_IMAGE_FILE_EXTENSION: 'jpg',
       config_SHOW_SUBMITTED_FRAMES: false, //Not used right now
       // ...add other fields
     });
