@@ -4,12 +4,17 @@ After developing diveXplore since 2012, we decided to make diveXplore open-sourc
 
 ## OpenAPI Integration/DRES setup ⚙️
 These files are needed to allow for a connection to the DRES servers, used during competitions like the VBS and IVR4B. Execute these one after the other to set up the necessary prerequisites.
-run `npm install @openapitools/openapi-generator-cli -g`
-run `npm install -g ng-openapi-gen`
 
-Finally, generate the TypeScript files with these commands:
-`npm run-script gen-dres-client`
-`npm run-script gen-dres-dev-client`
+```bash
+npm install @openapitools/openapi-generator-cli -g
+npm install -g ng-openapi-gen
+```
+
+Then, generate the TypeScript files with these commands:
+```bash
+npm run-script gen-dres-client
+npm run-script gen-dres-dev-client
+```
 
 ## Start Server 🏃‍♀️‍➡️
 Run `ng serve` to start the frontend server. Using the default configurations, diveXplore will launch on `http://localhost:4200/`. If you change any of the source code, the application will automatically reload.
