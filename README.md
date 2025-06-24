@@ -122,9 +122,9 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 <p align="center">All contributions are welcome! To contribute:</p>
 
 <table align="center">
-  <tr><td align="center">1. Fork the repository</td></tr>
-  <tr><td align="center">2. Create a new branch for your feature or bugfix</td></tr>
-  <tr><td align="center">3. Submit a pull request</td></tr>
+  <tr><td align="left">1. Fork the repository</td></tr>
+  <tr><td align="left">2. Create a new branch for your feature or bugfix</td></tr>
+  <tr><td align="left">3. Submit a pull request</td></tr>
 </table>
 
 
