@@ -58,7 +58,6 @@ python3 combine_analysis_files.py output/video_fps.txt output/scenes/ output/ocr
 You have now successfully analyzed all your videos and populated the database!
 
 ---
----
 
 # <p align="center">Middleware</p>
 <p align="center">This section handles the FAISS index server, as well as the NodeJS server.</p>
@@ -79,7 +78,6 @@ npm i
 npm start
 ```
 
----
 ---
 
 # <p align="center">Frontend</p>
