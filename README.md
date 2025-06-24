@@ -85,7 +85,7 @@ npm start
 # <p align="center">Frontend</p>
 <p align="center">This section handles the frontend setup, as well as the connection with the DRES servers.</p>
 
-## OpenAPI Integration/DRES setup ⚙️
+## ⚙️ OpenAPI Integration/DRES setup 
 These files are needed to allow for a connection to the DRES servers, used during competitions like the VBS and IVR4B. Execute these one after the other to set up the necessary prerequisites.
 
 ```bash
@@ -101,7 +101,7 @@ npm run-script gen-dres-client
 npm run-script gen-dres-dev-client
 ```
 
-## Start Server 🏃‍♀️‍➡️
+## 🏃‍♀️‍➡️ Start Server 
 Make sure you have installed NPM v18+ and the Angular CLI.
 
 ```bash
@@ -111,7 +111,7 @@ npm start
 ```
 Run `ng serve` or `npm start` to start the frontend server. Using the default configurations, diveXplore will launch on `http://localhost:4200/`. If you change any of the source code, the application will automatically reload.
 
-## Build 🔨
+## 🔨 Build 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
 ---
