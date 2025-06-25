@@ -1,4 +1,4 @@
-# ![Logo of diveXplore.](/assets/diveXplore.png) 
+# ![Logo of diveXplore.](frontend/src/assets/diveXplore.png) 
 # <p align="center">DiveXplore Backend</p>
 This is the backend for diveXplore, our open-source video retrieval software. This section of the project handles all data preprocessing. The processed data is then utilized by the middleware and frontend of diveXplore to deliver a seamless user experience.
 
