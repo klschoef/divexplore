@@ -97,7 +97,7 @@ npm start
 <p align="center">This section handles the frontend setup, as well as the connection with the DRES servers.</p>
 
 ## 🚀 Getting Started
-In order to launch the frontend, the DRES-relevant TypeScript files have to be installed. Additionally, like in the middleware, a config file has to be created.
+In order to launch the frontend, the DRES-relevant TypeScript files have to be generated. Additionally, like in the middleware, a config file has to be created.
 
 ### Prerequisites
 These files are needed to allow for a connection to the DRES servers, used during competitions like the VBS and IVR4B. Execute these one after the other to set up the necessary prerequisites.
