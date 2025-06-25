@@ -117,7 +117,7 @@ cd frontend
 npm run-script gen-dres-client
 npm run-script gen-dres-dev-client
 ```
-To connect the frontend to the backend, create a local-config.ts file under src/app/shared/config/. In this directory is a local-config-example.ts. You can just duplicate this file and rename it accordingly. If you followed the previous steps as described, the example config should work as is. 
+To connect the frontend to the backend, create a local-config.ts file under src/app/shared/config/. In this directory is a local-config-example.ts. You can just duplicate this file and rename it accordingly. If you followed the previous steps as described, the example config should work as is. Otherwise, you can change the settings by clicking the "Wheel" icon in the frontend or by changing the local-config accordingly.
 
 ## 🏃‍♀️‍➡️ Start Server 
 Make sure you have installed NPM v18+ and the Angular CLI.
