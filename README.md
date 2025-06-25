@@ -51,7 +51,7 @@ chmod +x process_video.sh
 
 After the initial analysis, this script generates OpenCLIP features for each keyframe that was extracted.
 ```bash
-cd backend
+cd backend/analysis
 python3 extract_openclip_image_features.py
 ```
 **3. Database Integration**
