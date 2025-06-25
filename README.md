@@ -1,6 +1,12 @@
-# ![Logo of diveXplore.](frontend/src/assets/diveXplore.png) 
-# <p align="center">DiveXplore Backend</p>
-This is the backend for diveXplore, our open-source video retrieval software. This section of the project handles all data preprocessing. The processed data is then utilized by the middleware and frontend of diveXplore to deliver a seamless user experience.
+# <p align="center">![Logo of diveXplore.](frontend/src/assets/diveXplore.png)</p>
+<p align="center"> DiveXplore is an open-source software designed for interactive video retrieval. It has successfully competed in various international competitions, such as the "Video Browser Showdown (VBS)" and "Interactive Video Retrieval 4 Beginners (IVR4B)".
+After developing diveXplore since 2012, we decided to make diveXplore open-source for others to contribute to the software or use components of it in their own video retrieval systems.</p>
+
+---
+---
+
+# <p align="center">Backend</p>
+<p align="center">This section of the project handles all data preprocessing. The processed data is then utilized by the middleware and frontend of diveXplore to deliver a seamless user experience.</p>
 
 ## 🚀 Getting Started 
 To get the backend up and running, please follow the steps below.
@@ -48,13 +54,22 @@ The final step is to collate all the generated information and add it to your Mo
 ```bash
 cd backend
 python3 combine_analysis_files.py output/video_fps.txt output/scenes/ output/ocr/ output/asr/ output/summaries/
+python3 create_texts_mongodb.py
 ```
 You have now successfully analyzed all your videos and populated the database!
 
---- 
---- 
+### Hosting Images and Videos
+The easiest way to host the keyframes/summaries/videos etc. is to move the videos to a folder /videos inside of backend/output/. After that, host a simple server with python from within the /output directory:
+```bash
+python3 -m http.server
+```
+If you`re using your own hosting service, change the config files in the back-/frontend accordingly.
+
+---
+
 # <p align="center">Middleware</p>
-This is the middleware for diveXplore, our open-source video retrieval software. This section handles the FAISS index server, as well as the NodeJS server.
+<p align="center">This section handles the FAISS index server, as well as the NodeJS server.</p>
+
 ## ⚙️ Usage
 **1. Start the FAISS Index Server**
 ```bash
@@ -70,7 +85,54 @@ cd middleware/node
 npm i
 npm start
 ```
+---
+
+# <p align="center">Frontend</p>
+<p align="center">This section handles the frontend setup, as well as the connection with the DRES servers.</p>
+
+## 🚀 Getting Started
+In order to launch the frontend, the DRES-relevant TypeScript files have to be installed. Additionally, like in the middleware, a config file has to be created.
+
+### Prerequisites
+These files are needed to allow for a connection to the DRES servers, used during competitions like the VBS and IVR4B. Execute these one after the other to set up the necessary prerequisites.
+```bash
+cd frontend
+npm install @openapitools/openapi-generator-cli -g
+npm install -g ng-openapi-gen
+```
+
+Then, generate the TypeScript files with these commands:
+```bash
+cd frontend
+npm run-script gen-dres-client
+npm run-script gen-dres-dev-client
+```
+To connect the frontend to the backend, create a local-config.ts file under src/app/shared/config/. In this directory is a local-config-example.ts. You can just duplicate this file and rename it accordingly. If you followed the previous steps as described, the example config should work as is. 
+
+## 🏃‍♀️‍➡️ Start Server 
+Make sure you have installed NPM v18+ and the Angular CLI.
+
+```bash
+cd frontend
+npm install
+npm start
+```
+Run `ng serve` or `npm start` to start the frontend server. Using the default configurations, diveXplore will launch on `http://localhost:4200/`. If you change any of the source code, the application will automatically reload.
+
+## 🔨 Build 
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+
+---
+---
+
+# <p align="center">🤝 Contributions</p>
+
+<p align="center">All contributions are welcome! To contribute:</p>
+
+<table align="center">
+  <tr><td align="left">1. Fork the repository</td></tr>
+  <tr><td align="left">2. Create a new branch for your feature or bugfix</td></tr>
+  <tr><td align="left">3. Submit a pull request</td></tr>
+</table>
 
 
-🔗Frontend
-Looking for the user-facing parts of diveXplore? You can find the frontend at the following repository: https://github.com/klschoef/divexplore
