@@ -77,15 +77,16 @@ cd middleware/node
 npm i
 npm start
 ```
-
 ---
 
 # <p align="center">Frontend</p>
 <p align="center">This section handles the frontend setup, as well as the connection with the DRES servers.</p>
 
-## ⚙️ OpenAPI Integration/DRES setup 
-These files are needed to allow for a connection to the DRES servers, used during competitions like the VBS and IVR4B. Execute these one after the other to set up the necessary prerequisites.
+## 🚀 Getting Started
+In order to launch the frontend, the DRES-relevant TypeScript files have to be installed. Additionally, like in the middleware, a config file has to be created.
 
+### Prerequisites
+These files are needed to allow for a connection to the DRES servers, used during competitions like the VBS and IVR4B. Execute these one after the other to set up the necessary prerequisites.
 ```bash
 cd frontend
 npm install @openapitools/openapi-generator-cli -g
@@ -98,6 +99,7 @@ cd frontend
 npm run-script gen-dres-client
 npm run-script gen-dres-dev-client
 ```
+To connect the frontend to the backend, create a local-config.ts file under src/app/shared/config/. In this directory is a local-config-example.ts. You can just duplicate this file and rename it accordingly. If you followed the previous steps as described, the example config should work as is. 
 
 ## 🏃‍♀️‍➡️ Start Server 
 Make sure you have installed NPM v18+ and the Angular CLI.
