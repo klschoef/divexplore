@@ -24,6 +24,12 @@ git clone https://github.com/marleo/divexplorebackend.git
 cd divexplore-backend
 ```
 **2. Install the required Python dependencies:**
+
+_Optional - Create a new Python environment and activate it_:
+```bash
+python3 -m venv env
+source env/bin/activate
+```
    
 ```bash
 pip install -r requirements.txt
