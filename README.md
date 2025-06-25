@@ -1,4 +1,4 @@
-# <p align="center">![Logo of diveXplore.](/src/assets/diveXplore.png)</p>
+# <p align="center">![Logo of diveXplore.](frontend/src/assets/diveXplore.png)</p>
 <p align="center"> DiveXplore is an open-source software designed for interactive video retrieval. It has successfully competed in various international competitions, such as the "Video Browser Showdown (VBS)" and "Interactive Video Retrieval 4 Beginners (IVR4B)".
 After developing diveXplore since 2012, we decided to make diveXplore open-source for others to contribute to the software or use components of it in their own video retrieval systems.</p>
 
@@ -24,7 +24,14 @@ git clone https://github.com/marleo/divexplorebackend.git
 cd divexplore-backend
 ```
 **2. Install the required Python dependencies:**
-   
+
+_Optional - Create a new Python environment and activate it_:
+```bash
+python3 -m venv env
+source env/bin/activate
+```
+Then install the required dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
