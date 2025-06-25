@@ -41,7 +41,7 @@ Once the Setup is complete, you can start analyzing your videos.
 **1. Video Analysis**
    
 This step initiates the video processing pipeline. The provided shell script will automatically execute all the necessary analysis scripts in the recommended order.
-From the root directory of the project, execute the following commands:
+The analysis has to be performed for every video file you want to include in your system. From the root directory of the project, execute the following commands:
 ```bash
 cd backend/analysis
 chmod +x process_video.sh
