@@ -21,7 +21,6 @@ Ensure you have the following software installed and running on your system:
 
 ```bash
 git clone https://github.com/marleo/divexplorebackend.git
-cd divexplore-backend
 ```
 **2. Install the required Python dependencies:**
 
