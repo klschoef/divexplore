@@ -58,6 +58,13 @@ python3 create_texts_mongodb.py
 ```
 You have now successfully analyzed all your videos and populated the database!
 
+### Hosting Images and Videos
+The easiest way to host the keyframes/summaries/videos etc. is to move the videos to a folder /videos inside of backend/output/. After that, host a simple server with python from within the /output directory:
+```bash
+python3 -m http.server
+```
+If you`re using your own hosting service, change the config files in the back-/frontend accordingly.
+
 ---
 
 # <p align="center">Middleware</p>
