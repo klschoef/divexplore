@@ -20,7 +20,7 @@ Ensure you have the following software installed and running on your system:
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/marleo/divexplorebackend.git
+git clone https://github.com/klschoef/divexplore.git
 ```
 **2. Install the required Python dependencies:**
 
