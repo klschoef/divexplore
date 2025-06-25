@@ -17,7 +17,8 @@ Ensure you have the following software installed and running on your system:
 - MongoDB _(by default, the settings look for MongoDB running on "mongodb://localhost:27017". If that's not correct, change it in the combine_analysis_files.py, the create_texts_mongodb.py, and the local-config files)_
 - NPM v18+
 - Angular CLI
-- Make sure your firewall does not block the necessary ports (8000, 8001) (e.g., `sudo ufw allow 8000`)
+
+Additionally,  make sure your firewall does not block the necessary ports (8000, 8001) (e.g., `sudo ufw allow 8000`)
 
 ## 🔨 Installation
 **1. Clone the repository**
