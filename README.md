@@ -14,7 +14,7 @@ To get the backend up and running, please follow the steps below.
 ### Prerequisites
 Ensure you have the following software installed and running on your system:
 - FFMPEG
-- MongoDB
+- MongoDB (by default, the settings look for MongoDB running on "mongodb://localhost:27017". If that's not correct, change it in the combine_analysis_files.py and the local-config files)
 
 ## 🔨 Installation
 **1. Clone the repository**
