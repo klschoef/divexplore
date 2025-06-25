@@ -17,6 +17,7 @@ Ensure you have the following software installed and running on your system:
 - MongoDB _(by default, the settings look for MongoDB running on "mongodb://localhost:27017". If that's not correct, change it in the combine_analysis_files.py, the create_texts_mongodb.py, and the local-config files)_
 - NPM v18+
 - Angular CLI
+- Make sure your firewall does not block the necessary ports (8000, 8001) (e.g., `sudo ufw allow 8000`)
 
 ## 🔨 Installation
 **1. Clone the repository**
@@ -67,7 +68,7 @@ python3 create_texts_mongodb.py
 You have now successfully analyzed all your videos and populated the database!
 
 ### Hosting Images and Videos
-The easiest way to host the keyframes/summaries/videos etc. is to move the videos to a folder /videos inside of backend/output/. After that, host a simple server with python from within the /output directory:
+The easiest way to host the keyframes/summaries/videos etc. is to move the videos to a folder /videos inside of backend/output/ or create a symlink to the videos from within backend/output/ with `ln -s [video_path] videos`. After that, host a simple server with Python from within the /output directory:
 ```bash
 python3 -m http.server
 ```
@@ -102,7 +103,7 @@ npm start
 In order to launch the frontend, the DRES-relevant TypeScript files have to be generated. Additionally, like in the middleware, a config file has to be created.
 
 ### Prerequisites
-These files are needed to allow for a connection to the DRES servers, used during competitions like the VBS and IVR4B. Execute these one after the other to set up the necessary prerequisites.
+These files are needed to allow for a connection to the DRES servers, used during competitions like the VBS and IVR4B. Execute these one after the other to set up the necessary prerequisites (You may need to execute this as SU, depending on your file permissions):
 ```bash
 cd frontend
 npm install @openapitools/openapi-generator-cli -g
