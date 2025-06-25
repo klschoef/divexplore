@@ -91,7 +91,7 @@ chmod +x start_clipserver.sh
 In order to configure the NodeJS server, you have to create a local-config.js in the middleware's root directory. 
 An example local config (local-config-example.json) is in the directory. Just copy this file and remove the "-example" from the name.
 ```bash
-cd middleware/node
+cd middleware/Node
 npm i
 npm start
 ```
