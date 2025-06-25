@@ -195,5 +195,7 @@ cython_debug/
 
 # Preprocessing output
 backend/output
-middleware/node/local-config.js
-middleware/node/node_modules
+
+middleware/Node/local-config.js
+middleware/Node/node_modules
+middleware/Node/vbsqueryserverlog.json

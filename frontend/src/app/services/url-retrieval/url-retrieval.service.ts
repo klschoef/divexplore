@@ -37,6 +37,10 @@ export class UrlRetrievalService {
   }
 
   getPreviewSummaryUrl(summaries: string) {
+    // if summaries contains "output/" remove it
+    if(summaries != null && summaries.startsWith('output/')) {
+      summaries = summaries.replace('output/', '');
+    }
     return this.globalConstants.dataHost + '/' + summaries;
   }
 

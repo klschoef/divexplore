@@ -36,7 +36,7 @@ export class GlobalConstantsService {
   }
 
   get imageFileExtension(): string {
-    return this.configService.getConfiguration().config_IMAGE_FILE_EXTENSION;
+    return 'png';
   }
 
   get scrubVideosBaseURL(): string {
