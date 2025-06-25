@@ -107,8 +107,9 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
   toastImageSrc: string | null = null;
 
   // Dataset and query configuration
-  selectedDataset = 'v3c'; //'v3c-s';
+  selectedDataset = 'default'; //'v3c-s';
   datasets = [
+    { id: 'default', name: 'Default' },
     { id: 'v3c', name: 'V3C' },
     { id: 'mvk', name: 'MVK' },
     { id: 'lhe', name: 'LHE' }
@@ -560,6 +561,11 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
 
   private initializeMap(): void {
     //filter out predictions for v3c
+    const filteredQueryTypesForDefault = this.queryTypes.filter(
+      qt => !['metadata', 'predictions'].includes(qt.id)
+    );
+    this.queryTypeMap.set('default', filteredQueryTypesForDefault);
+    
     const filteredQueryTypesForV3C = this.queryTypes.filter(
       qt => !['predictions'].includes(qt.id)
     );
@@ -1093,7 +1099,7 @@ export class QueryComponent implements AfterViewInit, VbsServiceCommunication {
     this.file_sim_pathPrefix = undefined
     this.previousQuery = undefined
     this.selectedPage = '1';
-    this.selectedDataset = 'v3c';
+    this.selectedDataset = 'default';
     this.selectedVideoFiltering = 'all';
     this.pages = ['1'];
     this.clearResultArrays();
