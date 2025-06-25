@@ -49,7 +49,7 @@ chmod +x process_video.sh
 ```
 **2. OpenCLIP Feature Extraction**
 
-After the initial analysis, this script generates OpenCLIP features for each keyframe that was extracted.
+After the initial analysis, this script generates OpenCLIP features for each keyframe that was extracted. Execute this script, when you finished processing all of your videos.
 ```bash
 cd backend/analysis
 python3 extract_openclip_image_features.py
