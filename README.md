@@ -56,7 +56,7 @@ python3 extract_openclip_image_features.py
 ```
 **3. Database Integration**
    
-The final step is to collate all the generated information and add it to your MongoDB instance.
+The final step is to collect all the generated information and add it to your MongoDB instance.
 ```bash
 cd backend
 python3 combine_analysis_files.py output/video_fps.txt output/scenes/ output/ocr/ output/asr/ output/summaries/
