@@ -126,9 +126,6 @@ npm start
 ```
 Run `ng serve` or `npm start` to start the frontend server. Using the default configurations, diveXplore will launch on `http://localhost:4200/`. If you change any of the source code, the application will automatically reload.
 
-## 🔨 Build 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
 ---
 ---
 
