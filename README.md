@@ -45,7 +45,7 @@ From the root directory of the project, execute the following commands:
 ```bash
 cd backend/analysis
 chmod +x process_video.sh
-.process_videos.sh [path_to_video]
+./process_videos.sh [path_to_video]
 ```
 **2. OpenCLIP Feature Extraction**
 
