@@ -30,7 +30,8 @@ _Optional - Create a new Python environment and activate it_:
 python3 -m venv env
 source env/bin/activate
 ```
-   
+Then install the required dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
